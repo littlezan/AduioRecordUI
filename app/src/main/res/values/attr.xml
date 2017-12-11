@@ -1,0 +1,38 @@
+<?xml version="1.0" encoding="utf-8"?>
+<resources>
+    <declare-styleable name="AudioRecord">
+        <!--最小刻度值-->
+        <attr name="minScale" format="integer" />
+        <!--最大刻度值-->
+        <attr name="maxScale" format="integer" />
+        <!--一格大刻度多少格小刻度-->
+        <attr name="intervalCount" format="integer" />
+        <!--刻度间隔-->
+        <attr name="scaleIntervalLength" format="dimension" />
+        <!--尺子 小刻度 高-->
+        <attr name="smallScaleStrokeLength" format="dimension" />
+        <!--尺子 小刻度 宽-->
+        <attr name="smallScaleStrokeWidth" format="dimension" />
+        <!--尺子 大刻度 高-->
+        <attr name="bigScaleStrokeLength" format="dimension" />
+        <!--尺子 大刻度 宽-->
+        <attr name="bigScaleStrokeWidth" format="dimension" />
+        <!--尺子 底部横线 颜色-->
+        <attr name="ruleHorizontalLineColor" format="color" />
+        <!--尺子 底部横线 线宽-->
+        <attr name="ruleHorizontalLineStrokeWidth" format="dimension" />
+        <!--尺子 底部横线 线高度-->
+        <attr name="ruleHorizontalLineHeight" format="dimension" />
+        <!--尺子 竖线颜色-->
+        <attr name="ruleVerticalLineColor" format="color" />
+        <!--尺子上文字颜色-->
+        <attr name="ruleTextColor" format="color" />
+        <!--尺子上文字大小-->
+        <attr name="ruleTextSize" format="dimension" />
+        <!--水平线 颜色-->
+        <attr name="horizontalLineColor" format="color" />
+        <!--垂直线 颜色-->
+        <attr name="verticalLineColor" format="color" />
+    </declare-styleable>
+
+</resources>

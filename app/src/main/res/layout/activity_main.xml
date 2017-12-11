@@ -1,15 +1,18 @@
 <?xml version="1.0" encoding="utf-8"?>
 <android.support.v7.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
     android:orientation="vertical"
     tools:context="com.example.administrator.aduiorecordui.MainActivity">
 
 
-    <com.example.administrator.aduiorecordui.rule.BottomHeadRuler
+    <com.example.administrator.aduiorecordui.record.AudioRecord
         android:id="@+id/ruler"
         android:layout_width="match_parent"
+        app:intervalCount="4"
+        app:scaleIntervalLength="10dp"
         android:layout_height="350dp" />
 
 

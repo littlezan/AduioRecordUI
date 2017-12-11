@@ -6,7 +6,7 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
-import com.example.administrator.aduiorecordui.rule.BottomHeadRuler;
+import com.example.administrator.aduiorecordui.record.AudioRecord;
 
 import java.util.Random;
 
@@ -21,7 +21,7 @@ public class MainActivity extends AppCompatActivity {
             handlerRadio.postDelayed(runnableRadio, 10);
         }
     };
-    private BottomHeadRuler ruler;
+    private AudioRecord ruler;
 
     public void startMakeRadioWave() {
         if (!isMakeWave) {
