@@ -16,13 +16,6 @@
         android:background="#e5c85d"
         android:layout_height="350dp" />
 
-    <TextView
-        android:id="@+id/tv_time"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:layout_gravity="center"
-        />
-
 
     <android.support.v7.widget.LinearLayoutCompat
         android:layout_width="match_parent"

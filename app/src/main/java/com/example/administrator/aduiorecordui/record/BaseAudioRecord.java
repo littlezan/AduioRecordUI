@@ -17,8 +17,6 @@ import android.widget.OverScroller;
 
 import com.example.administrator.aduiorecordui.R;
 
-import java.util.concurrent.TimeUnit;
-
 /**
  * ClassName: BaseAudioRecord
  * Description:
@@ -29,7 +27,10 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class BaseAudioRecord extends View {
 
-    private static final int AUTO_SCROLL_DISTANCE = 1;
+    private static final int AUTO_SCROLL_DISTANCE = 2;
+
+
+    private int delayMillis;
 
     private float mLastX = 0;
 
@@ -37,7 +38,7 @@ public abstract class BaseAudioRecord extends View {
     /**
      * 录音时长 单位分钟
      */
-    protected int recordTimeInMinutes = 10;
+    protected int recordTimeInMinutes = 2;
     /**
      * 一格大刻度多少格小刻度
      */
@@ -79,7 +80,7 @@ public abstract class BaseAudioRecord extends View {
     /**
      * 刻度尺 底部直线 高度
      */
-    protected int ruleHorizontalLineHeight = bigScaleStrokeLength;
+    protected int ruleHorizontalLineHeight = bigScaleStrokeLength+50;
 
     /**
      * 刻度尺 垂直刻度线的颜色
@@ -139,7 +140,7 @@ public abstract class BaseAudioRecord extends View {
     /**
      * 声波矩形宽
      */
-    protected int rectWidth = 6;
+    protected int rectWidth = 8;
 
     /**
      * 底部文字颜色
@@ -228,45 +229,45 @@ public abstract class BaseAudioRecord extends View {
 
     private void initAttrs(Context context, AttributeSet attrs) {
         TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.AudioRecord, 0, 0);
-        recordTimeInMinutes = typedArray.getInteger(R.styleable.AudioRecord_recordTimeInMinutes, 10);
-        intervalCount = typedArray.getInteger(R.styleable.AudioRecord_intervalCount, 10);
-        scaleIntervalLength = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_scaleIntervalLength, 18);
+        recordTimeInMinutes = typedArray.getInteger(R.styleable.AudioRecord_recordTimeInMinutes, recordTimeInMinutes);
+        intervalCount = typedArray.getInteger(R.styleable.AudioRecord_intervalCount, intervalCount);
+        scaleIntervalLength = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_scaleIntervalLength, scaleIntervalLength);
 
-        smallScaleStrokeLength = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_smallScaleStrokeLength, 30);
-        smallScaleStrokeWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_smallScaleStrokeWidth, 3);
-        bigScaleStrokeLength = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_bigScaleStrokeLength, (int) (smallScaleStrokeLength * 2.5));
-        bigScaleStrokeWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_bigScaleStrokeWidth, 5);
+        smallScaleStrokeLength = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_smallScaleStrokeLength, smallScaleStrokeLength);
+        smallScaleStrokeWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_smallScaleStrokeWidth, smallScaleStrokeWidth);
+        bigScaleStrokeLength = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_bigScaleStrokeLength, bigScaleStrokeLength);
+        bigScaleStrokeWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_bigScaleStrokeWidth, bigScaleStrokeWidth);
 
 
         ruleVerticalLineColor = typedArray.getColor(R.styleable.AudioRecord_ruleVerticalLineColor, ContextCompat.getColor(getContext(), android.R.color.darker_gray));
 
         ruleHorizontalLineColor = typedArray.getColor(R.styleable.AudioRecord_ruleHorizontalLineColor, ContextCompat.getColor(getContext(), android.R.color.holo_red_light));
-        ruleHorizontalLineStrokeWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_ruleHorizontalLineStrokeWidth, 10);
-        ruleHorizontalLineHeight = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_ruleHorizontalLineHeight, bigScaleStrokeLength + 50);
+        ruleHorizontalLineStrokeWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_ruleHorizontalLineStrokeWidth, ruleHorizontalLineStrokeWidth);
+        ruleHorizontalLineHeight = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_ruleHorizontalLineHeight, ruleHorizontalLineHeight);
 
         ruleTextColor = typedArray.getColor(R.styleable.AudioRecord_ruleTextColor, ContextCompat.getColor(getContext(), android.R.color.darker_gray));
         ruleTextSize = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_ruleTextSize, ruleTextSize);
 
         middleHorizontalLineColor = typedArray.getColor(R.styleable.AudioRecord_middleHorizontalLineColor, ContextCompat.getColor(getContext(), android.R.color.holo_red_light));
-        middleHorizontalLineStrokeWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_middleHorizontalLineStrokeWidth, 5);
+        middleHorizontalLineStrokeWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_middleHorizontalLineStrokeWidth, middleHorizontalLineStrokeWidth);
         middleVerticalLineColor = typedArray.getColor(R.styleable.AudioRecord_middleVerticalLineColor, ContextCompat.getColor(getContext(), android.R.color.holo_red_light));
-        middleVerticalLineStrokeWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_middleVerticalLineStrokeWidth, 5);
-        middleCircleRadius = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_middleCircleRadius, 12);
+        middleVerticalLineStrokeWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_middleVerticalLineStrokeWidth, middleVerticalLineStrokeWidth);
+        middleCircleRadius = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_middleCircleRadius, middleCircleRadius);
 
 
         rectColor = typedArray.getColor(R.styleable.AudioRecord_rectColor, ContextCompat.getColor(getContext(), android.R.color.holo_red_light));
         rectInvertColor = typedArray.getColor(R.styleable.AudioRecord_rectInvertColor, ContextCompat.getColor(getContext(), android.R.color.darker_gray));
-        rectWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_rectWidth, 6);
+        rectWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_rectWidth, rectWidth);
 
         bottomTextColor = typedArray.getColor(R.styleable.AudioRecord_bottomTextColor, ContextCompat.getColor(getContext(), android.R.color.white));
-        bottomTextSize = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_bottomTextSize, 60);
+        bottomTextSize = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_bottomTextSize, bottomTextSize);
 
         bottomRectColor = typedArray.getColor(R.styleable.AudioRecord_bottomRectColor, ContextCompat.getColor(getContext(), android.R.color.holo_orange_light));
 
     }
 
     private void init(Context context) {
-        maxScrollX = (int) (TimeUnit.MINUTES.toSeconds(recordTimeInMinutes) * intervalCount * scaleIntervalLength);
+        delayMillis = AUTO_SCROLL_DISTANCE*1000/(intervalCount*scaleIntervalLength);
         overScroller = new OverScroller(context);
         velocityTracker = VelocityTracker.obtain();
         maxVelocity = ViewConfiguration.get(context).getScaledMaximumFlingVelocity();
@@ -408,7 +409,7 @@ public abstract class BaseAudioRecord extends View {
         @Override
         public void run() {
             scrollBy(AUTO_SCROLL_DISTANCE, 0);
-            handler.postDelayed(runnable, 10);
+            handler.postDelayed(runnable, delayMillis);
         }
     };
 

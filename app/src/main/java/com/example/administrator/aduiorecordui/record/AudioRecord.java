@@ -119,6 +119,7 @@ public class AudioRecord extends BaseAudioRecord {
         Rect rect = new Rect(rectLocationX, rectTop, rectLocationX + rectWidth, rectBottom);
         rectLocationX = rectLocationX + rect.width();
         radioRectList.add(rect);
+        maxScrollX = rectLocationX - getMeasuredWidth()/2;
         if (!isAutoScroll) {
             invalidate();
         }
@@ -176,7 +177,6 @@ public class AudioRecord extends BaseAudioRecord {
             Rect rectInverted = new Rect(rect);
             rectInverted.top = canvas.getHeight() / 2;
             rectInverted.bottom = rectInverted.top + rect.height();
-            canvas.drawRect(rect, rectPaint);
             canvas.drawRect(rectInverted, rectInvertedPaint);
         }
 
@@ -196,7 +196,7 @@ public class AudioRecord extends BaseAudioRecord {
         }
 
         int mixWidth = getScrollX() - rectWidth;
-        int maxWidth = getScrollX() + canvas.getWidth() / 2 + rectWidth;
+        int maxWidth = isAutoScroll ? getScrollX() + canvas.getWidth() / 2 + rectWidth : getScrollX() + canvas.getWidth() + rectWidth;
         for (int i = recentlyRectIndex; i < radioRectList.size(); i++) {
             Rect next = radioRectList.get(i);
             if (next.left >= mixWidth && next.right <= maxWidth) {
@@ -229,11 +229,25 @@ public class AudioRecord extends BaseAudioRecord {
     }
 
     private void drawCenterVerticalLine(Canvas canvas) {
-        float circleX = getScrollX() + canvas.getWidth() / 2;
+
+        Rect lastRect;
+        if (radioRectList.size() == 0) {
+            lastRect = new Rect();
+        } else {
+            lastRect = radioRectList.get(radioRectList.size() - 1);
+        }
+
+        float circleX = lastRect.centerX();
+        if (circleX > getScrollX() + canvas.getWidth() / 2) {
+            circleX = getScrollX() + canvas.getWidth() / 2;
+        }
         float topCircleY = ruleHorizontalLineHeight - middleCircleRadius;
+        //上圆
         canvas.drawCircle(circleX, topCircleY, middleCircleRadius, middleVerticalLinePaint);
         float bottomCircleY = canvas.getHeight() / 2 + (canvas.getHeight() / 2 - ruleHorizontalLineHeight) + middleCircleRadius;
+        //下圆
         canvas.drawCircle(circleX, bottomCircleY, middleCircleRadius, middleVerticalLinePaint);
+        //直线
         canvas.drawLine(circleX, topCircleY, circleX, bottomCircleY, middleVerticalLinePaint);
     }
 }

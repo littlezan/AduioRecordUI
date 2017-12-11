@@ -3,18 +3,12 @@ package com.example.administrator.aduiorecordui;
 import android.os.Bundle;
 import android.os.Handler;
 import android.support.v7.app.AppCompatActivity;
-import android.util.Log;
 import android.view.View;
 import android.widget.Button;
-import android.widget.TextView;
 
 import com.example.administrator.aduiorecordui.record.AudioRecord;
 import com.example.administrator.aduiorecordui.record.RecordCallBack;
 
-import java.text.MessageFormat;
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
 import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
@@ -56,7 +50,6 @@ public class MainActivity extends AppCompatActivity {
         Button btnStop = findViewById(R.id.btn_stop);
         Button btnRadioStart = findViewById(R.id.btn_radio_start);
         Button btnRadioStop = findViewById(R.id.btn_radio_stop);
-        final TextView tvTime = findViewById(R.id.tv_time);
 
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -89,11 +82,6 @@ public class MainActivity extends AppCompatActivity {
         ruler.setRecordCallBack(new RecordCallBack() {
             @Override
             public void onScaleChange(int scrollX, long timeInMillis) {
-                Log.d("MainActivity", "lll timeInMillis = " + timeInMillis);
-                SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
-                Date date = new Date();
-                date.setTime(timeInMillis);
-                tvTime.setText(MessageFormat.format("{0}/{1}", dateFormat.format(date), RECORD_TIME));
             }
         });
 
