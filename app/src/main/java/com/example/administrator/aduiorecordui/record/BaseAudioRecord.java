@@ -17,6 +17,8 @@ import android.widget.OverScroller;
 
 import com.example.administrator.aduiorecordui.R;
 
+import java.util.concurrent.TimeUnit;
+
 /**
  * ClassName: BaseAudioRecord
  * Description:
@@ -27,21 +29,15 @@ import com.example.administrator.aduiorecordui.R;
  */
 public abstract class BaseAudioRecord extends View {
 
-    private static final String TAG = BaseAudioRecord.class.getSimpleName();
     private static final int AUTO_SCROLL_DISTANCE = 1;
 
     private float mLastX = 0;
 
-    /**
-     * 最小刻度值
-     */
-    protected int minScale;
 
     /**
-     * 最大刻度值
+     * 录音时长 单位分钟
      */
-    protected int maxScale;
-
+    protected int recordTimeInMinutes;
     /**
      * 一格大刻度多少格小刻度
      */
@@ -50,7 +46,7 @@ public abstract class BaseAudioRecord extends View {
     /**
      * 刻度间隔
      */
-    protected int scaleInterval = 18;
+    protected int scaleIntervalLength = 18;
 
     /**
      * 尺子 小刻度 高
@@ -64,7 +60,7 @@ public abstract class BaseAudioRecord extends View {
     /**
      * 尺子 大刻度 高
      */
-    protected int bigScaleStrokeLength = (int) (smallScaleStrokeLength*2.5);
+    protected int bigScaleStrokeLength = (int) (smallScaleStrokeLength * 2.5);
     /**
      * 尺子 大刻度 宽
      */
@@ -101,13 +97,54 @@ public abstract class BaseAudioRecord extends View {
     protected int ruleTextSize = 28;
 
     /**
+     * 水平线 颜色
+     */
+    protected @ColorInt
+    int middleHorizontalLineColor;
+
+    /**
+     * 水平线 stroke width
+     */
+    protected int middleHorizontalLineStrokeWidth = 5;
+
+    /**
+     * 垂直线 颜色
+     */
+    protected @ColorInt
+    int middleVerticalLineColor;
+
+    /**
+     * 垂直线 stroke width
+     */
+    protected int middleVerticalLineStrokeWidth = 5;
+
+    /**
+     * 矩形 颜色
+     */
+    protected @ColorInt
+    int rectColor;
+
+    /**
+     * 矩形倒影 颜色
+     */
+    protected @ColorInt
+    int rectInvertColor;
+
+
+    /**
+     * 声波矩形宽
+     */
+    protected int rectWidth = 6;
+
+
+    /**
      * 最小可滑动值
      */
-    protected int minPosition = 0;
+    protected int minScrollX = 0;
     /**
      * 最大可滑动值
      */
-    protected int maxPosition = 0;
+    protected int maxScrollX = 0;
 
     /**
      * 自动滚动
@@ -173,29 +210,37 @@ public abstract class BaseAudioRecord extends View {
 
     private void initAttrs(Context context, AttributeSet attrs) {
         TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.AudioRecord, 0, 0);
-        minScale = typedArray.getInteger(R.styleable.AudioRecord_minScale, 0);
-        maxScale = typedArray.getInteger(R.styleable.AudioRecord_maxScale, Integer.MAX_VALUE/(2*scaleInterval));
+        recordTimeInMinutes = typedArray.getInteger(R.styleable.AudioRecord_recordTimeInMinutes, 10);
         intervalCount = typedArray.getInteger(R.styleable.AudioRecord_intervalCount, 10);
-        scaleInterval = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_scaleIntervalLength, 18);
+        scaleIntervalLength = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_scaleIntervalLength, 18);
 
         smallScaleStrokeLength = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_smallScaleStrokeLength, 30);
         smallScaleStrokeWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_smallScaleStrokeWidth, 3);
-        bigScaleStrokeLength = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_bigScaleStrokeLength, (int) (smallScaleStrokeLength*2.5));
+        bigScaleStrokeLength = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_bigScaleStrokeLength, (int) (smallScaleStrokeLength * 2.5));
         bigScaleStrokeWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_bigScaleStrokeWidth, 5);
 
-        ruleHorizontalLineColor = typedArray.getColor(R.styleable.AudioRecord_ruleHorizontalLineColor, ContextCompat.getColor(getContext(), android.R.color.holo_red_light));
+
         ruleVerticalLineColor = typedArray.getColor(R.styleable.AudioRecord_ruleVerticalLineColor, ContextCompat.getColor(getContext(), android.R.color.darker_gray));
+
+        ruleHorizontalLineColor = typedArray.getColor(R.styleable.AudioRecord_ruleHorizontalLineColor, ContextCompat.getColor(getContext(), android.R.color.holo_red_light));
         ruleHorizontalLineStrokeWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_ruleHorizontalLineStrokeWidth, 10);
-        ruleHorizontalLineHeight = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_ruleHorizontalLineHeight, bigScaleStrokeLength+50);
+        ruleHorizontalLineHeight = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_ruleHorizontalLineHeight, bigScaleStrokeLength + 50);
 
         ruleTextColor = typedArray.getColor(R.styleable.AudioRecord_ruleTextColor, ContextCompat.getColor(getContext(), android.R.color.darker_gray));
         ruleTextSize = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_ruleTextSize, ruleTextSize);
 
+        middleHorizontalLineColor = typedArray.getColor(R.styleable.AudioRecord_middleHorizontalLineColor, ContextCompat.getColor(getContext(), android.R.color.holo_red_light));
+        middleHorizontalLineStrokeWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_middleHorizontalLineStrokeWidth, 5);
+        middleVerticalLineColor = typedArray.getColor(R.styleable.AudioRecord_middleVerticalLineColor, ContextCompat.getColor(getContext(), android.R.color.holo_red_light));
+        middleVerticalLineStrokeWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_middleVerticalLineStrokeWidth, 5);
+        rectColor = typedArray.getColor(R.styleable.AudioRecord_rectColor, ContextCompat.getColor(getContext(), android.R.color.holo_red_light));
+        rectInvertColor = typedArray.getColor(R.styleable.AudioRecord_rectInvertColor, ContextCompat.getColor(getContext(), android.R.color.darker_gray));
+        rectWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_rectWidth, 6);
+
     }
 
     private void init(Context context) {
-
-        maxPosition = maxScale * scaleInterval;
+        maxScrollX = (int) (TimeUnit.MINUTES.toSeconds(recordTimeInMinutes)*intervalCount * scaleIntervalLength);
         overScroller = new OverScroller(context);
         velocityTracker = VelocityTracker.obtain();
         maxVelocity = ViewConfiguration.get(context).getScaledMaximumFlingVelocity();
@@ -205,12 +250,17 @@ public abstract class BaseAudioRecord extends View {
     }
 
     private void checkAPILevel() {
-        if (Build.VERSION.SDK_INT < 18) {
+        if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
             setLayerType(LAYER_TYPE_NONE, null);
         }
     }
 
-    //初始化边缘效果
+
+    /**
+     * 初始化边缘效果
+     *
+     * @param context context
+     */
     public void initEdgeEffects(Context context) {
         needEdgeEffect = true;
         edgeColor = ContextCompat.getColor(context, android.R.color.holo_red_light);
@@ -221,7 +271,7 @@ public abstract class BaseAudioRecord extends View {
                 startEdgeEffect.setColor(edgeColor);
                 endEdgeEffect.setColor(edgeColor);
             }
-            mEdgeLength = scaleInterval * intervalCount;
+            mEdgeLength = scaleIntervalLength * intervalCount;
         }
     }
 
@@ -279,7 +329,7 @@ public abstract class BaseAudioRecord extends View {
     }
 
     private void fling(float velocity) {
-        overScroller.fling(getScrollX(), 0, (int) velocity, 0, minPosition, maxPosition, 0, 0);
+        overScroller.fling(getScrollX(), 0, (int) velocity, 0, minScrollX, maxScrollX, 0, 0);
     }
 
     @Override
@@ -292,15 +342,15 @@ public abstract class BaseAudioRecord extends View {
 
     @Override
     public void scrollTo(int x, int y) {
-        if (x < minPosition) {
+        if (x < minScrollX) {
             goStartEdgeEffect(x);
-            x = minPosition;
-        } else if (x > maxPosition) {
-            x = maxPosition;
+            x = minScrollX;
+        } else if (x > maxScrollX) {
+            x = maxScrollX;
         }
         super.scrollTo(x, y);
         if (recordCallBack != null) {
-            recordCallBack.onScaleChange(x);
+            recordCallBack.onScaleChange(x, x*1000L/(intervalCount * scaleIntervalLength));
         }
     }
 
@@ -317,7 +367,7 @@ public abstract class BaseAudioRecord extends View {
                 overScroller.abortAnimation();
             } else {
                 startEdgeEffect.onPull(x);
-                startEdgeEffect.setSize(scaleInterval * intervalCount, getMeasuredHeight());
+                startEdgeEffect.setSize(scaleIntervalLength * intervalCount, getMeasuredHeight());
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {

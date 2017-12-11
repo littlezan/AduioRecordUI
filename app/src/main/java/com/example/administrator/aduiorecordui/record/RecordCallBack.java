@@ -13,7 +13,8 @@ public interface RecordCallBack {
     /**
      * 尺子当前刻度值
      *
-     * @param scale 当前刻度值
+     * @param scrollX      滑动距离
+     * @param timeInMillis 当前录音时间 单位毫秒
      */
-    void onScaleChange(int scale);
+    void onScaleChange(int scrollX, long timeInMillis);
 }

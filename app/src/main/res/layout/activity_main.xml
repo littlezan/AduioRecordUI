@@ -15,33 +15,58 @@
         app:scaleIntervalLength="10dp"
         android:layout_height="350dp" />
 
-
-    <Button
-        android:id="@+id/btn_start"
+    <TextView
+        android:id="@+id/tv_time"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="start"
-        tools:ignore="HardcodedText" />
+        android:layout_gravity="center"
+        />
 
-    <Button
-        android:id="@+id/btn_stop"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="stop"
-        tools:ignore="HardcodedText" />
 
-    <Button
-        android:id="@+id/btn_radio_start"
-        android:layout_width="wrap_content"
+    <android.support.v7.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="radio Start"
-        tools:ignore="HardcodedText" />
+        android:orientation="horizontal"
+        >
 
-    <Button
-        android:id="@+id/btn_radio_stop"
-        android:layout_width="wrap_content"
+        <Button
+            android:id="@+id/btn_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="start"
+            tools:ignore="HardcodedText" />
+
+        <Button
+            android:id="@+id/btn_stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="stop"
+            tools:ignore="HardcodedText" />
+
+    </android.support.v7.widget.LinearLayoutCompat>
+
+
+    <android.support.v7.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
         android:layout_height="wrap_content"
-        android:text="radio stop"
-        tools:ignore="HardcodedText" />
+        android:orientation="horizontal"
+        >
+
+        <Button
+            android:id="@+id/btn_radio_start"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="radio Start"
+            tools:ignore="HardcodedText" />
+
+        <Button
+            android:id="@+id/btn_radio_stop"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="radio stop"
+            tools:ignore="HardcodedText" />
+    </android.support.v7.widget.LinearLayoutCompat>
+
+
 
 </android.support.v7.widget.LinearLayoutCompat>

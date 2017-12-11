@@ -27,14 +27,15 @@ public class AudioRecord extends BaseAudioRecord {
 
 
     Paint ruleHorizontalLinePaint = new Paint();
-    Paint middleLinePaint = new Paint();
+
     Paint smallScalePaint = new Paint();
     Paint bigScalePaint = new Paint();
     Paint ruleTextPaint = new Paint();
     Paint pointPaint = new Paint();
-    Paint rectPaint = new Paint();
     Paint rectInvertedPaint = new Paint();
-    Paint centerLine = new Paint();
+    Paint middleHorizontalLinePaint = new Paint();
+    Paint middleVerticalLinePaint = new Paint();
+    Paint rectPaint = new Paint();
 
 
     /**
@@ -42,8 +43,7 @@ public class AudioRecord extends BaseAudioRecord {
      */
     protected int mDrawOffset;
 
-    int rectLocationX;
-    int rectWidth = 6;
+    private int rectLocationX;
     protected List<Rect> radioRectList = new ArrayList<>();
 
 
@@ -71,26 +71,11 @@ public class AudioRecord extends BaseAudioRecord {
         pointPaint.setStrokeWidth(10);
         pointPaint.setColor(ContextCompat.getColor(getContext(), android.R.color.holo_red_light));
 
-        centerLine.setAntiAlias(true);
-        centerLine.setStrokeWidth(5);
-        centerLine.setColor(ContextCompat.getColor(getContext(), android.R.color.holo_red_light));
-
-        middleLinePaint.setAntiAlias(true);
-        middleLinePaint.setStrokeWidth(2);
-        middleLinePaint.setColor(ContextCompat.getColor(getContext(), android.R.color.darker_gray));
-
 
         ruleHorizontalLinePaint.setAntiAlias(true);
         ruleHorizontalLinePaint.setStrokeWidth(ruleHorizontalLineStrokeWidth);
         ruleHorizontalLinePaint.setColor(ruleHorizontalLineColor);
 
-        rectPaint.setAntiAlias(true);
-        rectPaint.setStrokeWidth(2);
-        rectPaint.setColor(ContextCompat.getColor(getContext(), android.R.color.holo_red_light));
-
-        rectInvertedPaint.setAntiAlias(true);
-        rectInvertedPaint.setStrokeWidth(2);
-        rectInvertedPaint.setColor(ContextCompat.getColor(getContext(), android.R.color.darker_gray));
 
         smallScalePaint = new Paint();
         smallScalePaint.setStrokeWidth(smallScaleStrokeWidth);
@@ -109,7 +94,24 @@ public class AudioRecord extends BaseAudioRecord {
         ruleTextPaint.setTextAlign(Paint.Align.CENTER);
 
 
-        mDrawOffset = scaleInterval;
+        middleHorizontalLinePaint.setAntiAlias(true);
+        middleHorizontalLinePaint.setStrokeWidth(middleHorizontalLineStrokeWidth);
+        middleHorizontalLinePaint.setColor(middleHorizontalLineColor);
+
+        middleVerticalLinePaint.setAntiAlias(true);
+        middleVerticalLinePaint.setStrokeWidth(middleVerticalLineStrokeWidth);
+        middleVerticalLinePaint.setColor(middleVerticalLineColor);
+
+        rectPaint.setAntiAlias(true);
+        rectPaint.setStrokeWidth(1);
+        rectPaint.setColor(rectColor);
+
+        rectInvertedPaint.setAntiAlias(true);
+        rectInvertedPaint.setStrokeWidth(1);
+        rectInvertedPaint.setColor(rectInvertColor);
+
+
+        mDrawOffset = scaleIntervalLength;
     }
 
     @Override
@@ -136,35 +138,28 @@ public class AudioRecord extends BaseAudioRecord {
     private void drawCenterVerticalLine(Canvas canvas) {
         float circleX = getScrollX() + canvas.getWidth() / 2;
         float topCircleY = ruleHorizontalLineHeight - circleRadius;
-        canvas.drawCircle(circleX, topCircleY, circleRadius, centerLine);
+        canvas.drawCircle(circleX, topCircleY, circleRadius, middleVerticalLinePaint);
         float bottomCircleY = canvas.getHeight() / 2 + (canvas.getHeight() / 2 - ruleHorizontalLineHeight) + circleRadius;
-        canvas.drawCircle(circleX, bottomCircleY, circleRadius, centerLine);
-        canvas.drawLine(circleX, topCircleY, circleX, bottomCircleY, centerLine);
+        canvas.drawCircle(circleX, bottomCircleY, circleRadius, middleVerticalLinePaint);
+        canvas.drawLine(circleX, topCircleY, circleX, bottomCircleY, middleVerticalLinePaint);
     }
 
     private void drawScale(Canvas canvas) {
 
-        int firstPoint = (getScrollX() - mDrawOffset) / scaleInterval;
-        int lastPoint = (getScrollX() + canvas.getWidth() + mDrawOffset) / (scaleInterval);
+        int firstPoint = (getScrollX() - mDrawOffset) / scaleIntervalLength;
+        int lastPoint = (getScrollX() + canvas.getWidth() + mDrawOffset) / (scaleIntervalLength);
         for (int i = firstPoint; i < lastPoint; i++) {
-            float locationX = i * scaleInterval;
+            float locationX = i * scaleIntervalLength;
             if (i % intervalCount == 0) {
                 canvas.drawLine(locationX, ruleHorizontalLineHeight - bigScaleStrokeLength, locationX, ruleHorizontalLineHeight, bigScalePaint);
                 int index = i / intervalCount;
-                canvas.drawText(formatTime(index), locationX+bigScaleStrokeWidth/2+ruleTextSize*1.5f, ruleHorizontalLineHeight - bigScaleStrokeLength + ruleTextSize/1.5f, ruleTextPaint);
+                canvas.drawText(formatTime(index), locationX + bigScaleStrokeWidth / 2 + ruleTextSize * 1.5f, ruleHorizontalLineHeight - bigScaleStrokeLength + ruleTextSize / 1.5f, ruleTextPaint);
             } else {
                 canvas.drawLine(locationX, ruleHorizontalLineHeight - smallScaleStrokeLength, locationX, ruleHorizontalLineHeight, smallScalePaint);
             }
         }
-
-
         //画轮廓线
         canvas.drawLine(getScrollX(), ruleHorizontalLineHeight, getScrollX() + canvas.getWidth(), ruleHorizontalLineHeight, ruleHorizontalLinePaint);
-
-        //测试用的圆
-        canvas.drawCircle(540, canvas.getHeight() / 2, 25, pointPaint);
-
-
     }
 
     private String formatTime(int index) {
@@ -175,6 +170,11 @@ public class AudioRecord extends BaseAudioRecord {
     }
 
     private void drawRect(Canvas canvas) {
+        //
+        int middleLineY = canvas.getHeight() / 2;
+        canvas.drawLine(getScrollX(), middleLineY, getScrollX() + canvas.getWidth(), middleLineY, middleHorizontalLinePaint);
+
+        //从数据源中找出需要绘制的矩形
         List<Rect> drawRectList = getDrawRectList(canvas);
         if (drawRectList == null || drawRectList.size() == 0) {
             return;
@@ -188,10 +188,6 @@ public class AudioRecord extends BaseAudioRecord {
             canvas.drawRect(rect, rectPaint);
             canvas.drawRect(rectInverted, rectInvertedPaint);
         }
-
-        //测试用的基准线
-        int middleLineY = canvas.getHeight() / 2;
-        canvas.drawLine(getScrollX() + 50, middleLineY, getScrollX() + canvas.getWidth() - 50, middleLineY, middleLinePaint);
 
     }
 
