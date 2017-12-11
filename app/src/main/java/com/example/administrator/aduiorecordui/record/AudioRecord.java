@@ -8,8 +8,12 @@ import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
+import java.util.concurrent.TimeUnit;
 
 /**
  * ClassName: AudioRecord
@@ -147,8 +151,7 @@ public class AudioRecord extends BaseAudioRecord {
             if (i % intervalCount == 0) {
                 canvas.drawLine(locationX, ruleHorizontalLineHeight - bigScaleStrokeLength, locationX, ruleHorizontalLineHeight, bigScalePaint);
                 int index = i / intervalCount;
-                formatTime(index);
-                canvas.drawText(String.valueOf(index), locationX+bigScaleStrokeWidth/2+20, ruleHorizontalLineHeight - bigScaleStrokeLength + ruleTextSize/1.5f, ruleTextPaint);
+                canvas.drawText(formatTime(index), locationX+bigScaleStrokeWidth/2+ruleTextSize*1.5f, ruleHorizontalLineHeight - bigScaleStrokeLength + ruleTextSize/1.5f, ruleTextPaint);
             } else {
                 canvas.drawLine(locationX, ruleHorizontalLineHeight - smallScaleStrokeLength, locationX, ruleHorizontalLineHeight, smallScalePaint);
             }
@@ -164,8 +167,11 @@ public class AudioRecord extends BaseAudioRecord {
 
     }
 
-    private void formatTime(int index) {
-
+    private String formatTime(int index) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
+        Date date = new Date();
+        date.setTime(TimeUnit.SECONDS.toMillis(index));
+        return dateFormat.format(date);
     }
 
     private void drawRect(Canvas canvas) {
