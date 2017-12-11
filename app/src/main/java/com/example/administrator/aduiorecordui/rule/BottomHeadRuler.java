@@ -143,7 +143,7 @@ public class BottomHeadRuler extends BaseHorizontalRuler {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         drawScale(canvas);
-//        drawRect(canvas);
+        drawRect(canvas);
         drawCenterVerticalLine(canvas);
     }
 
@@ -198,6 +198,9 @@ public class BottomHeadRuler extends BaseHorizontalRuler {
     }
 
     private List<Rect> getDrawRectList(Canvas canvas) {
+        if (radioRectList.size() == 0) {
+            return radioRectList;
+        }
         int middleWidth = canvas.getWidth() / 2;
         List<Rect> rectList = new ArrayList<>();
         int mixWidth = getScrollX() - rectWidth;
