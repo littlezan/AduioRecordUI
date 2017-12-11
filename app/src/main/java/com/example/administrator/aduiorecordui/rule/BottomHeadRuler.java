@@ -202,8 +202,10 @@ public class BottomHeadRuler extends BaseHorizontalRuler {
         List<Rect> rectList = new ArrayList<>();
         int mixWidth = getScrollX() - rectWidth;
         int maxWidth = getScrollX() + middleWidth + rectWidth;
-        for (Rect next : radioRectList) {
+        int recentlyRectIndex = getScrollX() / rectWidth;
 
+        for (int i = recentlyRectIndex; i < radioRectList.size(); i++) {
+            Rect next = radioRectList.get(i);
             if (next.left >= mixWidth && next.right <= maxWidth) {
                 rectList.add(next);
             }
