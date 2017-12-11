@@ -35,11 +35,19 @@
         <attr name="middleVerticalLineColor" format="color" />
         <!--垂直线 stroke width-->
         <attr name="middleVerticalLineStrokeWidth" format="dimension" />
+        <!--垂直线 两个圆的圆心 半径-->
+        <attr name="middleCircleRadius" format="dimension" />
         <!--声波 矩形 颜色-->
         <attr name="rectColor" format="color" />
         <attr name="rectInvertColor" format="color" />
         <!--声波矩形 宽-->
         <attr name="rectWidth" format="dimension" />
+        <!--底部文字颜色-->
+        <attr name="bottomTextColor" format="color" />
+        <!--底部文字大小-->
+        <attr name="bottomTextSize" format="dimension" />
+        <!--底部 文字区域 背景颜色-->
+        <attr name="bottomRectColor" format="color" />
 
     </declare-styleable>
 

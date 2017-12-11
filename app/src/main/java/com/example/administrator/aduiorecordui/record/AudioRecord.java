@@ -5,7 +5,7 @@ import android.graphics.Canvas;
 import android.graphics.Paint;
 import android.graphics.Rect;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
+import android.text.TextPaint;
 import android.util.AttributeSet;
 
 import java.text.SimpleDateFormat;
@@ -27,15 +27,15 @@ public class AudioRecord extends BaseAudioRecord {
 
 
     Paint ruleHorizontalLinePaint = new Paint();
-
     Paint smallScalePaint = new Paint();
     Paint bigScalePaint = new Paint();
-    Paint ruleTextPaint = new Paint();
-    Paint pointPaint = new Paint();
+    TextPaint ruleTextPaint = new TextPaint();
     Paint rectInvertedPaint = new Paint();
     Paint middleHorizontalLinePaint = new Paint();
     Paint middleVerticalLinePaint = new Paint();
     Paint rectPaint = new Paint();
+    TextPaint bottomTextPaint = new TextPaint();
+    Paint bottomRectPaint = new Paint();
 
 
     /**
@@ -46,8 +46,6 @@ public class AudioRecord extends BaseAudioRecord {
     private int rectLocationX;
     protected List<Rect> radioRectList = new ArrayList<>();
 
-
-    private int circleRadius = 10;
 
     public AudioRecord(Context context) {
         super(context);
@@ -67,31 +65,23 @@ public class AudioRecord extends BaseAudioRecord {
 
     private void init() {
 
-        pointPaint.setAntiAlias(true);
-        pointPaint.setStrokeWidth(10);
-        pointPaint.setColor(ContextCompat.getColor(getContext(), android.R.color.holo_red_light));
-
-
         ruleHorizontalLinePaint.setAntiAlias(true);
         ruleHorizontalLinePaint.setStrokeWidth(ruleHorizontalLineStrokeWidth);
         ruleHorizontalLinePaint.setColor(ruleHorizontalLineColor);
 
 
-        smallScalePaint = new Paint();
         smallScalePaint.setStrokeWidth(smallScaleStrokeWidth);
         smallScalePaint.setColor(ruleVerticalLineColor);
         smallScalePaint.setStrokeCap(Paint.Cap.ROUND);
 
-        bigScalePaint = new Paint();
         bigScalePaint.setColor(ruleVerticalLineColor);
         bigScalePaint.setStrokeWidth(bigScaleStrokeWidth);
         bigScalePaint.setStrokeCap(Paint.Cap.ROUND);
 
-        ruleTextPaint = new Paint();
         ruleTextPaint.setAntiAlias(true);
         ruleTextPaint.setColor(ruleTextColor);
         ruleTextPaint.setTextSize(ruleTextSize);
-        ruleTextPaint.setTextAlign(Paint.Align.CENTER);
+        ruleTextPaint.setTextAlign(Paint.Align.LEFT);
 
 
         middleHorizontalLinePaint.setAntiAlias(true);
@@ -109,6 +99,14 @@ public class AudioRecord extends BaseAudioRecord {
         rectInvertedPaint.setAntiAlias(true);
         rectInvertedPaint.setStrokeWidth(1);
         rectInvertedPaint.setColor(rectInvertColor);
+
+        bottomTextPaint.setAntiAlias(true);
+        bottomTextPaint.setColor(bottomTextColor);
+        bottomTextPaint.setTextSize(bottomTextSize);
+        bottomTextPaint.setTextAlign(Paint.Align.CENTER);
+
+        bottomRectPaint.setAntiAlias(true);
+        bottomRectPaint.setColor(bottomRectColor);
 
 
         mDrawOffset = scaleIntervalLength;
@@ -132,17 +130,10 @@ public class AudioRecord extends BaseAudioRecord {
         super.onDraw(canvas);
         drawScale(canvas);
         drawRect(canvas);
+        drawBottomText(canvas);
         drawCenterVerticalLine(canvas);
     }
 
-    private void drawCenterVerticalLine(Canvas canvas) {
-        float circleX = getScrollX() + canvas.getWidth() / 2;
-        float topCircleY = ruleHorizontalLineHeight - circleRadius;
-        canvas.drawCircle(circleX, topCircleY, circleRadius, middleVerticalLinePaint);
-        float bottomCircleY = canvas.getHeight() / 2 + (canvas.getHeight() / 2 - ruleHorizontalLineHeight) + circleRadius;
-        canvas.drawCircle(circleX, bottomCircleY, circleRadius, middleVerticalLinePaint);
-        canvas.drawLine(circleX, topCircleY, circleX, bottomCircleY, middleVerticalLinePaint);
-    }
 
     private void drawScale(Canvas canvas) {
 
@@ -153,7 +144,7 @@ public class AudioRecord extends BaseAudioRecord {
             if (i % intervalCount == 0) {
                 canvas.drawLine(locationX, ruleHorizontalLineHeight - bigScaleStrokeLength, locationX, ruleHorizontalLineHeight, bigScalePaint);
                 int index = i / intervalCount;
-                canvas.drawText(formatTime(index), locationX + bigScaleStrokeWidth / 2 + ruleTextSize * 1.5f, ruleHorizontalLineHeight - bigScaleStrokeLength + ruleTextSize / 1.5f, ruleTextPaint);
+                canvas.drawText(formatTime(index), locationX + bigScaleStrokeWidth + 5, ruleHorizontalLineHeight - bigScaleStrokeLength + ruleTextSize / 1.5f, ruleTextPaint);
             } else {
                 canvas.drawLine(locationX, ruleHorizontalLineHeight - smallScaleStrokeLength, locationX, ruleHorizontalLineHeight, smallScalePaint);
             }
@@ -217,5 +208,32 @@ public class AudioRecord extends BaseAudioRecord {
         }
 
         return rectList;
+    }
+
+    private void drawBottomText(Canvas canvas) {
+        float bottomCircleY = canvas.getHeight() / 2 + (canvas.getHeight() / 2 - ruleHorizontalLineHeight) + middleCircleRadius;
+        canvas.drawRect(getScaleX(), bottomCircleY - middleCircleRadius, getScrollX() + canvas.getWidth(), canvas.getHeight(), bottomRectPaint);
+        //底部文字
+        SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
+        Date date = new Date();
+        int length = intervalCount * scaleIntervalLength;
+        date.setTime(getScrollX() * 1000L / length);
+        int decimal = getScrollX() * 10 / length % 10;
+        String text;
+        if (getScrollX() == 0) {
+            text = dateFormat.format(date) + "/" + recordTimeInMinutes;
+        } else {
+            text = dateFormat.format(date) + "." + decimal + "/" + recordTimeInMinutes;
+        }
+        canvas.drawText(text, getScrollX() + canvas.getWidth() / 2, bottomCircleY + bottomTextSize + 20, bottomTextPaint);
+    }
+
+    private void drawCenterVerticalLine(Canvas canvas) {
+        float circleX = getScrollX() + canvas.getWidth() / 2;
+        float topCircleY = ruleHorizontalLineHeight - middleCircleRadius;
+        canvas.drawCircle(circleX, topCircleY, middleCircleRadius, middleVerticalLinePaint);
+        float bottomCircleY = canvas.getHeight() / 2 + (canvas.getHeight() / 2 - ruleHorizontalLineHeight) + middleCircleRadius;
+        canvas.drawCircle(circleX, bottomCircleY, middleCircleRadius, middleVerticalLinePaint);
+        canvas.drawLine(circleX, topCircleY, circleX, bottomCircleY, middleVerticalLinePaint);
     }
 }

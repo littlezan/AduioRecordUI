@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         app:intervalCount="4"
         app:scaleIntervalLength="10dp"
+        android:background="#e5c85d"
         android:layout_height="350dp" />
 
     <TextView
