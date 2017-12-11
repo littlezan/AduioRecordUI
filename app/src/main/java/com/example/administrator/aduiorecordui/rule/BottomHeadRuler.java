@@ -143,7 +143,7 @@ public class BottomHeadRuler extends BaseHorizontalRuler {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         drawScale(canvas);
-        drawRect(canvas);
+//        drawRect(canvas);
         drawCenterVerticalLine(canvas);
     }
 
