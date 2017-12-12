@@ -3,10 +3,10 @@ package com.example.administrator.aduiorecordui.record;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.graphics.Rect;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,15 +25,16 @@ import java.util.concurrent.TimeUnit;
  */
 public class AudioRecord extends BaseAudioRecord {
 
+    private static final String TAG = AudioRecord.class.getSimpleName();
 
     Paint ruleHorizontalLinePaint = new Paint();
     Paint smallScalePaint = new Paint();
     Paint bigScalePaint = new Paint();
     TextPaint ruleTextPaint = new TextPaint();
-    Paint rectInvertedPaint = new Paint();
     Paint middleHorizontalLinePaint = new Paint();
     Paint middleVerticalLinePaint = new Paint();
-    Paint rectPaint = new Paint();
+    Paint linePaint = new Paint();
+    Paint lineInvertedPaint = new Paint();
     TextPaint bottomTextPaint = new TextPaint();
     Paint bottomRectPaint = new Paint();
 
@@ -43,8 +44,7 @@ public class AudioRecord extends BaseAudioRecord {
      */
     protected int mDrawOffset;
 
-    private int rectLocationX;
-
+    private int lineLocationX;
 
 
     public AudioRecord(Context context) {
@@ -92,12 +92,13 @@ public class AudioRecord extends BaseAudioRecord {
         middleVerticalLinePaint.setStrokeWidth(middleVerticalLineStrokeWidth);
         middleVerticalLinePaint.setColor(middleVerticalLineColor);
 
-        rectPaint.setAntiAlias(true);
-        rectPaint.setColor(rectColor);
+        linePaint.setAntiAlias(true);
+        linePaint.setStrokeWidth(lineWidth);
+        linePaint.setColor(rectColor);
 
-        rectInvertedPaint.setAntiAlias(true);
-        rectInvertedPaint.setStrokeWidth(1);
-        rectInvertedPaint.setColor(rectInvertColor);
+        lineInvertedPaint.setAntiAlias(true);
+        lineInvertedPaint.setStrokeWidth(lineWidth);
+        lineInvertedPaint.setColor(rectInvertColor);
 
         bottomTextPaint.setAntiAlias(true);
         bottomTextPaint.setColor(bottomTextColor);
@@ -112,15 +113,25 @@ public class AudioRecord extends BaseAudioRecord {
     }
 
     @Override
-    protected void makeRect(float percent) {
+    protected void makeSampleLine(float percent) {
+        SampleLineModel sampleLineModel = new SampleLineModel();
         int rectBottom = getMeasuredHeight() / 2;
-        int rectTop = (int) (rectBottom - (rectBottom - ruleHorizontalLineHeight)*percent);
-        Rect rect = new Rect(rectLocationX, rectTop, rectLocationX + rectWidth, rectBottom);
-        rectLocationX = rectLocationX + rect.width()+rectGap;
-        rectList.add(rect);
-        maxScrollX = rectLocationX - getMeasuredWidth() / 2;
+        int lineTop = (int) (rectBottom - (rectBottom - ruleHorizontalLineHeight) * percent);
+        sampleLineModel.startX = lineLocationX+lineWidth/2;
+        sampleLineModel.stopX = sampleLineModel.startX;
+        sampleLineModel.startY = lineTop;
+        sampleLineModel.stopY = getMeasuredHeight() / 2;
+        lineLocationX = lineLocationX + lineWidth + rectGap;
+        if (lineLocationX >= maxLength) {
+            //超出采样时间
+            stopRecord();
+            return;
+        }
+        sampleLineList.add(sampleLineModel);
+
+        maxScrollX = lineLocationX -getMeasuredWidth() / 2;
         minScrollX = -getMeasuredWidth() / 2;
-        if (getScrollX() <=0) {
+        if (!isAutoScroll) {
             invalidate();
         }
     }
@@ -130,7 +141,7 @@ public class AudioRecord extends BaseAudioRecord {
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
         drawScale(canvas);
-        drawRect(canvas);
+        drawLine(canvas);
         drawCenterVerticalLine(canvas);
     }
 
@@ -157,7 +168,7 @@ public class AudioRecord extends BaseAudioRecord {
 
     private String formatTime(int index) {
         String temp = "";
-        if (index > 0) {
+        if (index >= 0) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
             Date date = new Date();
             date.setTime(TimeUnit.SECONDS.toMillis(index));
@@ -166,69 +177,69 @@ public class AudioRecord extends BaseAudioRecord {
         return temp;
     }
 
-    private void drawRect(Canvas canvas) {
+    private void drawLine(Canvas canvas) {
         int middleLineY = canvas.getHeight() / 2;
         canvas.drawLine(getScrollX(), middleLineY, getScrollX() + canvas.getWidth(), middleLineY, middleHorizontalLinePaint);
 
         //从数据源中找出需要绘制的矩形
-        List<Rect> drawRectList = getDrawRectList(canvas);
+        List<SampleLineModel> drawRectList = getDrawSampleLineList(canvas);
         if (drawRectList == null || drawRectList.size() == 0) {
             return;
         }
-        //绘制矩形
-        for (Rect rect : drawRectList) {
-            canvas.drawRect(rect, rectPaint);
-            Rect rectInverted = new Rect(rect);
-            rectInverted.top = canvas.getHeight() / 2;
-            rectInverted.bottom = rectInverted.top + rect.height();
-            canvas.drawRect(rectInverted, rectInvertedPaint);
+        Log.d(TAG, "lll drawRectList size = " + drawRectList.size());
+        //绘制采样点
+        for (SampleLineModel sampleLineModel : drawRectList) {
+            canvas.drawLine(sampleLineModel.startX, sampleLineModel.startY, sampleLineModel.stopX, sampleLineModel.stopY, linePaint);
+            int invertedStartY = canvas.getHeight() / 2;
+            float invertedStopY = invertedStartY + sampleLineModel.stopY - sampleLineModel.startY;
+            canvas.drawLine(sampleLineModel.startX, invertedStartY, sampleLineModel.stopX, invertedStopY, lineInvertedPaint);
         }
 
     }
 
-    private List<Rect> getDrawRectList(Canvas canvas) {
-        if (rectList.size() == 0) {
+    private List<SampleLineModel> getDrawSampleLineList(Canvas canvas) {
+        if (sampleLineList.size() == 0) {
             return null;
         }
-        List<Rect> rectList = new ArrayList<>();
+        List<SampleLineModel> resultList = new ArrayList<>();
 
-        int rectWidthWithGap = rectWidth + rectGap;
-        int recentlyRectIndex = getScrollX() /rectWidthWithGap;
+        int rectWidthWithGap = lineWidth + rectGap;
+        int recentlyRectIndex = getScrollX() / rectWidthWithGap;
         if (recentlyRectIndex < 0) {
             recentlyRectIndex = 0;
-        } else if (recentlyRectIndex >= this.rectList.size()) {
-            recentlyRectIndex = this.rectList.size() - 1;
+        } else if (recentlyRectIndex >= sampleLineList.size()) {
+            recentlyRectIndex = sampleLineList.size() - 1;
         }
 
         int mixWidth = getScrollX() - rectWidthWithGap;
         int maxWidth = isAutoScroll ? getScrollX() + canvas.getWidth() / 2 + rectWidthWithGap : getScrollX() + canvas.getWidth() + rectWidthWithGap;
-        for (int i = recentlyRectIndex; i < this.rectList.size(); i++) {
-            Rect next = this.rectList.get(i);
-            if (next.left >= mixWidth && next.right <= maxWidth) {
-                rectList.add(next);
+        for (int i = recentlyRectIndex; i < sampleLineList.size(); i++) {
+            SampleLineModel next = sampleLineList.get(i);
+            if (next.startX >= mixWidth && next.startX + lineWidth / 2 <= maxWidth) {
+                resultList.add(next);
             }
-            if (next.left > maxWidth) {
+            if (next.startX > maxWidth) {
                 break;
             }
         }
 
-        return rectList;
+        return resultList;
     }
 
 
     private void drawCenterVerticalLine(Canvas canvas) {
 
-        Rect lastRect;
-        if (rectList.size() == 0) {
-            lastRect = new Rect();
+        SampleLineModel sampleLineModel;
+        if (sampleLineList.size() == 0) {
+            sampleLineModel = new SampleLineModel();
         } else {
-            lastRect = rectList.get(rectList.size() - 1);
+            sampleLineModel = sampleLineList.get(sampleLineList.size() - 1);
         }
 
-        float circleX = lastRect.centerX();
+        float circleX = sampleLineModel.startX+lineWidth/2+rectGap;
+        Log.d(TAG, "lll circleX = " + circleX + "getScrollX() + canvas.getWidth() / 2 = " + (getScrollX() + canvas.getWidth() / 2));
         if (circleX > getScrollX() + canvas.getWidth() / 2) {
             circleX = getScrollX() + canvas.getWidth() / 2;
-            startAutoScroll();
         }
         float topCircleY = ruleHorizontalLineHeight - middleCircleRadius;
         float bottomCircleY = canvas.getHeight() / 2 + (canvas.getHeight() / 2 - ruleHorizontalLineHeight) + middleCircleRadius;

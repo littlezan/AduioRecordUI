@@ -13,6 +13,7 @@
         android:layout_width="match_parent"
         app:intervalCount="4"
         app:scaleIntervalLength="10dp"
+        app:showRuleText="true"
         android:background="#e5c85d"
         android:layout_height="350dp" />
 
@@ -20,6 +21,7 @@
     <android.support.v7.widget.LinearLayoutCompat
         android:layout_width="match_parent"
         android:layout_height="wrap_content"
+
         android:orientation="horizontal"
         >
 
@@ -35,6 +37,13 @@
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="stop"
+            tools:ignore="HardcodedText" />
+
+        <Button
+            android:id="@+id/btn_reStart"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="reStart"
             tools:ignore="HardcodedText" />
 
     </android.support.v7.widget.LinearLayoutCompat>
