@@ -1,5 +1,7 @@
 package com.example.administrator.aduiorecordui.record;
 
+import android.support.annotation.FloatRange;
+
 /**
  * ClassName: RecordCallBack
  * Description:
@@ -22,5 +24,5 @@ public interface RecordCallBack {
      * 获取采样 样本 百分比
      * @return percent  样本 百分比
      */
-    float  getSamplePercent();
+    @FloatRange(from = 0,to = 1) float  getSamplePercent();
 }
