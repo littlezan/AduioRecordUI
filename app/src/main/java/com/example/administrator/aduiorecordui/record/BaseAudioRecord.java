@@ -2,12 +2,14 @@ package com.example.administrator.aduiorecordui.record;
 
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Rect;
 import android.os.Build;
 import android.os.Handler;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -16,6 +18,9 @@ import android.widget.EdgeEffect;
 import android.widget.OverScroller;
 
 import com.example.administrator.aduiorecordui.R;
+
+import java.util.ArrayList;
+import java.util.List;
 
 /**
  * ClassName: BaseAudioRecord
@@ -27,18 +32,31 @@ import com.example.administrator.aduiorecordui.R;
  */
 public abstract class BaseAudioRecord extends View {
 
+    private static final String TAG = BaseAudioRecord.class.getSimpleName();
+
+    /**
+     * 每次移动的距离
+     */
     private static final int AUTO_SCROLL_DISTANCE = 2;
 
 
-    private int delayMillis;
-
-    private float mLastX = 0;
-
+    /**
+     * 移动时间
+     */
+    private long scrollDelayMillis;
+    /**
+     * 采样时间
+     */
+    private long recordDelayMillis;
 
     /**
      * 录音时长 单位分钟
      */
     protected int recordTimeInMinutes = 2;
+    /**
+     * 是否显示刻度尺上的文字
+     */
+    protected boolean showRuleText = false;
     /**
      * 一格大刻度多少格小刻度
      */
@@ -80,7 +98,7 @@ public abstract class BaseAudioRecord extends View {
     /**
      * 刻度尺 底部直线 高度
      */
-    protected int ruleHorizontalLineHeight = bigScaleStrokeLength+50;
+    protected int ruleHorizontalLineHeight = bigScaleStrokeLength + 50;
 
     /**
      * 刻度尺 垂直刻度线的颜色
@@ -156,6 +174,7 @@ public abstract class BaseAudioRecord extends View {
      */
     protected @ColorInt
     int bottomRectColor;
+
     /**
      * 最小可滑动值
      */
@@ -164,6 +183,11 @@ public abstract class BaseAudioRecord extends View {
      * 最大可滑动值
      */
     protected int maxScrollX = 0;
+
+    /**
+     * 正在录制
+     */
+    protected boolean isRecording;
 
     /**
      * 自动滚动
@@ -208,6 +232,19 @@ public abstract class BaseAudioRecord extends View {
     protected int mEdgeLength;
     private RecordCallBack recordCallBack;
 
+    /**
+     * 矩形间距
+     */
+    protected int rectGap = 2;
+    protected List<Rect> rectList = new ArrayList<>();
+
+
+    private float mLastX = 0;
+    /**
+     * 当前滑动的最大距离
+     */
+    private int currentMaxScrollX = 0;
+
 
     public BaseAudioRecord(Context context) {
         super(context);
@@ -230,6 +267,7 @@ public abstract class BaseAudioRecord extends View {
     private void initAttrs(Context context, AttributeSet attrs) {
         TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.AudioRecord, 0, 0);
         recordTimeInMinutes = typedArray.getInteger(R.styleable.AudioRecord_recordTimeInMinutes, recordTimeInMinutes);
+        showRuleText = typedArray.getBoolean(R.styleable.AudioRecord_showRuleText, showRuleText);
         intervalCount = typedArray.getInteger(R.styleable.AudioRecord_intervalCount, intervalCount);
         scaleIntervalLength = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_scaleIntervalLength, scaleIntervalLength);
 
@@ -267,7 +305,9 @@ public abstract class BaseAudioRecord extends View {
     }
 
     private void init(Context context) {
-        delayMillis = AUTO_SCROLL_DISTANCE*1000/(intervalCount*scaleIntervalLength);
+        scrollDelayMillis = AUTO_SCROLL_DISTANCE * 1000 / (intervalCount * scaleIntervalLength);
+        recordDelayMillis = (rectWidth + rectGap) * 1000 / (intervalCount * scaleIntervalLength);
+        Log.d(TAG, "lll  scrollDelayMillis = " + scrollDelayMillis + ", recordDelayMillis = " + recordDelayMillis);
         overScroller = new OverScroller(context);
         velocityTracker = VelocityTracker.obtain();
         maxVelocity = ViewConfiguration.get(context).getScaledMaximumFlingVelocity();
@@ -305,6 +345,9 @@ public abstract class BaseAudioRecord extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
+        if (isRecording) {
+            return false;
+        }
         float currentX = event.getX();
         //开始速度检测
         startVelocityTracker(event);
@@ -376,8 +419,10 @@ public abstract class BaseAudioRecord extends View {
             x = maxScrollX;
         }
         super.scrollTo(x, y);
+        currentMaxScrollX = currentMaxScrollX < x ? x : currentMaxScrollX;
         if (recordCallBack != null) {
             recordCallBack.onScaleChange(x, x * 1000L / (intervalCount * scaleIntervalLength));
+
         }
     }
 
@@ -404,36 +449,73 @@ public abstract class BaseAudioRecord extends View {
     }
 
 
-    Handler handler = new Handler();
-    Runnable runnable = new Runnable() {
+    Handler scrollHandler = new Handler();
+    Runnable scrollRunnable = new Runnable() {
         @Override
         public void run() {
             scrollBy(AUTO_SCROLL_DISTANCE, 0);
-            handler.postDelayed(runnable, delayMillis);
+            scrollHandler.postDelayed(scrollRunnable, scrollDelayMillis);
         }
     };
 
-    public void startAutoScroll() {
-        if (!isAutoScroll) {
-            handler.post(runnable);
+    protected void startAutoScroll() {
+        Log.d(TAG, "lll startAutoScroll isAutoScroll = " + isAutoScroll);
+        if (isRecording && !isAutoScroll) {
+            scrollHandler.post(scrollRunnable);
             isAutoScroll = true;
         }
     }
 
-    public void stopAutoScroll() {
+    protected void stopAutoScroll() {
         if (isAutoScroll) {
-            handler.removeCallbacks(runnable);
+            scrollHandler.removeCallbacks(scrollRunnable);
             isAutoScroll = false;
         }
+    }
+
+
+    Handler recordHandler = new Handler();
+    Runnable recordRunnable = new Runnable() {
+        @Override
+        public void run() {
+            if (recordCallBack != null) {
+                makeRect(recordCallBack.getSamplePercent());
+            }
+            recordHandler.postDelayed(recordRunnable, recordDelayMillis);
+        }
+    };
+
+    public void startRecord() {
+        if (!isRecording) {
+            scrollToEnd();
+            recordHandler.post(recordRunnable);
+            isRecording = true;
+        }
+    }
+
+    public void stopRecord() {
+        if (isRecording) {
+            recordHandler.removeCallbacks(recordRunnable);
+            isRecording = false;
+            stopAutoScroll();
+        }
+    }
+
+    private void scrollToEnd() {
+        if (rectList.size() > 0) {
+            overScroller.startScroll(getScrollX(), 0, currentMaxScrollX, 0, 0);
+            invalidate();
+        }
+
     }
 
 
     /**
      * 生成矩形
      *
-     * @param height 矩形高度
+     * @param percent 矩形高度 百分比
      */
-    public abstract void makeRect(int height);
+    protected abstract void makeRect(float percent);
 
 
     public void setRecordCallBack(RecordCallBack recordCallBack) {

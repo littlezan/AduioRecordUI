@@ -17,4 +17,10 @@ public interface RecordCallBack {
      * @param timeInMillis 当前录音时间 单位毫秒
      */
     void onScaleChange(int scrollX, long timeInMillis);
+
+    /**
+     * 获取采样 样本 百分比
+     * @return percent  样本 百分比
+     */
+    float  getSamplePercent();
 }

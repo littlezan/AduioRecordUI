@@ -44,7 +44,7 @@ public class AudioRecord extends BaseAudioRecord {
     protected int mDrawOffset;
 
     private int rectLocationX;
-    protected List<Rect> radioRectList = new ArrayList<>();
+
 
 
     public AudioRecord(Context context) {
@@ -93,7 +93,6 @@ public class AudioRecord extends BaseAudioRecord {
         middleVerticalLinePaint.setColor(middleVerticalLineColor);
 
         rectPaint.setAntiAlias(true);
-        rectPaint.setStrokeWidth(1);
         rectPaint.setColor(rectColor);
 
         rectInvertedPaint.setAntiAlias(true);
@@ -113,14 +112,15 @@ public class AudioRecord extends BaseAudioRecord {
     }
 
     @Override
-    public void makeRect(int height) {
+    protected void makeRect(float percent) {
         int rectBottom = getMeasuredHeight() / 2;
-        int rectTop = rectBottom - height;
+        int rectTop = (int) (rectBottom - (rectBottom - ruleHorizontalLineHeight)*percent);
         Rect rect = new Rect(rectLocationX, rectTop, rectLocationX + rectWidth, rectBottom);
-        rectLocationX = rectLocationX + rect.width();
-        radioRectList.add(rect);
-        maxScrollX = rectLocationX - getMeasuredWidth()/2;
-        if (!isAutoScroll) {
+        rectLocationX = rectLocationX + rect.width()+rectGap;
+        rectList.add(rect);
+        maxScrollX = rectLocationX - getMeasuredWidth() / 2;
+        minScrollX = -getMeasuredWidth() / 2;
+        if (getScrollX() <=0) {
             invalidate();
         }
     }
@@ -131,7 +131,6 @@ public class AudioRecord extends BaseAudioRecord {
         super.onDraw(canvas);
         drawScale(canvas);
         drawRect(canvas);
-        drawBottomText(canvas);
         drawCenterVerticalLine(canvas);
     }
 
@@ -144,8 +143,10 @@ public class AudioRecord extends BaseAudioRecord {
             float locationX = i * scaleIntervalLength;
             if (i % intervalCount == 0) {
                 canvas.drawLine(locationX, ruleHorizontalLineHeight - bigScaleStrokeLength, locationX, ruleHorizontalLineHeight, bigScalePaint);
-                int index = i / intervalCount;
-                canvas.drawText(formatTime(index), locationX + bigScaleStrokeWidth + 5, ruleHorizontalLineHeight - bigScaleStrokeLength + ruleTextSize / 1.5f, ruleTextPaint);
+                if (showRuleText) {
+                    int index = i / intervalCount;
+                    canvas.drawText(formatTime(index), locationX + bigScaleStrokeWidth + 5, ruleHorizontalLineHeight - bigScaleStrokeLength + ruleTextSize / 1.5f, ruleTextPaint);
+                }
             } else {
                 canvas.drawLine(locationX, ruleHorizontalLineHeight - smallScaleStrokeLength, locationX, ruleHorizontalLineHeight, smallScalePaint);
             }
@@ -155,14 +156,17 @@ public class AudioRecord extends BaseAudioRecord {
     }
 
     private String formatTime(int index) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
-        Date date = new Date();
-        date.setTime(TimeUnit.SECONDS.toMillis(index));
-        return dateFormat.format(date);
+        String temp = "";
+        if (index > 0) {
+            SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
+            Date date = new Date();
+            date.setTime(TimeUnit.SECONDS.toMillis(index));
+            temp = dateFormat.format(date);
+        }
+        return temp;
     }
 
     private void drawRect(Canvas canvas) {
-        //
         int middleLineY = canvas.getHeight() / 2;
         canvas.drawLine(getScrollX(), middleLineY, getScrollX() + canvas.getWidth(), middleLineY, middleHorizontalLinePaint);
 
@@ -183,22 +187,23 @@ public class AudioRecord extends BaseAudioRecord {
     }
 
     private List<Rect> getDrawRectList(Canvas canvas) {
-        if (radioRectList.size() == 0) {
+        if (rectList.size() == 0) {
             return null;
         }
         List<Rect> rectList = new ArrayList<>();
 
-        int recentlyRectIndex = getScrollX() / rectWidth;
+        int rectWidthWithGap = rectWidth + rectGap;
+        int recentlyRectIndex = getScrollX() /rectWidthWithGap;
         if (recentlyRectIndex < 0) {
             recentlyRectIndex = 0;
-        } else if (recentlyRectIndex >= radioRectList.size()) {
-            recentlyRectIndex = radioRectList.size() - 1;
+        } else if (recentlyRectIndex >= this.rectList.size()) {
+            recentlyRectIndex = this.rectList.size() - 1;
         }
 
-        int mixWidth = getScrollX() - rectWidth;
-        int maxWidth = isAutoScroll ? getScrollX() + canvas.getWidth() / 2 + rectWidth : getScrollX() + canvas.getWidth() + rectWidth;
-        for (int i = recentlyRectIndex; i < radioRectList.size(); i++) {
-            Rect next = radioRectList.get(i);
+        int mixWidth = getScrollX() - rectWidthWithGap;
+        int maxWidth = isAutoScroll ? getScrollX() + canvas.getWidth() / 2 + rectWidthWithGap : getScrollX() + canvas.getWidth() + rectWidthWithGap;
+        for (int i = recentlyRectIndex; i < this.rectList.size(); i++) {
+            Rect next = this.rectList.get(i);
             if (next.left >= mixWidth && next.right <= maxWidth) {
                 rectList.add(next);
             }
@@ -210,44 +215,48 @@ public class AudioRecord extends BaseAudioRecord {
         return rectList;
     }
 
-    private void drawBottomText(Canvas canvas) {
-        float bottomCircleY = canvas.getHeight() / 2 + (canvas.getHeight() / 2 - ruleHorizontalLineHeight) + middleCircleRadius;
-        canvas.drawRect(getScaleX(), bottomCircleY - middleCircleRadius, getScrollX() + canvas.getWidth(), canvas.getHeight(), bottomRectPaint);
-        //底部文字
-        SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
-        Date date = new Date();
-        int length = intervalCount * scaleIntervalLength;
-        date.setTime(getScrollX() * 1000L / length);
-        int decimal = getScrollX() * 10 / length % 10;
-        String text;
-        if (getScrollX() == 0) {
-            text = dateFormat.format(date) + "/" + recordTimeInMinutes;
-        } else {
-            text = dateFormat.format(date) + "." + decimal + "/" + recordTimeInMinutes;
-        }
-        canvas.drawText(text, getScrollX() + canvas.getWidth() / 2, bottomCircleY + bottomTextSize + 20, bottomTextPaint);
-    }
 
     private void drawCenterVerticalLine(Canvas canvas) {
 
         Rect lastRect;
-        if (radioRectList.size() == 0) {
+        if (rectList.size() == 0) {
             lastRect = new Rect();
         } else {
-            lastRect = radioRectList.get(radioRectList.size() - 1);
+            lastRect = rectList.get(rectList.size() - 1);
         }
 
         float circleX = lastRect.centerX();
         if (circleX > getScrollX() + canvas.getWidth() / 2) {
             circleX = getScrollX() + canvas.getWidth() / 2;
+            startAutoScroll();
         }
         float topCircleY = ruleHorizontalLineHeight - middleCircleRadius;
+        float bottomCircleY = canvas.getHeight() / 2 + (canvas.getHeight() / 2 - ruleHorizontalLineHeight) + middleCircleRadius;
+        //底部颜色
+        canvas.drawRect(getScrollX(), bottomCircleY - middleCircleRadius, getScrollX() + canvas.getWidth(), canvas.getHeight(), bottomRectPaint);
         //上圆
         canvas.drawCircle(circleX, topCircleY, middleCircleRadius, middleVerticalLinePaint);
-        float bottomCircleY = canvas.getHeight() / 2 + (canvas.getHeight() / 2 - ruleHorizontalLineHeight) + middleCircleRadius;
         //下圆
         canvas.drawCircle(circleX, bottomCircleY, middleCircleRadius, middleVerticalLinePaint);
-        //直线
+        //垂直 直线
         canvas.drawLine(circleX, topCircleY, circleX, bottomCircleY, middleVerticalLinePaint);
+
+        //底部文字
+        SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
+        Date date = new Date();
+        int length = intervalCount * scaleIntervalLength;
+        date.setTime((long) (circleX * 1000L / length));
+        String time = dateFormat.format(date);
+
+        int decimal = (int) (circleX * 10 / length % 10);
+        String text;
+        if (getScrollX() == 0) {
+            text = time + "/" + recordTimeInMinutes;
+        } else {
+            text = time + "." + decimal + "/" + recordTimeInMinutes;
+        }
+        canvas.drawText(text, getScrollX() + canvas.getWidth() / 2, bottomCircleY + bottomTextSize + 20, bottomTextPaint);
+
+
     }
 }

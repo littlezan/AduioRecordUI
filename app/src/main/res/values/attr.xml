@@ -3,6 +3,8 @@
     <declare-styleable name="AudioRecord">
         <!--录音时长 单位分钟-->
         <attr name="recordTimeInMinutes" format="integer" />
+        <!--是否显示刻度尺上的文字-->
+        <attr name="showRuleText" format="boolean" />
         <!--一格大刻度多少格小刻度-->
         <attr name="intervalCount" format="integer" />
         <!--刻度间隔-->
@@ -39,6 +41,7 @@
         <attr name="middleCircleRadius" format="dimension" />
         <!--声波 矩形 颜色-->
         <attr name="rectColor" format="color" />
+        <!--声波 矩形 颜色-->
         <attr name="rectInvertColor" format="color" />
         <!--声波矩形 宽-->
         <attr name="rectWidth" format="dimension" />
