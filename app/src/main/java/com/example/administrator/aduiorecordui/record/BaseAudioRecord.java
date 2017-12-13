@@ -234,6 +234,7 @@ public abstract class BaseAudioRecord extends View {
 
     private float mLastX = 0;
 
+    private long currentRecordTime;
 
     public BaseAudioRecord(Context context) {
         super(context);
@@ -410,7 +411,7 @@ public abstract class BaseAudioRecord extends View {
         }
         super.scrollTo(x, y);
         if (recordCallBack != null) {
-            recordCallBack.onScaleChange(x, x * 1000L / (intervalCount * scaleIntervalLength));
+            recordCallBack.onRecordCurrent(currentRecordTime);
         }
     }
 
@@ -454,11 +455,15 @@ public abstract class BaseAudioRecord extends View {
                 isAutoScroll = false;
             }
             recordHandler.postDelayed(recordRunnable, recordDelayMillis);
+            currentRecordTime = currentRecordTime + recordDelayMillis;
         }
     };
 
     public void startRecord() {
         if (!isRecording) {
+            if (currentRecordTime >= TimeUnit.MINUTES.toMillis(recordTimeInMinutes)) {
+                return;
+            }
             scrollToEnd();
             recordHandler.post(recordRunnable);
             isRecording = true;

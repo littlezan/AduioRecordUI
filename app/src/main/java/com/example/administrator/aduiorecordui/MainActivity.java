@@ -44,7 +44,7 @@ public class MainActivity extends AppCompatActivity {
 
         ruler.setRecordCallBack(new RecordCallBack() {
             @Override
-            public void onScaleChange(int scrollX, long timeInMillis) {
+            public void onRecordCurrent(long timeInMillis) {
             }
 
             @Override

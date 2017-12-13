@@ -13,12 +13,10 @@ import android.support.annotation.FloatRange;
 public interface RecordCallBack {
 
     /**
-     * 尺子当前刻度值
-     *
-     * @param scrollX      滑动距离
+     *当前录音时间
      * @param timeInMillis 当前录音时间 单位毫秒
      */
-    void onScaleChange(int scrollX, long timeInMillis);
+    void onRecordCurrent(long timeInMillis);
 
     /**
      * 获取采样 样本 百分比
