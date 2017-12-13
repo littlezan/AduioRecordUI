@@ -12,7 +12,6 @@ import java.util.Random;
 
 public class MainActivity extends AppCompatActivity {
 
-    private static final int RECORD_TIME = 10;
 
     private AudioRecord ruler;
 
@@ -43,8 +42,10 @@ public class MainActivity extends AppCompatActivity {
 
 
         ruler.setRecordCallBack(new RecordCallBack() {
+
             @Override
-            public void onRecordCurrent(long timeInMillis) {
+            public void onRecordCurrent(long centerStartTimeMillis, long recordTimeInMillis) {
+
             }
 
             @Override

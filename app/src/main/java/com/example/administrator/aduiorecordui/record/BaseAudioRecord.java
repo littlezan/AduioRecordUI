@@ -34,6 +34,8 @@ public abstract class BaseAudioRecord extends View {
 
     private static final String TAG = "BaseAudioRecord";
 
+    public boolean debug = false;
+
     /**
      * 采样时间
      */
@@ -366,7 +368,10 @@ public abstract class BaseAudioRecord extends View {
             case MotionEvent.ACTION_MOVE:
                 float moveX = mLastX - currentX;
                 mLastX = currentX;
-                scrollBy((int) (moveX), 0);
+                Log.d(TAG, "lll onTouchEvent: mLastX = " + mLastX + ", currentX = " + currentX + ", moveX = " + moveX);
+                if (!debug) {
+                    scrollBy((int) (moveX), 0);
+                }
                 break;
             case MotionEvent.ACTION_UP:
                 //手指离开屏幕，开始处理惯性滑动Fling
@@ -411,12 +416,14 @@ public abstract class BaseAudioRecord extends View {
     public void computeScroll() {
         //滑动处理
         if (overScroller.computeScrollOffset()) {
+            Log.d(TAG, "lll computeScroll: computeScrollOffset overScroller.getCurrX() = " + overScroller.getCurrX()+ ", overScroller.getCurrY() = " + overScroller.getCurrY());
             scrollTo(overScroller.getCurrX(), overScroller.getCurrY());
         }
     }
 
     @Override
     public void scrollTo(int x, int y) {
+        Log.d(TAG, "lll scrollTo: x = " + x + ", minScrollX = " + minScrollX + ", maxScrollX = " + maxScrollX);
         if (x < minScrollX) {
             goStartEdgeEffect(x);
             x = minScrollX;
@@ -499,8 +506,15 @@ public abstract class BaseAudioRecord extends View {
     }
 
     private void scrollToEnd() {
-        if (sampleLineList.size() > 0) {
-            scrollTo((int) (getLastSampleLineRightX()), 0);
+        if (sampleLineList.size() > 0 ) {
+            float lastSampleLineRightX = getLastSampleLineRightX();
+            if (lastSampleLineRightX >= getMeasuredWidth() / 2) {
+                scrollTo((int) lastSampleLineRightX, 0);
+            } else {
+                scrollTo(0, 0);
+            }
+        } else {
+            scrollTo(0, 0);
         }
     }
 
@@ -561,4 +575,12 @@ public abstract class BaseAudioRecord extends View {
         startRecord();
     }
 
+    /**
+     * 是否正在录音
+     *
+     * @return isRecording
+     */
+    public boolean isRecording() {
+        return isRecording;
+    }
 }

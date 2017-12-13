@@ -6,6 +6,7 @@ import android.graphics.Paint;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,7 +25,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class AudioRecord extends BaseAudioRecord {
 
-    private static final String TAG = AudioRecord.class.getSimpleName();
+    private static final String TAG = "AudioRecord";
 
     Paint ruleHorizontalLinePaint = new Paint();
     Paint smallScalePaint = new Paint();
@@ -44,7 +45,6 @@ public class AudioRecord extends BaseAudioRecord {
     protected int mDrawOffset;
 
     private int lineLocationX;
-
 
 
     public AudioRecord(Context context) {
@@ -129,15 +129,15 @@ public class AudioRecord extends BaseAudioRecord {
         lineLocationX = lineLocationX + lineWidth + rectGap;
         sampleLineList.add(sampleLineModel);
 
-        maxScrollX = lineLocationX - getMeasuredWidth() / 2;
+        maxScrollX = lineLocationX - getMeasuredWidth() / 2 > 0 ? lineLocationX - getMeasuredWidth() / 2 : lineLocationX;
         minScrollX = -getMeasuredWidth() / 2;
         invalidate();
     }
 
-
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        Log.d(TAG, "lll onDraw: getScrollX() = " + getScrollX());
         drawScale(canvas);
         drawLine(canvas);
         drawCenterVerticalLine(canvas);
@@ -145,7 +145,6 @@ public class AudioRecord extends BaseAudioRecord {
 
 
     private void drawScale(Canvas canvas) {
-
         int firstPoint = (getScrollX() - mDrawOffset) / scaleIntervalLength;
         int lastPoint = (getScrollX() + canvas.getWidth() + mDrawOffset) / (scaleIntervalLength);
         for (int i = firstPoint; i < lastPoint; i++) {
@@ -166,7 +165,7 @@ public class AudioRecord extends BaseAudioRecord {
 
     private String formatTime(int index) {
         String temp = "";
-        if (index >= 0) {
+        if (index >= 0 && index <= maxLength / intervalCount) {
             SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
             Date date = new Date();
             date.setTime(TimeUnit.SECONDS.toMillis(index));
