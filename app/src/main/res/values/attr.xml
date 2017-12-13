@@ -47,6 +47,8 @@
         <attr name="rectInvertColor" format="color" />
         <!--声波矩形 间距-->
         <attr name="rectGap" format="dimension" />
+        <!--声波矩形 距离顶部垂直间距-->
+        <attr name="rectMarginTop" format="dimension" />
         <!--底部文字颜色-->
         <attr name="bottomTextColor" format="color" />
         <!--底部文字大小-->

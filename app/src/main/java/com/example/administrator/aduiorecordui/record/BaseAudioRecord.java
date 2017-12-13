@@ -228,6 +228,10 @@ public abstract class BaseAudioRecord extends View {
      * 矩形间距
      */
     protected int rectGap = 2;
+    /**
+     * 声波矩形 距离顶部垂直间距
+     */
+    protected int rectMarginTop = 50;
     protected List<SampleLineModel> sampleLineList = new ArrayList<>();
 
     protected boolean isAutoScroll;
@@ -287,6 +291,7 @@ public abstract class BaseAudioRecord extends View {
         rectColor = typedArray.getColor(R.styleable.AudioRecord_rectColor, ContextCompat.getColor(getContext(), android.R.color.holo_red_light));
         rectInvertColor = typedArray.getColor(R.styleable.AudioRecord_rectInvertColor, ContextCompat.getColor(getContext(), android.R.color.darker_gray));
         rectGap = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_rectGap, rectGap);
+        rectMarginTop = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_rectMarginTop, rectMarginTop);
 
         bottomTextColor = typedArray.getColor(R.styleable.AudioRecord_bottomTextColor, ContextCompat.getColor(getContext(), android.R.color.white));
         bottomTextSize = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_bottomTextSize, bottomTextSize);
@@ -447,7 +452,7 @@ public abstract class BaseAudioRecord extends View {
             }
             float lastSampleLineRightX = getLastSampleLineRightX();
             int middleX = getScrollX() + getMeasuredWidth() / 2;
-            long maxX = maxLength - getMeasuredWidth() / 2;
+            long maxX = maxLength;
             if (lastSampleLineRightX > middleX && lastSampleLineRightX <= maxX) {
                 isAutoScroll = true;
                 overScroller.startScroll(getScrollX(), 0, (int) lastSampleLineRightX, 0, recordDelayMillis);
@@ -456,6 +461,9 @@ public abstract class BaseAudioRecord extends View {
             }
             recordHandler.postDelayed(recordRunnable, recordDelayMillis);
             currentRecordTime = currentRecordTime + recordDelayMillis;
+            if (currentRecordTime >= TimeUnit.MINUTES.toMillis(recordTimeInMinutes)) {
+                stopRecord();
+            }
         }
     };
 

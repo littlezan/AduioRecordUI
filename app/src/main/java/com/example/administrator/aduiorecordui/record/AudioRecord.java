@@ -6,7 +6,6 @@ import android.graphics.Paint;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -114,19 +113,19 @@ public class AudioRecord extends BaseAudioRecord {
 
     @Override
     protected void makeSampleLine(float percent) {
-        SampleLineModel sampleLineModel = new SampleLineModel();
-        int rectBottom = getMeasuredHeight() / 2;
-        int lineTop = (int) (rectBottom - (rectBottom - ruleHorizontalLineHeight) * percent);
-        sampleLineModel.startX = lineLocationX + lineWidth / 2;
-        sampleLineModel.stopX = sampleLineModel.startX;
-        sampleLineModel.startY = lineTop;
-        sampleLineModel.stopY = getMeasuredHeight() / 2;
-        lineLocationX = lineLocationX + lineWidth + rectGap;
         if (lineLocationX >= maxLength) {
             //超出采样时间
             stopRecord();
             return;
         }
+        SampleLineModel sampleLineModel = new SampleLineModel();
+        int rectBottom = getMeasuredHeight() / 2;
+        int lineTop = (int) (rectBottom - (rectBottom - ruleHorizontalLineHeight - rectMarginTop) * percent);
+        sampleLineModel.startX = lineLocationX + lineWidth / 2;
+        sampleLineModel.stopX = sampleLineModel.startX;
+        sampleLineModel.startY = lineTop;
+        sampleLineModel.stopY = getMeasuredHeight() / 2;
+        lineLocationX = lineLocationX + lineWidth + rectGap;
         sampleLineList.add(sampleLineModel);
 
         maxScrollX = lineLocationX - getMeasuredWidth() / 2;
@@ -184,7 +183,6 @@ public class AudioRecord extends BaseAudioRecord {
         if (drawRectList == null || drawRectList.size() == 0) {
             return;
         }
-        Log.d(TAG, "lll drawRectList size = " + drawRectList.size());
         //绘制采样点
         for (SampleLineModel sampleLineModel : drawRectList) {
             canvas.drawLine(sampleLineModel.startX, sampleLineModel.startY, sampleLineModel.stopX, sampleLineModel.stopY, linePaint);
@@ -236,17 +234,9 @@ public class AudioRecord extends BaseAudioRecord {
 
         float circleX = sampleLineModel.startX + lineWidth / 2 + rectGap;
         int canvasMiddle = canvas.getWidth() / 2;
-        Log.d(TAG, "lll circleX = " + circleX + "getScrollX() + canvas.getWidth() / 2 = " + (getScrollX() + canvasMiddle));
-        if (isRecording) {
-            if (circleX > getScrollX() + canvasMiddle && isAutoScroll) {
-                circleX = getScrollX() + canvasMiddle;
-            }
-        } else {
-            if (getLastSampleLineRightX() > canvasMiddle) {
-                circleX = getScrollX() + canvasMiddle;
-            }
+        if (circleX > getScrollX() + canvasMiddle) {
+            circleX = getScrollX() + canvasMiddle;
         }
-
         float topCircleY = ruleHorizontalLineHeight - middleCircleRadius;
         float bottomCircleY = canvas.getHeight() / 2 + (canvas.getHeight() / 2 - ruleHorizontalLineHeight) + middleCircleRadius;
         //底部颜色
@@ -263,6 +253,7 @@ public class AudioRecord extends BaseAudioRecord {
         Date date = new Date();
         int length = intervalCount * scaleIntervalLength;
         date.setTime((long) (circleX * 1000L / length));
+
         String time = dateFormat.format(date);
 
         int decimal = (int) (circleX * 10 / length % 10);
