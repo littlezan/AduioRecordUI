@@ -230,6 +230,7 @@ public abstract class BaseAudioRecord extends View {
     protected int rectGap = 2;
     protected List<SampleLineModel> sampleLineList = new ArrayList<>();
 
+    protected boolean isAutoScroll;
 
     private float mLastX = 0;
 
@@ -445,9 +446,12 @@ public abstract class BaseAudioRecord extends View {
             }
             float lastSampleLineRightX = getLastSampleLineRightX();
             int middleX = getScrollX() + getMeasuredWidth() / 2;
-            Log.d(TAG, "lll lastSampleLineRightX = " + lastSampleLineRightX+", middleX = " + middleX);
-            if (lastSampleLineRightX > middleX) {
+            long maxX = maxLength - getMeasuredWidth() / 2;
+            if (lastSampleLineRightX > middleX && lastSampleLineRightX <= maxX) {
+                isAutoScroll = true;
                 overScroller.startScroll(getScrollX(), 0, (int) lastSampleLineRightX, 0, recordDelayMillis);
+            } else {
+                isAutoScroll = false;
             }
             recordHandler.postDelayed(recordRunnable, recordDelayMillis);
         }
@@ -467,6 +471,7 @@ public abstract class BaseAudioRecord extends View {
             Log.d(TAG, "stopRecord: ");
             recordHandler.removeCallbacks(recordRunnable);
             isRecording = false;
+            isAutoScroll = false;
         }
     }
 
@@ -476,7 +481,7 @@ public abstract class BaseAudioRecord extends View {
         }
     }
 
-    private float getLastSampleLineRightX() {
+    protected float getLastSampleLineRightX() {
         if (sampleLineList.size() > 0) {
             return sampleLineList.get(sampleLineList.size() - 1).startX + lineWidth / 2;
         } else {

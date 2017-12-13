@@ -210,7 +210,7 @@ public class AudioRecord extends BaseAudioRecord {
         }
 
         int mixWidth = getScrollX() - rectWidthWithGap;
-        int maxWidth = isRecording ? getScrollX() + canvas.getWidth() / 2 + rectWidthWithGap : getScrollX() + canvas.getWidth() + rectWidthWithGap;
+        int maxWidth = isAutoScroll ? getScrollX() + canvas.getWidth() / 2 + rectWidthWithGap : getScrollX() + canvas.getWidth() + rectWidthWithGap;
         for (int i = recentlyRectIndex; i < sampleLineList.size(); i++) {
             SampleLineModel next = sampleLineList.get(i);
             if (next.startX >= mixWidth && next.startX + lineWidth / 2 <= maxWidth) {
@@ -235,10 +235,18 @@ public class AudioRecord extends BaseAudioRecord {
         }
 
         float circleX = sampleLineModel.startX + lineWidth / 2 + rectGap;
-        Log.d(TAG, "lll circleX = " + circleX + "getScrollX() + canvas.getWidth() / 2 = " + (getScrollX() + canvas.getWidth() / 2));
-        if (circleX > getScrollX() + canvas.getWidth() / 2) {
-            circleX = getScrollX() + canvas.getWidth() / 2;
+        int canvasMiddle = canvas.getWidth() / 2;
+        Log.d(TAG, "lll circleX = " + circleX + "getScrollX() + canvas.getWidth() / 2 = " + (getScrollX() + canvasMiddle));
+        if (isRecording) {
+            if (circleX > getScrollX() + canvasMiddle && isAutoScroll) {
+                circleX = getScrollX() + canvasMiddle;
+            }
+        } else {
+            if (getLastSampleLineRightX() > canvasMiddle) {
+                circleX = getScrollX() + canvasMiddle;
+            }
         }
+
         float topCircleY = ruleHorizontalLineHeight - middleCircleRadius;
         float bottomCircleY = canvas.getHeight() / 2 + (canvas.getHeight() / 2 - ruleHorizontalLineHeight) + middleCircleRadius;
         //底部颜色
@@ -264,7 +272,7 @@ public class AudioRecord extends BaseAudioRecord {
         } else {
             text = time + "." + decimal + "/" + recordTimeInMinutes;
         }
-        canvas.drawText(text, getScrollX() + canvas.getWidth() / 2, bottomCircleY + bottomTextSize + 20, bottomTextPaint);
+        canvas.drawText(text, getScrollX() + canvasMiddle, bottomCircleY + bottomTextSize + 20, bottomTextPaint);
 
 
     }
