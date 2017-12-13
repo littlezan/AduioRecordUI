@@ -46,6 +46,7 @@ public class AudioRecord extends BaseAudioRecord {
     private int lineLocationX;
 
 
+
     public AudioRecord(Context context) {
         super(context);
         init();
@@ -264,7 +265,5 @@ public class AudioRecord extends BaseAudioRecord {
             text = time + "." + decimal + "/" + recordTimeInMinutes;
         }
         canvas.drawText(text, getScrollX() + canvasMiddle, bottomCircleY + bottomTextSize + 20, bottomTextPaint);
-
-
     }
 }

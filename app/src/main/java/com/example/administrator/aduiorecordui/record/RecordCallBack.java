@@ -14,9 +14,10 @@ public interface RecordCallBack {
 
     /**
      *当前录音时间
-     * @param timeInMillis 当前录音时间 单位毫秒
+     * @param centerStartTimeMillis 中心点录音时间
+     * @param recordTimeInMillis 当前录音时间 单位毫秒
      */
-    void onRecordCurrent(long timeInMillis);
+    void onRecordCurrent(long centerStartTimeMillis, long recordTimeInMillis);
 
     /**
      * 获取采样 样本 百分比

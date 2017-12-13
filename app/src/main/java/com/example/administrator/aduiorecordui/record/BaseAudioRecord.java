@@ -237,8 +237,17 @@ public abstract class BaseAudioRecord extends View {
     protected boolean isAutoScroll;
 
     private float mLastX = 0;
-
     private long currentRecordTime;
+
+    /**
+     * 是否可以触摸滑动
+     */
+    private boolean canTouchScroll = true;
+
+    /**
+     * 是否在播放录音
+     */
+    private boolean isPlayingRecord = false;
 
     public BaseAudioRecord(Context context) {
         super(context);
@@ -341,7 +350,7 @@ public abstract class BaseAudioRecord extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (isRecording) {
+        if (canTouchScroll && isRecording) {
             return false;
         }
         float currentX = event.getX();
@@ -416,7 +425,7 @@ public abstract class BaseAudioRecord extends View {
         }
         super.scrollTo(x, y);
         if (recordCallBack != null) {
-            recordCallBack.onRecordCurrent(currentRecordTime);
+            recordCallBack.onRecordCurrent(x * 1000L / (intervalCount * scaleIntervalLength), currentRecordTime);
         }
     }
 
@@ -447,7 +456,8 @@ public abstract class BaseAudioRecord extends View {
     Runnable recordRunnable = new Runnable() {
         @Override
         public void run() {
-            if (recordCallBack != null) {
+            //播放录音的时候，不采集声音分贝了
+            if (recordCallBack != null && !isPlayingRecord) {
                 makeSampleLine(recordCallBack.getSamplePercent());
             }
             float lastSampleLineRightX = getLastSampleLineRightX();
@@ -513,6 +523,42 @@ public abstract class BaseAudioRecord extends View {
 
     public void setRecordCallBack(RecordCallBack recordCallBack) {
         this.recordCallBack = recordCallBack;
+    }
+
+    /**
+     * 是否可以触摸滑动
+     *
+     * @param canTouchScroll 是否可以触摸滑动
+     */
+    public void setCanTouchScroll(boolean canTouchScroll) {
+        this.canTouchScroll = canTouchScroll;
+    }
+
+    /**
+     * 开始播放录音
+     */
+    public void startPlayRecord() {
+        if (!isPlayingRecord) {
+            stopRecord();
+            if (getScrollX() >= maxScrollX) {
+                scrollTo(0, 0);
+            } else {
+                startPlayingRecord();
+            }
+        }
+    }
+
+    /**
+     * 暂停播放录音
+     */
+    public void pausePlayRecord() {
+        isPlayingRecord = false;
+        stopRecord();
+    }
+
+    private void startPlayingRecord() {
+        isPlayingRecord = true;
+        startRecord();
     }
 
 }
