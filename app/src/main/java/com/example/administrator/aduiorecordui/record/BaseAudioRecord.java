@@ -8,6 +8,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -31,7 +32,7 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class BaseAudioRecord extends View {
 
-    private static final String TAG = BaseAudioRecord.class.getSimpleName();
+    private static final String TAG = "BaseAudioRecord";
 
     /**
      * 采样时间
@@ -182,10 +183,6 @@ public abstract class BaseAudioRecord extends View {
      */
     protected boolean isRecording;
 
-    /**
-     * 自动滚动
-     */
-    protected boolean isAutoScroll;
 
     /**
      * 控制滑动
@@ -235,8 +232,6 @@ public abstract class BaseAudioRecord extends View {
 
 
     private float mLastX = 0;
-
-
 
 
     public BaseAudioRecord(Context context) {
@@ -300,7 +295,7 @@ public abstract class BaseAudioRecord extends View {
 
     private void init(Context context) {
         maxLength = TimeUnit.MINUTES.toSeconds(recordTimeInMinutes) * intervalCount * scaleIntervalLength;
-        recordDelayMillis = 1000/recordSamplingFrequency;
+        recordDelayMillis = 1000 / recordSamplingFrequency;
         lineWidth = (intervalCount * scaleIntervalLength) / recordSamplingFrequency - rectGap;
         overScroller = new OverScroller(context);
         velocityTracker = VelocityTracker.obtain();
@@ -441,9 +436,6 @@ public abstract class BaseAudioRecord extends View {
     }
 
 
-
-
-
     Handler recordHandler = new Handler();
     Runnable recordRunnable = new Runnable() {
         @Override
@@ -453,8 +445,9 @@ public abstract class BaseAudioRecord extends View {
             }
             float lastSampleLineRightX = getLastSampleLineRightX();
             int middleX = getScrollX() + getMeasuredWidth() / 2;
+            Log.d(TAG, "lll lastSampleLineRightX = " + lastSampleLineRightX+", middleX = " + middleX);
             if (lastSampleLineRightX > middleX) {
-                overScroller.startScroll(getScrollX(), 0,Math.round(lastSampleLineRightX), 0, recordDelayMillis );
+                overScroller.startScroll(getScrollX(), 0, (int) lastSampleLineRightX, 0, recordDelayMillis);
             }
             recordHandler.postDelayed(recordRunnable, recordDelayMillis);
         }
@@ -471,6 +464,7 @@ public abstract class BaseAudioRecord extends View {
 
     public void stopRecord() {
         if (isRecording) {
+            Log.d(TAG, "stopRecord: ");
             recordHandler.removeCallbacks(recordRunnable);
             isRecording = false;
         }
@@ -479,7 +473,6 @@ public abstract class BaseAudioRecord extends View {
     private void scrollToEnd() {
         if (sampleLineList.size() > 0) {
             scrollTo((int) (getLastSampleLineRightX()), 0);
-            invalidate();
         }
     }
 

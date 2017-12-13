@@ -117,7 +117,7 @@ public class AudioRecord extends BaseAudioRecord {
         SampleLineModel sampleLineModel = new SampleLineModel();
         int rectBottom = getMeasuredHeight() / 2;
         int lineTop = (int) (rectBottom - (rectBottom - ruleHorizontalLineHeight) * percent);
-        sampleLineModel.startX = lineLocationX+lineWidth/2;
+        sampleLineModel.startX = lineLocationX + lineWidth / 2;
         sampleLineModel.stopX = sampleLineModel.startX;
         sampleLineModel.startY = lineTop;
         sampleLineModel.stopY = getMeasuredHeight() / 2;
@@ -129,11 +129,9 @@ public class AudioRecord extends BaseAudioRecord {
         }
         sampleLineList.add(sampleLineModel);
 
-        maxScrollX = lineLocationX -getMeasuredWidth() / 2;
+        maxScrollX = lineLocationX - getMeasuredWidth() / 2;
         minScrollX = -getMeasuredWidth() / 2;
-        if (!isAutoScroll) {
-            invalidate();
-        }
+        invalidate();
     }
 
 
@@ -212,7 +210,7 @@ public class AudioRecord extends BaseAudioRecord {
         }
 
         int mixWidth = getScrollX() - rectWidthWithGap;
-        int maxWidth = isAutoScroll ? getScrollX() + canvas.getWidth() / 2 + rectWidthWithGap : getScrollX() + canvas.getWidth() + rectWidthWithGap;
+        int maxWidth = isRecording ? getScrollX() + canvas.getWidth() / 2 + rectWidthWithGap : getScrollX() + canvas.getWidth() + rectWidthWithGap;
         for (int i = recentlyRectIndex; i < sampleLineList.size(); i++) {
             SampleLineModel next = sampleLineList.get(i);
             if (next.startX >= mixWidth && next.startX + lineWidth / 2 <= maxWidth) {
@@ -236,7 +234,7 @@ public class AudioRecord extends BaseAudioRecord {
             sampleLineModel = sampleLineList.get(sampleLineList.size() - 1);
         }
 
-        float circleX = sampleLineModel.startX+lineWidth/2+rectGap;
+        float circleX = sampleLineModel.startX + lineWidth / 2 + rectGap;
         Log.d(TAG, "lll circleX = " + circleX + "getScrollX() + canvas.getWidth() / 2 = " + (getScrollX() + canvas.getWidth() / 2));
         if (circleX > getScrollX() + canvas.getWidth() / 2) {
             circleX = getScrollX() + canvas.getWidth() / 2;

@@ -14,7 +14,8 @@
         app:intervalCount="4"
         app:scaleIntervalLength="10dp"
         app:showRuleText="true"
-        android:background="#e5c85d"
+        app:rectGap="2dp"
+        android:background="#E5C85D"
         android:layout_height="350dp" />
 
 
