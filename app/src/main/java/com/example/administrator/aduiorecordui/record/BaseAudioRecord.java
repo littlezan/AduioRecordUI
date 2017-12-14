@@ -308,7 +308,7 @@ public abstract class BaseAudioRecord extends View {
 
         bottomRectColor = typedArray.getColor(R.styleable.AudioRecord_bottomRectColor, ContextCompat.getColor(getContext(), android.R.color.holo_orange_light));
 
-
+        typedArray.recycle();
     }
 
     private void init(Context context) {
