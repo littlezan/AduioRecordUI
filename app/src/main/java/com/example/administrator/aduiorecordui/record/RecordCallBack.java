@@ -32,4 +32,9 @@ public interface RecordCallBack {
      * 结束播放录音
      */
     void onPlayingRecordFinish();
+
+    /**
+     * 录音结束
+     */
+    void onRecordFinish();
 }

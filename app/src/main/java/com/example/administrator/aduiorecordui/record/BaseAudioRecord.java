@@ -34,7 +34,6 @@ public abstract class BaseAudioRecord extends View {
 
     private static final String TAG = "BaseAudioRecord";
 
-    public boolean debug = false;
 
     /**
      * 采样时间
@@ -370,9 +369,7 @@ public abstract class BaseAudioRecord extends View {
                 float moveX = mLastX - currentX;
                 mLastX = currentX;
                 Log.d(TAG, "lll onTouchEvent: mLastX = " + mLastX + ", currentX = " + currentX + ", moveX = " + moveX);
-                if (!debug) {
-                    scrollBy((int) (moveX), 0);
-                }
+                scrollBy((int) (moveX), 0);
                 break;
             case MotionEvent.ACTION_UP:
                 //手指离开屏幕，开始处理惯性滑动Fling
@@ -417,7 +414,6 @@ public abstract class BaseAudioRecord extends View {
     public void computeScroll() {
         //滑动处理
         if (overScroller.computeScrollOffset()) {
-            Log.d(TAG, "lll computeScroll: computeScrollOffset overScroller.getCurrX() = " + overScroller.getCurrX() + ", overScroller.getCurrY() = " + overScroller.getCurrY());
             scrollTo(overScroller.getCurrX(), overScroller.getCurrY());
         }
     }
@@ -492,6 +488,9 @@ public abstract class BaseAudioRecord extends View {
             currentRecordTime = currentRecordTime + recordDelayMillis;
             if (currentRecordTime >= TimeUnit.MINUTES.toMillis(recordTimeInMinutes)) {
                 stopRecord();
+                if (recordCallBack != null) {
+                    recordCallBack.onRecordFinish();
+                }
             }
         }
     };
