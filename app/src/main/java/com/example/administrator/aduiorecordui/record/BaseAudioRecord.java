@@ -242,11 +242,6 @@ public abstract class BaseAudioRecord extends View {
     private long currentRecordTime;
 
     /**
-     * 是否可以触摸滑动
-     */
-    private boolean canTouchScroll = true;
-
-    /**
      * 是否在播放录音
      */
     private boolean isPlayingRecord = false;
@@ -255,7 +250,6 @@ public abstract class BaseAudioRecord extends View {
      * 中心点的位置
      */
     protected float centerLineX = 0;
-    private int playScrollD = 0;
 
     public BaseAudioRecord(Context context) {
         super(context);
@@ -358,7 +352,7 @@ public abstract class BaseAudioRecord extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (canTouchScroll && isRecording) {
+        if (isPlayingRecord || isRecording) {
             return false;
         }
         float currentX = event.getX();
@@ -546,15 +540,6 @@ public abstract class BaseAudioRecord extends View {
         this.recordCallBack = recordCallBack;
     }
 
-    /**
-     * 是否可以触摸滑动
-     *
-     * @param canTouchScroll 是否可以触摸滑动
-     */
-    public void setCanTouchScroll(boolean canTouchScroll) {
-        this.canTouchScroll = canTouchScroll;
-    }
-
 
     /**
      * 是否正在录音
@@ -590,7 +575,6 @@ public abstract class BaseAudioRecord extends View {
             }
             playRecordHandler.postDelayed(playRecordRunnable, 100);
             isPlayingRecord = true;
-            setCanTouchScroll(false);
         }
     }
 
@@ -600,9 +584,17 @@ public abstract class BaseAudioRecord extends View {
     public void pausePlayRecord() {
         if (isPlayingRecord) {
             playRecordHandler.removeCallbacks(playRecordRunnable);
-            setCanTouchScroll(true);
             isPlayingRecord = false;
             isAutoScroll = false;
         }
+    }
+
+    /**
+     * 是否正在播放录音
+     *
+     * @return 是否正在播放录音
+     */
+    public boolean isPlayingRecord() {
+        return isPlayingRecord;
     }
 }
