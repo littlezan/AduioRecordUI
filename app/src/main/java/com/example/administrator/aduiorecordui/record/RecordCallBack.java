@@ -13,15 +13,23 @@ import android.support.annotation.FloatRange;
 public interface RecordCallBack {
 
     /**
-     *当前录音时间
+     * 获取采样 样本 百分比
+     *
+     * @return percent  样本 百分比
+     */
+    @FloatRange(from = 0, to = 1)
+    float getSamplePercent();
+
+    /**
+     * 当前录音时间
+     *
      * @param centerStartTimeMillis 中心点录音时间
-     * @param recordTimeInMillis 当前录音时间 单位毫秒
+     * @param recordTimeInMillis    当前录音时间 单位毫秒
      */
     void onRecordCurrent(long centerStartTimeMillis, long recordTimeInMillis);
 
     /**
-     * 获取采样 样本 百分比
-     * @return percent  样本 百分比
+     * 结束播放录音
      */
-    @FloatRange(from = 0,to = 1) float  getSamplePercent();
+    void onPlayingRecordFinish();
 }

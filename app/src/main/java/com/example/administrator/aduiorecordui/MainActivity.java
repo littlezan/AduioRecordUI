@@ -27,6 +27,7 @@ public class MainActivity extends AppCompatActivity {
         Button btnStop = findViewById(R.id.btn_stop);
         Button btnPlay = findViewById(R.id.btn_play);
         Button btnPause = findViewById(R.id.btn_pause);
+        Button btnReset = findViewById(R.id.btn_reset);
 
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,11 +53,23 @@ public class MainActivity extends AppCompatActivity {
         btnPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                ruler.pausePlayRecord();
+                ruler.stopPlayRecord();
+            }
+        });
+
+        btnReset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ruler.reset();
             }
         });
 
         ruler.setRecordCallBack(new RecordCallBack() {
+
+            @Override
+            public float getSamplePercent() {
+                return new Random().nextFloat();
+            }
 
             @Override
             public void onRecordCurrent(long centerStartTimeMillis, long recordTimeInMillis) {
@@ -64,8 +77,8 @@ public class MainActivity extends AppCompatActivity {
             }
 
             @Override
-            public float getSamplePercent() {
-                return new Random().nextFloat();
+            public void onPlayingRecordFinish() {
+
             }
 
         });

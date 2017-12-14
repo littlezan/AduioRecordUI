@@ -238,8 +238,8 @@ public abstract class BaseAudioRecord extends View {
 
     protected boolean isAutoScroll;
 
-    private float mLastX = 0;
-    private long currentRecordTime;
+    protected float mLastX = 0;
+    protected long currentRecordTime;
 
     /**
      * 是否在播放录音
@@ -308,6 +308,7 @@ public abstract class BaseAudioRecord extends View {
         bottomTextSize = typedArray.getDimensionPixelSize(R.styleable.AudioRecord_bottomTextSize, bottomTextSize);
 
         bottomRectColor = typedArray.getColor(R.styleable.AudioRecord_bottomRectColor, ContextCompat.getColor(getContext(), android.R.color.holo_orange_light));
+
 
     }
 
@@ -560,7 +561,10 @@ public abstract class BaseAudioRecord extends View {
             playRecordHandler.postDelayed(playRecordRunnable, recordDelayMillis);
             //自动停止播放
             if (centerLineX >= getLastSampleLineRightX()) {
-                pausePlayRecord();
+                stopPlayRecord();
+                if (recordCallBack != null) {
+                    recordCallBack.onPlayingRecordFinish();
+                }
             }
 
         }
@@ -581,7 +585,7 @@ public abstract class BaseAudioRecord extends View {
     /**
      * 暂停播放录音
      */
-    public void pausePlayRecord() {
+    public void stopPlayRecord() {
         if (isPlayingRecord) {
             playRecordHandler.removeCallbacks(playRecordRunnable);
             isPlayingRecord = false;
@@ -597,4 +601,6 @@ public abstract class BaseAudioRecord extends View {
     public boolean isPlayingRecord() {
         return isPlayingRecord;
     }
+
+
 }

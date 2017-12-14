@@ -69,6 +69,11 @@
     </android.support.v7.widget.LinearLayoutCompat>
 
 
-
+    <Button
+        android:id="@+id/btn_reset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="reset"
+        tools:ignore="HardcodedText" />
 
 </android.support.v7.widget.LinearLayoutCompat>

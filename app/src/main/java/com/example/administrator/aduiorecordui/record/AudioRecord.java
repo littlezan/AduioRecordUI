@@ -266,4 +266,18 @@ public class AudioRecord extends BaseAudioRecord {
         }
         canvas.drawText(text, getScrollX() + canvasMiddle, bottomCircleY + bottomTextSize + 20, bottomTextPaint);
     }
+
+    public void reset() {
+        stopRecord();
+        stopPlayRecord();
+        centerLineX = 0;
+        currentRecordTime = 0;
+        mLastX = 0;
+        sampleLineList.clear();
+        lineLocationX = 0;
+        minScrollX = 0;
+        maxScrollX = 0;
+        scrollTo(minScrollX, 0);
+        invalidate();
+    }
 }
