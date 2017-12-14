@@ -10,6 +10,7 @@
     <com.example.littlezan.playaudioui.widget.PlayAudioView
         android:id="@+id/play_audio_view"
         android:layout_width="match_parent"
+        app:p_audioSourceFrequency="10"
         android:layout_height="400dp" />
 
 
