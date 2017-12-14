@@ -436,6 +436,8 @@ public abstract class BaseAudioRecord extends View {
             long centerStartTimeMillis;
             if (x == minScrollX) {
                 centerStartTimeMillis = 0;
+            } else if (x == maxScrollX) {
+                centerStartTimeMillis = currentRecordTime;
             } else {
                 centerStartTimeMillis = (long) (centerLineX * 1000L / (intervalCount * scaleIntervalLength));
             }
