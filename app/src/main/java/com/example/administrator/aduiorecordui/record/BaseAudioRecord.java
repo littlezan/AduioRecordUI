@@ -432,8 +432,14 @@ public abstract class BaseAudioRecord extends View {
             x = maxScrollX;
         }
         super.scrollTo(x, y);
-        if (recordCallBack != null) {
-            recordCallBack.onRecordCurrent((long) (centerLineX * 1000L / (intervalCount * scaleIntervalLength)), currentRecordTime);
+        if (!isAutoScroll && recordCallBack != null) {
+            long centerStartTimeMillis;
+            if (x == minScrollX) {
+                centerStartTimeMillis = 0;
+            } else {
+                centerStartTimeMillis = (long) (centerLineX * 1000L / (intervalCount * scaleIntervalLength));
+            }
+            recordCallBack.onRecordCurrent(centerStartTimeMillis, currentRecordTime);
         }
     }
 
@@ -476,6 +482,9 @@ public abstract class BaseAudioRecord extends View {
                 overScroller.startScroll(getScrollX(), 0, dx, 0, recordDelayMillis);
             } else {
                 isAutoScroll = false;
+            }
+            if (recordCallBack != null) {
+                recordCallBack.onRecordCurrent(currentRecordTime, currentRecordTime);
             }
             recordHandler.postDelayed(recordRunnable, recordDelayMillis);
             currentRecordTime = currentRecordTime + recordDelayMillis;

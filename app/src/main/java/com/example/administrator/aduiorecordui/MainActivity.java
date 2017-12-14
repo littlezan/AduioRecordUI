@@ -2,6 +2,7 @@ package com.example.administrator.aduiorecordui;
 
 import android.os.Bundle;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 
@@ -9,9 +10,11 @@ import com.example.administrator.aduiorecordui.record.AudioRecord;
 import com.example.administrator.aduiorecordui.record.RecordCallBack;
 
 import java.util.Random;
+import java.util.concurrent.TimeUnit;
 
 public class MainActivity extends AppCompatActivity {
 
+    private static final String TAG = "MainActivity";
 
     private AudioRecord ruler;
 
@@ -73,7 +76,8 @@ public class MainActivity extends AppCompatActivity {
 
             @Override
             public void onRecordCurrent(long centerStartTimeMillis, long recordTimeInMillis) {
-
+                Log.d(TAG, "lll onRecordCurrent: centerStartTimeMillis = " + centerStartTimeMillis + ",  inSecond = " + TimeUnit.MILLISECONDS.toSeconds(centerStartTimeMillis)
+                        + ", recordTimeInMillis = " + recordTimeInMillis+", inSecond = " + TimeUnit.MILLISECONDS.toSeconds(recordTimeInMillis));
             }
 
             @Override
