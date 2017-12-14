@@ -272,6 +272,7 @@ public class AudioRecord extends BaseAudioRecord {
         stopPlayRecord();
         centerLineX = 0;
         currentRecordTime = 0;
+        currentPlayRecordTime = 0;
         mLastX = 0;
         sampleLineList.clear();
         lineLocationX = 0;

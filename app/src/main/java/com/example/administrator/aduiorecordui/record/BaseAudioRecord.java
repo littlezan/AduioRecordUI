@@ -44,6 +44,7 @@ public abstract class BaseAudioRecord extends View {
      * 录音时长 单位分钟
      */
     protected int recordTimeInMinutes = 1;
+
     /**
      * 录音采样频率 每秒钟采样个数
      */
@@ -438,6 +439,7 @@ public abstract class BaseAudioRecord extends View {
                 centerStartTimeMillis = (long) (centerLineX * 1000L / (intervalCount * scaleIntervalLength));
             }
             recordCallBack.onRecordCurrent(centerStartTimeMillis, currentRecordTime);
+            recordCallBack.onPlayingRecord(centerStartTimeMillis);
         }
     }
 
@@ -562,13 +564,19 @@ public abstract class BaseAudioRecord extends View {
     }
 
 
+    protected long currentPlayRecordTime;
     Handler playRecordHandler = new Handler();
     Runnable playRecordRunnable = new Runnable() {
         @Override
         public void run() {
             isAutoScroll = true;
             scrollBy(lineWidth + rectGap, 0);
+
             playRecordHandler.postDelayed(playRecordRunnable, recordDelayMillis);
+            currentPlayRecordTime = currentPlayRecordTime + recordDelayMillis;
+            if (recordCallBack != null) {
+                recordCallBack.onPlayingRecord(currentPlayRecordTime);
+            }
             //自动停止播放
             if (centerLineX >= getLastSampleLineRightX()) {
                 stopPlayRecord();

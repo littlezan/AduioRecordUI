@@ -29,12 +29,19 @@ public interface RecordCallBack {
     void onRecordCurrent(long centerStartTimeMillis, long recordTimeInMillis);
 
     /**
+     * 录音结束
+     */
+    void onRecordFinish();
+
+    /**
      * 结束播放录音
      */
     void onPlayingRecordFinish();
 
     /**
-     * 录音结束
+     * 当前播放时间
+     *
+     * @param playingTimeInMillis 当前播放时间 单位毫秒
      */
-    void onRecordFinish();
+    void onPlayingRecord(long playingTimeInMillis);
 }

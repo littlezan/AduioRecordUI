@@ -1,5 +1,7 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
+
+    <!--录音-->
     <declare-styleable name="AudioRecord">
         <!--录音时长 单位分钟-->
         <attr name="recordTimeInMinutes" format="integer" />
@@ -55,6 +57,30 @@
         <attr name="bottomTextSize" format="dimension" />
         <!--底部 文字区域 背景颜色-->
         <attr name="bottomRectColor" format="color" />
+
+    </declare-styleable>
+
+
+    <!--播放音频-->
+    <declare-styleable name="PlayAudio">
+        <!--声音数据采集的频率 每秒钟采集个数-->
+        <attr name="p_audioSourceFrequency" format="integer" />
+        <!--中心垂直线的宽-->
+        <attr name="p_circleMarginTop" format="dimension" />
+        <!--波形 距离圆点间距-->
+        <attr name="p_rectMarginTop" format="dimension" />
+        <!--圆形半径-->
+        <attr name="p_circleRadius" format="dimension" />
+        <!--中心垂直线的宽-->
+        <attr name="p_centerLineWidth" format="dimension" />
+        <!--没有扫描的矩形颜色-->
+        <attr name="p_unSwipeColor" format="color" />
+        <!--扫描过的矩形颜色-->
+        <attr name="p_swipedColor" format="color" />
+        <!--波形 宽-->
+        <attr name="p_rectWidth" format="dimension" />
+        <!--波形 间距-->
+        <attr name="p_rectGap" format="dimension" />
 
     </declare-styleable>
 

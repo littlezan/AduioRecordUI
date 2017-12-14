@@ -17,6 +17,8 @@
                 <category android:name="android.intent.category.LAUNCHER" />
             </intent-filter>
         </activity>
+        <activity android:name=".RecordActivity" />
+        <activity android:name=".PlayAudioActivity" />
     </application>
 
 </manifest>
