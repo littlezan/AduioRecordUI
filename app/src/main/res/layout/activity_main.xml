@@ -44,6 +44,30 @@
     </android.support.v7.widget.LinearLayoutCompat>
 
 
+    <android.support.v7.widget.LinearLayoutCompat
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+
+        android:orientation="horizontal"
+        >
+
+        <Button
+            android:id="@+id/btn_play"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="play"
+            tools:ignore="HardcodedText" />
+
+        <Button
+            android:id="@+id/btn_pause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="pause"
+            tools:ignore="HardcodedText" />
+
+
+    </android.support.v7.widget.LinearLayoutCompat>
+
 
 
 

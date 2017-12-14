@@ -251,6 +251,12 @@ public abstract class BaseAudioRecord extends View {
      */
     private boolean isPlayingRecord = false;
 
+    /**
+     * 中心点的位置
+     */
+    protected float centerLineX = 0;
+    private int playScrollD = 0;
+
     public BaseAudioRecord(Context context) {
         super(context);
         initAttrs(context, null);
@@ -416,7 +422,7 @@ public abstract class BaseAudioRecord extends View {
     public void computeScroll() {
         //滑动处理
         if (overScroller.computeScrollOffset()) {
-            Log.d(TAG, "lll computeScroll: computeScrollOffset overScroller.getCurrX() = " + overScroller.getCurrX()+ ", overScroller.getCurrY() = " + overScroller.getCurrY());
+            Log.d(TAG, "lll computeScroll: computeScrollOffset overScroller.getCurrX() = " + overScroller.getCurrX() + ", overScroller.getCurrY() = " + overScroller.getCurrY());
             scrollTo(overScroller.getCurrX(), overScroller.getCurrY());
         }
     }
@@ -432,7 +438,7 @@ public abstract class BaseAudioRecord extends View {
         }
         super.scrollTo(x, y);
         if (recordCallBack != null) {
-            recordCallBack.onRecordCurrent(x * 1000L / (intervalCount * scaleIntervalLength), currentRecordTime);
+            recordCallBack.onRecordCurrent((long) (centerLineX * 1000L / (intervalCount * scaleIntervalLength)), currentRecordTime);
         }
     }
 
@@ -463,8 +469,7 @@ public abstract class BaseAudioRecord extends View {
     Runnable recordRunnable = new Runnable() {
         @Override
         public void run() {
-            //播放录音的时候，不采集声音分贝了
-            if (recordCallBack != null && !isPlayingRecord) {
+            if (recordCallBack != null) {
                 makeSampleLine(recordCallBack.getSamplePercent());
             }
             float lastSampleLineRightX = getLastSampleLineRightX();
@@ -472,7 +477,8 @@ public abstract class BaseAudioRecord extends View {
             long maxX = maxLength;
             if (lastSampleLineRightX > middleX && lastSampleLineRightX <= maxX) {
                 isAutoScroll = true;
-                overScroller.startScroll(getScrollX(), 0, (int) lastSampleLineRightX, 0, recordDelayMillis);
+                int dx = Math.round(lastSampleLineRightX + rectGap - getScrollX());
+                overScroller.startScroll(getScrollX(), 0, dx, 0, recordDelayMillis);
             } else {
                 isAutoScroll = false;
             }
@@ -483,6 +489,7 @@ public abstract class BaseAudioRecord extends View {
             }
         }
     };
+
 
     public void startRecord() {
         if (!isRecording) {
@@ -506,7 +513,7 @@ public abstract class BaseAudioRecord extends View {
     }
 
     private void scrollToEnd() {
-        if (sampleLineList.size() > 0 ) {
+        if (sampleLineList.size() > 0) {
             float lastSampleLineRightX = getLastSampleLineRightX();
             if (lastSampleLineRightX >= getMeasuredWidth() / 2) {
                 scrollTo((int) lastSampleLineRightX, 0);
@@ -548,32 +555,6 @@ public abstract class BaseAudioRecord extends View {
         this.canTouchScroll = canTouchScroll;
     }
 
-    /**
-     * 开始播放录音
-     */
-    public void startPlayRecord() {
-        if (!isPlayingRecord) {
-            stopRecord();
-            if (getScrollX() >= maxScrollX) {
-                scrollTo(0, 0);
-            } else {
-                startPlayingRecord();
-            }
-        }
-    }
-
-    /**
-     * 暂停播放录音
-     */
-    public void pausePlayRecord() {
-        isPlayingRecord = false;
-        stopRecord();
-    }
-
-    private void startPlayingRecord() {
-        isPlayingRecord = true;
-        startRecord();
-    }
 
     /**
      * 是否正在录音
@@ -582,5 +563,46 @@ public abstract class BaseAudioRecord extends View {
      */
     public boolean isRecording() {
         return isRecording;
+    }
+
+
+    Handler playRecordHandler = new Handler();
+    Runnable playRecordRunnable = new Runnable() {
+        @Override
+        public void run() {
+            isAutoScroll = true;
+            scrollBy(lineWidth + rectGap, 0);
+            playRecordHandler.postDelayed(playRecordRunnable, recordDelayMillis);
+            //自动停止播放
+            if (centerLineX >= getLastSampleLineRightX()) {
+                pausePlayRecord();
+            }
+
+        }
+    };
+
+    public void startPlayRecord() {
+        Log.d(TAG, "lll startPlayRecord: isPlayingRecord = " + isPlayingRecord);
+        if (!isPlayingRecord) {
+            stopRecord();
+            if (centerLineX >= getLastSampleLineRightX() - lineWidth - rectGap) {
+                scrollTo(minScrollX - lineWidth - rectGap, 0);
+            }
+            playRecordHandler.postDelayed(playRecordRunnable, 100);
+            isPlayingRecord = true;
+            setCanTouchScroll(false);
+        }
+    }
+
+    /**
+     * 暂停播放录音
+     */
+    public void pausePlayRecord() {
+        if (isPlayingRecord) {
+            playRecordHandler.removeCallbacks(playRecordRunnable);
+            setCanTouchScroll(true);
+            isPlayingRecord = false;
+            isAutoScroll = false;
+        }
     }
 }

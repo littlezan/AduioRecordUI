@@ -25,6 +25,8 @@ public class MainActivity extends AppCompatActivity {
         ruler = findViewById(R.id.ruler);
         Button btnStart = findViewById(R.id.btn_start);
         Button btnStop = findViewById(R.id.btn_stop);
+        Button btnPlay = findViewById(R.id.btn_play);
+        Button btnPause = findViewById(R.id.btn_pause);
 
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -40,6 +42,19 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        btnPlay.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ruler.startPlayRecord();
+            }
+        });
+
+        btnPause.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                ruler.pausePlayRecord();
+            }
+        });
 
         ruler.setRecordCallBack(new RecordCallBack() {
 

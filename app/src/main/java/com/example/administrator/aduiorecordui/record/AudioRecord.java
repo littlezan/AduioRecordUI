@@ -208,7 +208,7 @@ public class AudioRecord extends BaseAudioRecord {
         }
 
         int mixWidth = getScrollX() - rectWidthWithGap;
-        int maxWidth = isAutoScroll ? getScrollX() + canvas.getWidth() / 2 + rectWidthWithGap : getScrollX() + canvas.getWidth() + rectWidthWithGap;
+        int maxWidth = isRecording ? getScrollX() + canvas.getWidth() / 2 + rectWidthWithGap : getScrollX() + canvas.getWidth() + rectWidthWithGap;
         for (int i = recentlyRectIndex; i < sampleLineList.size(); i++) {
             SampleLineModel next = sampleLineList.get(i);
             if (next.startX >= mixWidth && next.startX + lineWidth / 2 <= maxWidth) {
@@ -237,6 +237,7 @@ public class AudioRecord extends BaseAudioRecord {
         if (circleX > getScrollX() + canvasMiddle) {
             circleX = getScrollX() + canvasMiddle;
         }
+        centerLineX = circleX;
         float topCircleY = ruleHorizontalLineHeight - middleCircleRadius;
         float bottomCircleY = canvas.getHeight() / 2 + (canvas.getHeight() / 2 - ruleHorizontalLineHeight) + middleCircleRadius;
         //底部颜色
