@@ -3,11 +3,13 @@ package com.example.administrator.aduiorecordui.playaudio;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.view.ViewTreeObserver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -66,12 +68,29 @@ public class PlayAudioView extends BasePlayAudioView {
     }
 
     private void createAudioSample(final List<Float> audioSourceList) {
-
         HandlerThread handlerThread = new HandlerThread("PlayAudioView");
         handlerThread.start();
-        Handler handler = new Handler(handlerThread.getLooper());
+        final Handler handler = new Handler(handlerThread.getLooper());
 
-        handler.postDelayed(new Runnable() {
+        ViewTreeObserver vto = getViewTreeObserver();
+        if (vto.isAlive()) {
+            vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
+                @Override
+                public void onGlobalLayout() {
+                    addSampleLine(audioSourceList, handler);
+                    if (Build.VERSION.SDK_INT < 16) {
+                        getViewTreeObserver().removeGlobalOnLayoutListener(this);
+                    } else {
+                        getViewTreeObserver().removeOnGlobalLayoutListener(this);
+                    }
+                }
+            });
+        }
+
+    }
+
+    private void addSampleLine(final List<Float> audioSourceList, Handler handler) {
+        handler.post(new Runnable() {
             @Override
             public void run() {
                 sampleLineList.clear();
@@ -95,7 +114,7 @@ public class PlayAudioView extends BasePlayAudioView {
                     });
                 }
             }
-        }, 100);
+        });
     }
 
     /**
@@ -177,5 +196,16 @@ public class PlayAudioView extends BasePlayAudioView {
         canvas.drawLine(centerLineX, startY, centerLineX, getMeasuredHeight(), centerTargetPaint);
     }
 
+
+    public void setPlayingTime(long timeInMillis) {
+        centerLineX = timeInMillis/1000 * audioSourceFrequency * (lineWidth + rectGap);
+        int middle = getMeasuredWidth() / 2;
+        if (centerLineX <= middle) {
+            invalidate();
+        } else {
+            int x = (int) (centerLineX - middle);
+            scrollTo(x, 0);
+        }
+    }
 
 }

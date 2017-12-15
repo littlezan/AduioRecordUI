@@ -34,6 +34,20 @@
             android:text="stop"
             tools:ignore="HardcodedText" />
 
+        <Button
+            android:id="@+id/reset"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="reset"
+            tools:ignore="HardcodedText" />
+
     </android.support.v7.widget.LinearLayoutCompat>
+
+    <Button
+        android:id="@+id/play_middle"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="play_middle"
+        tools:ignore="HardcodedText" />
 
 </android.support.v7.widget.LinearLayoutCompat>

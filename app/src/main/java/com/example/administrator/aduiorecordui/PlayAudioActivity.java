@@ -29,6 +29,8 @@ public class PlayAudioActivity extends AppCompatActivity {
         final PlayAudioView playAudioView = findViewById(R.id.play_audio_view);
         Button play = findViewById(R.id.play);
         Button stop = findViewById(R.id.stop);
+        Button reset = findViewById(R.id.reset);
+        Button playMiddle = findViewById(R.id.play_middle);
 
         ArrayList<Float> audioSourceList = new ArrayList<>();
         fakeData(audioSourceList);
@@ -47,10 +49,26 @@ public class PlayAudioActivity extends AppCompatActivity {
                 playAudioView.stopPlay();
             }
         });
+
+        reset.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playAudioView.reset();
+            }
+        });
+
+        playMiddle.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                playAudioView.setPlayingTime(max/2/10*1000);
+            }
+        });
     }
 
+    int max = 100;
+
     private void fakeData(ArrayList<Float> audioSourceList) {
-        for (int i = 0; i < 100; i++) {
+        for (int i = 0; i < max; i++) {
             audioSourceList.add(new Random().nextFloat());
         }
     }
