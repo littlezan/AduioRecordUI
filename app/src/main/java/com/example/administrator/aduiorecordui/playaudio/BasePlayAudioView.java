@@ -123,6 +123,7 @@ public abstract class BasePlayAudioView extends View {
      * 结束点的位置 包含 间距
      */
     float lastSampleXWithRectGap;
+    private PlayAudioCallBack playAudioCallBack;
 
     public BasePlayAudioView(Context context) {
         super(context);
@@ -270,8 +271,10 @@ public abstract class BasePlayAudioView extends View {
             }
             playHandler.postDelayed(playRunnable, delayMillis);
             if (centerLineX >= lastSampleXWithRectGap - rectGap) {
+                if (playAudioCallBack != null) {
+                    playAudioCallBack.onPlayingFinish();
+                }
                 stopPlay();
-                reset();
             }
         }
     };
@@ -320,6 +323,10 @@ public abstract class BasePlayAudioView extends View {
     public void setCenterLineX(float centerLineX) {
         this.centerLineX = centerLineX;
         invalidate();
+    }
+
+    public void setPlayAudioCallBack(PlayAudioCallBack playAudioCallBack) {
+        this.playAudioCallBack = playAudioCallBack;
     }
 
     public void reset() {
