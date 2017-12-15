@@ -9,6 +9,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -263,13 +264,20 @@ public abstract class BasePlayAudioView extends View {
         public void run() {
             int middle = getMeasuredWidth() / 2;
             if (centerLineX < middle) {
+                Log.d(TAG, "lll run: startCenterLineAnimationFromStart");
                 isAutoScroll = false;
                 startCenterLineAnimationFromStart(delayMillis);
-            } else  {
+            } else if (centerLineX > lastSampleXWithRectGap - middle) {
+                Log.d(TAG, "lll run: startCenterLineAnimationFromEnd");
+                isAutoScroll = false;
+                startCenterLineAnimationFromEnd(delayMillis);
+            } else {
+                Log.d(TAG, "lll run: scrollBy");
                 isAutoScroll = true;
                 scrollBy(scrollDx, 0);
             }
             playHandler.postDelayed(playRunnable, delayMillis);
+            Log.d(TAG, "lll run: lastSampleXWithRectGap = " + lastSampleXWithRectGap);
             if (centerLineX >= lastSampleXWithRectGap - rectGap) {
                 if (playAudioCallBack != null) {
                     playAudioCallBack.onPlayingFinish();
@@ -307,13 +315,13 @@ public abstract class BasePlayAudioView extends View {
         fromX = fromX + scrollDx;
     }
 
-    float endX;
+    float animatorEndX;
     private void startCenterLineAnimationFromEnd(long delayMillis) {
-        ObjectAnimator animator = ObjectAnimator.ofFloat(this, "centerLineX", endX, endX + scrollDx);
+        ObjectAnimator animator = ObjectAnimator.ofFloat(this, "centerLineX", animatorEndX, animatorEndX + scrollDx);
         animator.setDuration(delayMillis);
         animator.setInterpolator(new LinearInterpolator());
         animator.start();
-        endX = fromX + scrollDx;
+        animatorEndX = animatorEndX + scrollDx;
     }
 
     public float getCenterLineX() {

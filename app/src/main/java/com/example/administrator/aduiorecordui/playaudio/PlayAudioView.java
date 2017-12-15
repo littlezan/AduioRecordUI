@@ -78,16 +78,14 @@ public class PlayAudioView extends BasePlayAudioView {
                 lineLocationX = circleRadius;
                 for (Float aFloat : audioSourceList) {
                     SampleLine sampleLine = new SampleLine();
-                    sampleLine.startX = lineLocationX+lineWidth/2;
+                    sampleLine.startX = lineLocationX + lineWidth / 2;
                     sampleLine.stopX = sampleLine.startX;
                     sampleLine.startY = (getMeasuredHeight() - (getMeasuredHeight() - rectMarginTop) * aFloat) / 2 + circleMarginTop;
                     sampleLine.stopY = getMeasuredHeight() + circleMarginTop - sampleLine.startY;
                     lineLocationX = lineLocationX + lineWidth + rectGap;
                     sampleLineList.add(sampleLine);
                 }
-                lastSampleXWithRectGap = lineLocationX;
-                maxScrollX = (int) (lineLocationX - getMeasuredWidth() / 2 > 0 ? lineLocationX - getMeasuredWidth() / 2 : lineLocationX);
-                minScrollX = 0;
+                initValues();
                 if (lineLocationX > getMeasuredWidth()) {
                     post(new Runnable() {
                         @Override
@@ -98,6 +96,16 @@ public class PlayAudioView extends BasePlayAudioView {
                 }
             }
         }, 100);
+    }
+
+    /**
+     * 初始化数据
+     */
+    private void initValues() {
+        lastSampleXWithRectGap = lineLocationX;
+        maxScrollX = (int) (lineLocationX - getMeasuredWidth() / 2 > 0 ? lineLocationX - getMeasuredWidth() / 2 : lineLocationX);
+        minScrollX = 0;
+        animatorEndX = lastSampleXWithRectGap - getMeasuredWidth() / 2;
     }
 
     @Override
@@ -120,7 +128,7 @@ public class PlayAudioView extends BasePlayAudioView {
         List<SampleLine> resultList = getDrawAudioSample(canvas);
         if (resultList != null && resultList.size() > 0) {
             for (SampleLine sampleLine : resultList) {
-                if (sampleLine.startX + lineWidth/2 <= centerLineX) {
+                if (sampleLine.startX + lineWidth / 2 <= centerLineX) {
                     linePaint.setColor(swipedColor);
                 } else {
                     linePaint.setColor(unSwipeColor);
