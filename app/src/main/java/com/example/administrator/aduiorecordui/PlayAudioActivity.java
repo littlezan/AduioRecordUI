@@ -50,7 +50,7 @@ public class PlayAudioActivity extends AppCompatActivity {
     }
 
     private void fakeData(ArrayList<Float> audioSourceList) {
-        for (int i = 0; i < 200; i++) {
+        for (int i = 0; i < 100; i++) {
             audioSourceList.add(new Random().nextFloat());
         }
     }

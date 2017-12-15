@@ -8,7 +8,6 @@ import android.os.HandlerThread;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -76,23 +75,27 @@ public class PlayAudioView extends BasePlayAudioView {
             @Override
             public void run() {
                 sampleLineList.clear();
+                lineLocationX = circleRadius;
                 for (Float aFloat : audioSourceList) {
                     SampleLine sampleLine = new SampleLine();
-                    sampleLine.startX = lineLocationX;
+                    sampleLine.startX = lineLocationX+lineWidth/2;
                     sampleLine.stopX = sampleLine.startX;
                     sampleLine.startY = (getMeasuredHeight() - (getMeasuredHeight() - rectMarginTop) * aFloat) / 2 + circleMarginTop;
                     sampleLine.stopY = getMeasuredHeight() + circleMarginTop - sampleLine.startY;
                     lineLocationX = lineLocationX + lineWidth + rectGap;
                     sampleLineList.add(sampleLine);
                 }
+                lastSampleXWithRectGap = lineLocationX;
                 maxScrollX = (int) (lineLocationX - getMeasuredWidth() / 2 > 0 ? lineLocationX - getMeasuredWidth() / 2 : lineLocationX);
                 minScrollX = 0;
-                post(new Runnable() {
-                    @Override
-                    public void run() {
-                        invalidate();
-                    }
-                });
+                if (lineLocationX > getMeasuredWidth()) {
+                    post(new Runnable() {
+                        @Override
+                        public void run() {
+                            invalidate();
+                        }
+                    });
+                }
             }
         }, 100);
     }
@@ -117,12 +120,12 @@ public class PlayAudioView extends BasePlayAudioView {
         List<SampleLine> resultList = getDrawAudioSample(canvas);
         if (resultList != null && resultList.size() > 0) {
             for (SampleLine sampleLine : resultList) {
-                canvas.drawLine(sampleLine.startX, sampleLine.startY, sampleLine.stopX, sampleLine.stopY, linePaint);
-                if (sampleLine.startX + lineWidth <= centerLineX) {
+                if (sampleLine.startX + lineWidth/2 <= centerLineX) {
                     linePaint.setColor(swipedColor);
                 } else {
                     linePaint.setColor(unSwipeColor);
                 }
+                canvas.drawLine(sampleLine.startX, sampleLine.startY, sampleLine.stopX, sampleLine.stopY, linePaint);
             }
         }
     }
@@ -161,7 +164,6 @@ public class PlayAudioView extends BasePlayAudioView {
      */
     private void drawVerticalTargetLine(Canvas canvas) {
         centerLineX = isAutoScroll ? getScrollX() + canvas.getWidth() / 2 : centerLineX;
-        Log.d(TAG, "lll centerLineX drawVerticalTargetLine: centerLineX = " + centerLineX);
         float startY = circleMarginTop;
         canvas.drawCircle(centerLineX, startY, circleRadius, centerTargetPaint);
         canvas.drawLine(centerLineX, startY, centerLineX, getMeasuredHeight(), centerTargetPaint);

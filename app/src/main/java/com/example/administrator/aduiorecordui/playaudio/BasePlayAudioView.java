@@ -9,7 +9,6 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -116,13 +115,18 @@ public abstract class BasePlayAudioView extends View {
 
     List<SampleLine> sampleLineList = new ArrayList<>();
 
-    float lineLocationX;
+    float lineLocationX = circleRadius;
     private long delayMillis;
+    float centerLineX = circleRadius;
 
-    float centerLineX;
+    /**
+     * 结束点的位置 包含 间距
+     */
+    float lastSampleXWithRectGap;
 
     public BasePlayAudioView(Context context) {
         super(context);
+        initAttrs(context, null);
         init(context);
     }
 
@@ -139,6 +143,9 @@ public abstract class BasePlayAudioView extends View {
     }
 
     private void initAttrs(Context context, AttributeSet attrs) {
+        if (attrs == null) {
+            return;
+        }
         TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.PlayAudio, 0, 0);
         audioSourceFrequency = typedArray.getInt(R.styleable.PlayAudio_p_audioSourceFrequency, audioSourceFrequency);
         circleMarginTop = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_circleMarginTop, circleMarginTop);
@@ -155,7 +162,7 @@ public abstract class BasePlayAudioView extends View {
 
     private void init(Context context) {
 
-        delayMillis = (long) (1000 / (audioSourceFrequency * (lineWidth + rectGap) * scrollDx));
+        delayMillis = 1000 * scrollDx / (audioSourceFrequency * (lineWidth + rectGap));
 
         overScroller = new OverScroller(context);
         velocityTracker = VelocityTracker.obtain();
@@ -253,17 +260,16 @@ public abstract class BasePlayAudioView extends View {
     Runnable playRunnable = new Runnable() {
         @Override
         public void run() {
-            Log.d(TAG, "lll run: centerLineX = " + centerLineX + ", getMeasuredWidth() / 2 = " + getMeasuredWidth() / 2);
             int middle = getMeasuredWidth() / 2;
             if (centerLineX < middle) {
-                startCenterLineAnimation(delayMillis);
                 isAutoScroll = false;
-            } else {
+                startCenterLineAnimationFromStart(delayMillis);
+            } else  {
                 isAutoScroll = true;
                 scrollBy(scrollDx, 0);
             }
             playHandler.postDelayed(playRunnable, delayMillis);
-            if (getScrollX() >= maxScrollX) {
+            if (centerLineX >= lastSampleXWithRectGap - rectGap) {
                 stopPlay();
                 reset();
             }
@@ -288,16 +294,23 @@ public abstract class BasePlayAudioView extends View {
         }
     }
 
-    float fromX;
+    float fromX = circleRadius;
 
-    private void startCenterLineAnimation(long delayMillis) {
-        Log.d(TAG, "lll startCenterLineAnimation: delayMillis = " + delayMillis);
-
+    private void startCenterLineAnimationFromStart(long delayMillis) {
         ObjectAnimator animator = ObjectAnimator.ofFloat(this, "centerLineX", fromX, fromX + scrollDx);
         animator.setDuration(delayMillis);
         animator.setInterpolator(new LinearInterpolator());
         animator.start();
         fromX = fromX + scrollDx;
+    }
+
+    float endX;
+    private void startCenterLineAnimationFromEnd(long delayMillis) {
+        ObjectAnimator animator = ObjectAnimator.ofFloat(this, "centerLineX", endX, endX + scrollDx);
+        animator.setDuration(delayMillis);
+        animator.setInterpolator(new LinearInterpolator());
+        animator.start();
+        endX = fromX + scrollDx;
     }
 
     public float getCenterLineX() {
@@ -311,8 +324,8 @@ public abstract class BasePlayAudioView extends View {
 
     public void reset() {
         stopPlay();
-        fromX = 0;
-        centerLineX = 0;
+        fromX = circleRadius;
+        centerLineX = circleRadius;
         isAutoScroll = false;
         scrollTo(minScrollX, 0);
         invalidate();

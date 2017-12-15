@@ -7,10 +7,11 @@
     android:orientation="vertical"
    >
 
-    <com.example.littlezan.playaudioui.widget.PlayAudioView
+    <com.example.administrator.aduiorecordui.playaudio.PlayAudioView
         android:id="@+id/play_audio_view"
         android:layout_width="match_parent"
         app:p_audioSourceFrequency="10"
+        app:p_rectMarginTop="1dp"
         android:layout_height="400dp" />
 
 
