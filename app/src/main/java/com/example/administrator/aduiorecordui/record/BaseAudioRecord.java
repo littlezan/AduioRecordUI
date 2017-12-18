@@ -438,8 +438,11 @@ public abstract class BaseAudioRecord extends View {
             } else {
                 centerStartTimeMillis = (long) (centerLineX * 1000L / (intervalCount * scaleIntervalLength));
             }
-            recordCallBack.onRecordCurrent(centerStartTimeMillis, currentRecordTime);
-            recordCallBack.onPlayingRecord(centerStartTimeMillis);
+            if (isPlayingRecord) {
+                recordCallBack.onPlayingRecord(centerStartTimeMillis);
+            } else {
+                recordCallBack.onRecordCurrent(centerStartTimeMillis, currentRecordTime);
+            }
         }
     }
 
