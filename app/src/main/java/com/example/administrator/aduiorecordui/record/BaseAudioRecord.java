@@ -204,7 +204,7 @@ public abstract class BaseAudioRecord extends View {
     protected int minVelocity;
 
 
-    private boolean needEdgeEffect = false;
+    boolean needEdgeEffect = true;
 
     /**
      * 开始边界效果
@@ -346,7 +346,7 @@ public abstract class BaseAudioRecord extends View {
                 startEdgeEffect.setColor(edgeColor);
                 endEdgeEffect.setColor(edgeColor);
             }
-            mEdgeLength = scaleIntervalLength * intervalCount;
+            mEdgeLength = getMeasuredWidth()/2;
         }
     }
 
@@ -369,7 +369,6 @@ public abstract class BaseAudioRecord extends View {
             case MotionEvent.ACTION_MOVE:
                 float moveX = mLastX - currentX;
                 mLastX = currentX;
-                Log.d(TAG, "lll onTouchEvent: mLastX = " + mLastX + ", currentX = " + currentX + ", moveX = " + moveX);
                 scrollBy((int) (moveX), 0);
                 break;
             case MotionEvent.ACTION_UP:
@@ -380,12 +379,14 @@ public abstract class BaseAudioRecord extends View {
                     fling(-velocityX);
                 }
                 finishVelocityTracker();
+                releaseEdgeEffects();
                 break;
             case MotionEvent.ACTION_CANCEL:
                 if (!overScroller.isFinished()) {
                     overScroller.abortAnimation();
                 }
                 finishVelocityTracker();
+                releaseEdgeEffects();
                 break;
             default:
                 break;
@@ -421,7 +422,6 @@ public abstract class BaseAudioRecord extends View {
 
     @Override
     public void scrollTo(int x, int y) {
-        Log.d(TAG, "lll scrollTo: x = " + x + ", minScrollX = " + minScrollX + ", maxScrollX = " + maxScrollX);
         if (x < minScrollX) {
             goStartEdgeEffect(x);
             x = minScrollX;
@@ -456,12 +456,19 @@ public abstract class BaseAudioRecord extends View {
                 overScroller.abortAnimation();
             } else {
                 startEdgeEffect.onPull(x);
-                startEdgeEffect.setSize(scaleIntervalLength * intervalCount, getMeasuredHeight());
+                startEdgeEffect.setSize(getMeasuredHeight(), getMeasuredHeight());
             }
 
             if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
                 postInvalidateOnAnimation();
             }
+        }
+    }
+
+    private void releaseEdgeEffects(){
+        if (needEdgeEffect) {
+            startEdgeEffect.onRelease();
+            endEdgeEffect.onRelease();
         }
     }
 

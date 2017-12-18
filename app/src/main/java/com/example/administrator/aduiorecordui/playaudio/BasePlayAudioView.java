@@ -340,6 +340,7 @@ public abstract class BasePlayAudioView extends View {
     public void reset() {
         stopPlay();
         fromX = circleRadius;
+        animatorEndX = lastSampleXWithRectGap - getMeasuredWidth() / 2;
         centerLineX = circleRadius;
         isAutoScroll = false;
         scrollTo(minScrollX, 0);

@@ -3,6 +3,7 @@ package com.example.administrator.aduiorecordui.record;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
+import android.os.Build;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
@@ -141,7 +142,10 @@ public class AudioRecord extends BaseAudioRecord {
         drawScale(canvas);
         drawLine(canvas);
         drawCenterVerticalLine(canvas);
+        drawEdgeEffect(canvas);
     }
+
+
 
 
     private void drawScale(Canvas canvas) {
@@ -190,7 +194,6 @@ public class AudioRecord extends BaseAudioRecord {
             float invertedStopY = invertedStartY + sampleLineModel.stopY - sampleLineModel.startY;
             canvas.drawLine(sampleLineModel.startX, invertedStartY, sampleLineModel.stopX, invertedStopY, lineInvertedPaint);
         }
-
     }
 
     private List<SampleLineModel> getDrawSampleLineList(Canvas canvas) {
@@ -266,6 +269,40 @@ public class AudioRecord extends BaseAudioRecord {
         }
         canvas.drawText(text, getScrollX() + canvasMiddle, bottomCircleY + bottomTextSize + 20, bottomTextPaint);
     }
+
+    private void drawEdgeEffect(Canvas canvas) {
+        if (needEdgeEffect) {
+            if (!startEdgeEffect.isFinished()) {
+                int count = canvas.save();
+                canvas.rotate(270);
+                canvas.translate(-getHeight(), getScrollX());
+                if (startEdgeEffect.draw(canvas)) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        postInvalidateOnAnimation();
+                    }
+                }
+                canvas.restoreToCount(count);
+            } else {
+                startEdgeEffect.finish();
+            }
+            if (!endEdgeEffect.isFinished()) {
+                int count = canvas.save();
+                canvas.rotate(90);
+//                canvas.translate((getHeight() - mParent.getCursorHeight()), -mLength);
+                if (endEdgeEffect.draw(canvas)) {
+                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
+                        postInvalidateOnAnimation();
+                    }
+                }
+                canvas.restoreToCount(count);
+            } else {
+                endEdgeEffect.finish();
+            }
+
+        }
+
+    }
+
 
     public void reset() {
         stopRecord();
