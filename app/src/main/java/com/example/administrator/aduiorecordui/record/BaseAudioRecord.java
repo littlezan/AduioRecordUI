@@ -8,7 +8,6 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -204,7 +203,7 @@ public abstract class BaseAudioRecord extends View {
     protected int minVelocity;
 
 
-    boolean needEdgeEffect = true;
+    boolean needEdgeEffect = false;
 
     /**
      * 开始边界效果
@@ -239,6 +238,9 @@ public abstract class BaseAudioRecord extends View {
     protected boolean isAutoScroll;
 
     protected float mLastX = 0;
+    /**
+     * 当前录音总时长
+     */
     protected long currentRecordTime;
 
     /**
@@ -346,7 +348,7 @@ public abstract class BaseAudioRecord extends View {
                 startEdgeEffect.setColor(edgeColor);
                 endEdgeEffect.setColor(edgeColor);
             }
-            mEdgeLength = getMeasuredWidth()/2;
+            mEdgeLength = getMeasuredWidth() / 2;
         }
     }
 
@@ -440,7 +442,8 @@ public abstract class BaseAudioRecord extends View {
             }
             if (isPlayingRecord) {
                 recordCallBack.onPlayingRecord(centerStartTimeMillis);
-            } else {
+            }
+            if (isRecording){
                 recordCallBack.onRecordCurrent(centerStartTimeMillis, currentRecordTime);
             }
         }
@@ -468,7 +471,7 @@ public abstract class BaseAudioRecord extends View {
         }
     }
 
-    private void releaseEdgeEffects(){
+    private void releaseEdgeEffects() {
         if (needEdgeEffect) {
             startEdgeEffect.onRelease();
             endEdgeEffect.onRelease();
@@ -480,28 +483,35 @@ public abstract class BaseAudioRecord extends View {
     Runnable recordRunnable = new Runnable() {
         @Override
         public void run() {
-            if (recordCallBack != null) {
-                makeSampleLine(recordCallBack.getSamplePercent());
-            }
-            float lastSampleLineRightX = getLastSampleLineRightX();
-            int middleX = getScrollX() + getMeasuredWidth() / 2;
-            long maxX = maxLength;
-            if (lastSampleLineRightX > middleX && lastSampleLineRightX <= maxX) {
-                isAutoScroll = true;
-                int dx = Math.round(lastSampleLineRightX + rectGap - getScrollX());
-                overScroller.startScroll(getScrollX(), 0, dx, 0, recordDelayMillis);
-            } else {
-                isAutoScroll = false;
-            }
-            if (recordCallBack != null) {
-                recordCallBack.onRecordCurrent(currentRecordTime, currentRecordTime);
-            }
-            recordHandler.postDelayed(recordRunnable, recordDelayMillis);
-            currentRecordTime = currentRecordTime + recordDelayMillis;
-            if (currentRecordTime >= TimeUnit.MINUTES.toMillis(recordTimeInMinutes)) {
-                stopRecord();
+            if (isRecording) {
                 if (recordCallBack != null) {
-                    recordCallBack.onRecordFinish();
+                    makeSampleLine(recordCallBack.getSamplePercent());
+                }
+                float lastSampleLineRightX = getLastSampleLineRightX();
+                int middleX = getScrollX() + getMeasuredWidth() / 2;
+                long maxX = maxLength;
+                if (lastSampleLineRightX > middleX && lastSampleLineRightX <= maxX) {
+                    isAutoScroll = true;
+                    int dx = Math.round(lastSampleLineRightX + rectGap - getScrollX());
+                    overScroller.startScroll(getScrollX(), 0, dx, 0, recordDelayMillis);
+                } else {
+                    isAutoScroll = false;
+                }
+
+                //结束录音
+                if (currentRecordTime >= TimeUnit.MINUTES.toMillis(recordTimeInMinutes)) {
+                    stopRecord();
+                    if (recordCallBack != null) {
+                        recordCallBack.onRecordFinish();
+                    }
+                } else {
+                    //录音中
+                    recordHandler.postDelayed(recordRunnable, recordDelayMillis);
+                    currentRecordTime = currentRecordTime + recordDelayMillis;
+                }
+
+                if (recordCallBack != null) {
+                    recordCallBack.onRecordCurrent(currentRecordTime, currentRecordTime);
                 }
             }
         }
@@ -514,15 +524,14 @@ public abstract class BaseAudioRecord extends View {
                 return;
             }
             scrollToEnd();
-            recordHandler.post(recordRunnable);
             isRecording = true;
+            recordHandler.post(recordRunnable);
         }
     }
 
 
     public void stopRecord() {
         if (isRecording) {
-            Log.d(TAG, "stopRecord: ");
             recordHandler.removeCallbacks(recordRunnable);
             isRecording = false;
             isAutoScroll = false;
@@ -579,34 +588,47 @@ public abstract class BaseAudioRecord extends View {
     Runnable playRecordRunnable = new Runnable() {
         @Override
         public void run() {
-            isAutoScroll = true;
-            scrollBy(lineWidth + rectGap, 0);
+            if (isPlayingRecord) {
+                isAutoScroll = true;
+                scrollBy(lineWidth + rectGap, 0);
 
-            playRecordHandler.postDelayed(playRecordRunnable, recordDelayMillis);
-            currentPlayRecordTime = currentPlayRecordTime + recordDelayMillis;
-            if (recordCallBack != null) {
-                recordCallBack.onPlayingRecord(currentPlayRecordTime);
-            }
-            //自动停止播放
-            if (centerLineX >= getLastSampleLineRightX()) {
-                stopPlayRecord();
-                if (recordCallBack != null) {
-                    recordCallBack.onPlayingRecordFinish();
+                //自动停止播放
+                if (centerLineX >= getLastSampleLineRightX() || currentPlayRecordTime >= currentRecordTime) {
+                    stopPlayRecord();
+                    if (recordCallBack != null) {
+                        recordCallBack.onPlayingRecordFinish();
+                    }
+                } else {
+                    //播放中
+                    playRecordHandler.postDelayed(playRecordRunnable, recordDelayMillis);
+                    currentPlayRecordTime = currentPlayRecordTime + recordDelayMillis;
                 }
-            }
 
+                if (recordCallBack != null) {
+                    recordCallBack.onPlayingRecord(currentPlayRecordTime);
+                }
+
+            }
         }
     };
 
-    public void startPlayRecord() {
-        Log.d(TAG, "lll startPlayRecord: isPlayingRecord = " + isPlayingRecord);
+    public void startPlayRecord(long timeInMillis) {
         if (!isPlayingRecord) {
             stopRecord();
-            if (centerLineX >= getLastSampleLineRightX() - lineWidth - rectGap) {
-                scrollTo(minScrollX - lineWidth - rectGap, 0);
+            //1.timeInMillis > 0 从指定的时间开始播放
+            if (timeInMillis > 0) {
+                long scrollLength = timeInMillis * scaleIntervalLength * intervalCount / 1000+minScrollX;
+                scrollTo((int) scrollLength, 0);
+            } else {
+                //2.timeInMillis == 0 从指针指向位置开始播放
+                //指针在结束位置，从头开始播放
+                if (centerLineX >= getLastSampleLineRightX() - lineWidth - rectGap) {
+                    scrollTo(minScrollX - lineWidth - rectGap, 0);
+                }
             }
-            playRecordHandler.postDelayed(playRecordRunnable, 100);
+            currentPlayRecordTime = timeInMillis;
             isPlayingRecord = true;
+            playRecordHandler.postDelayed(playRecordRunnable, 100);
         }
     }
 

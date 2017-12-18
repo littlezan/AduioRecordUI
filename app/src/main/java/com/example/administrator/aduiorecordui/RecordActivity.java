@@ -3,9 +3,11 @@ package com.example.administrator.aduiorecordui;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 
 import com.example.administrator.aduiorecordui.record.AudioRecord;
 import com.example.administrator.aduiorecordui.record.RecordCallBack;
@@ -23,6 +25,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class RecordActivity extends AppCompatActivity {
     private static final String TAG = "RecordActivity";
+    private long playingTimeInMillis;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -34,6 +37,8 @@ public class RecordActivity extends AppCompatActivity {
         Button btnPlay = findViewById(R.id.btn_play);
         Button btnPause = findViewById(R.id.btn_pause);
         Button btnReset = findViewById(R.id.btn_reset);
+        final EditText editText = findViewById(R.id.edit_text);
+        Button btnPlayTime = findViewById(R.id.btn_play_time);
 
         btnStart.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,7 +57,7 @@ public class RecordActivity extends AppCompatActivity {
         btnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                audioRecord.startPlayRecord();
+                audioRecord.startPlayRecord(0);
             }
         });
 
@@ -67,6 +72,16 @@ public class RecordActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 audioRecord.reset();
+            }
+        });
+
+        btnPlayTime.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                if (!TextUtils.isEmpty(editText.getText().toString())) {
+                    int millis = Integer.parseInt(editText.getText().toString());
+                    audioRecord.startPlayRecord(millis*1000);
+                }
             }
         });
 
@@ -90,7 +105,8 @@ public class RecordActivity extends AppCompatActivity {
 
             @Override
             public void onPlayingRecord(long playingTimeInMillis) {
-
+                Log.d(TAG, "lll onPlayingRecord: playingTimeInMillis = " + playingTimeInMillis );
+                RecordActivity.this.playingTimeInMillis = playingTimeInMillis;
             }
 
             @Override

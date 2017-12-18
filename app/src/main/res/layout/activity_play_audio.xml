@@ -1,60 +1,92 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
     xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
     android:layout_height="match_parent"
-    android:orientation="vertical">
-
-    <LinearLayout
+    >
+    <android.support.v7.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="400dp"
+        android:layout_height="match_parent"
         android:orientation="vertical">
 
-        <com.example.administrator.aduiorecordui.playaudio.PlayAudioView
-            android:id="@+id/play_audio_view"
+        <LinearLayout
             android:layout_width="match_parent"
-            android:layout_height="match_parent"
-            app:p_audioSourceFrequency="10"
-            app:p_rectMarginTop="1dp" />
+            android:layout_height="400dp"
+            android:orientation="vertical">
+
+            <com.example.administrator.aduiorecordui.playaudio.PlayAudioView
+                android:id="@+id/play_audio_view"
+                android:layout_width="match_parent"
+                android:layout_height="match_parent"
+                app:p_audioSourceFrequency="10"
+                app:p_rectMarginTop="1dp" />
 
 
-    </LinearLayout>
+        </LinearLayout>
 
 
-    <android.support.v7.widget.LinearLayoutCompat
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-        android:orientation="horizontal">
+        <android.support.v7.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/play"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="play"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/stop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="stop"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/reset"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="reset"
+                tools:ignore="HardcodedText" />
+
+        </android.support.v7.widget.LinearLayoutCompat>
+
+
+        <android.support.v7.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+            android:orientation="horizontal">
+
+            <EditText
+                android:id="@+id/edit_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                tools:ignore="TextFields" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="秒"
+                tools:ignore="HardcodedText" />
+        </android.support.v7.widget.LinearLayoutCompat>
+
 
         <Button
-            android:id="@+id/play"
+            android:id="@+id/play_middle"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="play"
-            tools:ignore="HardcodedText" />
-
-        <Button
-            android:id="@+id/stop"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="stop"
-            tools:ignore="HardcodedText" />
-
-        <Button
-            android:id="@+id/reset"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="reset"
+            android:text="set play time"
             tools:ignore="HardcodedText" />
 
     </android.support.v7.widget.LinearLayoutCompat>
 
-    <Button
-        android:id="@+id/play_middle"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="play_middle"
-        tools:ignore="HardcodedText" />
 
-</android.support.v7.widget.LinearLayoutCompat>
+
+</ScrollView>

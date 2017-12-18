@@ -9,7 +9,6 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -34,7 +33,7 @@ public abstract class BasePlayAudioView extends View {
 
     private static final String TAG = "BasePlayAudioView";
 
-    boolean canTouchScroll = false;
+    boolean canTouchScroll = true;
 
     /**
      * 圆点距离上边距
@@ -264,20 +263,16 @@ public abstract class BasePlayAudioView extends View {
         public void run() {
             int middle = getMeasuredWidth() / 2;
             if (centerLineX < middle) {
-                Log.d(TAG, "lll run: startCenterLineAnimationFromStart");
                 isAutoScroll = false;
                 startCenterLineAnimationFromStart(delayMillis);
             } else if (centerLineX > lastSampleXWithRectGap - middle) {
-                Log.d(TAG, "lll run: startCenterLineAnimationFromEnd");
                 isAutoScroll = false;
                 startCenterLineAnimationFromEnd(delayMillis);
             } else {
-                Log.d(TAG, "lll run: scrollBy");
                 isAutoScroll = true;
                 scrollBy(scrollDx, 0);
             }
             playHandler.postDelayed(playRunnable, delayMillis);
-            Log.d(TAG, "lll run: lastSampleXWithRectGap = " + lastSampleXWithRectGap);
             if (centerLineX >= lastSampleXWithRectGap - rectGap) {
                 if (playAudioCallBack != null) {
                     playAudioCallBack.onPlayingFinish();
@@ -305,14 +300,14 @@ public abstract class BasePlayAudioView extends View {
         }
     }
 
-    float fromX = circleRadius;
+    float animatorFromX = circleRadius;
 
     private void startCenterLineAnimationFromStart(long delayMillis) {
-        ObjectAnimator animator = ObjectAnimator.ofFloat(this, "centerLineX", fromX, fromX + scrollDx);
+        ObjectAnimator animator = ObjectAnimator.ofFloat(this, "centerLineX", animatorFromX, animatorFromX + scrollDx);
         animator.setDuration(delayMillis);
         animator.setInterpolator(new LinearInterpolator());
         animator.start();
-        fromX = fromX + scrollDx;
+        animatorFromX = animatorFromX + scrollDx;
     }
 
     float animatorEndX;
@@ -339,12 +334,16 @@ public abstract class BasePlayAudioView extends View {
 
     public void reset() {
         stopPlay();
-        fromX = circleRadius;
-        animatorEndX = lastSampleXWithRectGap - getMeasuredWidth() / 2;
+        initAnimatorX();
         centerLineX = circleRadius;
         isAutoScroll = false;
         scrollTo(minScrollX, 0);
         invalidate();
+    }
+
+    void initAnimatorX() {
+        animatorFromX = circleRadius;
+        animatorEndX = lastSampleXWithRectGap - getMeasuredWidth() / 2;
     }
 
 }

@@ -3,8 +3,10 @@ package com.example.administrator.aduiorecordui;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.text.TextUtils;
 import android.view.View;
 import android.widget.Button;
+import android.widget.EditText;
 
 import com.example.administrator.aduiorecordui.playaudio.PlayAudioView;
 
@@ -21,6 +23,8 @@ import java.util.Random;
  */
 public class PlayAudioActivity extends AppCompatActivity {
 
+    private int millis;
+
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
@@ -30,6 +34,7 @@ public class PlayAudioActivity extends AppCompatActivity {
         Button play = findViewById(R.id.play);
         Button stop = findViewById(R.id.stop);
         Button reset = findViewById(R.id.reset);
+        final EditText editText = findViewById(R.id.edit_text);
         Button playMiddle = findViewById(R.id.play_middle);
 
         ArrayList<Float> audioSourceList = new ArrayList<>();
@@ -60,9 +65,13 @@ public class PlayAudioActivity extends AppCompatActivity {
         playMiddle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playAudioView.setPlayingTime(max/2/10*1000);
+                if (!TextUtils.isEmpty(editText.getText().toString())) {
+                    millis = Integer.parseInt(editText.getText().toString());
+                    playAudioView.setPlayingTime(millis*1000);
+                }
             }
         });
+
     }
 
     int max = 100;

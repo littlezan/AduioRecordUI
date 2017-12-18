@@ -1,79 +1,117 @@
 <?xml version="1.0" encoding="utf-8"?>
-<android.support.v7.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
-    xmlns:tools="http://schemas.android.com/tools"
+<ScrollView xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
     android:layout_width="match_parent"
-    android:layout_height="match_parent"
-    android:orientation="vertical"
-    tools:context="com.example.administrator.aduiorecordui.MainActivity">
+    android:layout_height="match_parent">
 
-
-    <com.example.administrator.aduiorecordui.record.AudioRecord
-        android:id="@+id/ruler"
+    <android.support.v7.widget.LinearLayoutCompat xmlns:android="http://schemas.android.com/apk/res/android"
+        xmlns:app="http://schemas.android.com/apk/res-auto"
+        xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        app:intervalCount="4"
-        app:scaleIntervalLength="10dp"
-        app:showRuleText="true"
-        app:rectGap="2dp"
-        android:background="#E5C85D"
-        android:layout_height="350dp" />
+        android:layout_height="match_parent"
+        android:orientation="vertical"
+        tools:context="com.example.administrator.aduiorecordui.MainActivity">
 
 
-    <android.support.v7.widget.LinearLayoutCompat
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
+        <com.example.administrator.aduiorecordui.record.AudioRecord
+            android:id="@+id/ruler"
+            android:layout_width="match_parent"
+            android:layout_height="350dp"
+            android:background="#E5C85D"
+            app:intervalCount="4"
+            app:rectGap="2dp"
+            app:scaleIntervalLength="10dp"
+            app:showRuleText="true" />
 
-        android:orientation="horizontal"
-        >
+
+        <android.support.v7.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_start"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="start"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/btn_stop"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="stop"
+                tools:ignore="HardcodedText" />
+
+
+        </android.support.v7.widget.LinearLayoutCompat>
+
+
+        <android.support.v7.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
+            android:layout_height="wrap_content"
+
+            android:orientation="horizontal">
+
+            <Button
+                android:id="@+id/btn_play"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="play"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/btn_pause"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="pause"
+                tools:ignore="HardcodedText" />
+
+
+        </android.support.v7.widget.LinearLayoutCompat>
+
 
         <Button
-            android:id="@+id/btn_start"
+            android:id="@+id/btn_reset"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
-            android:text="start"
+            android:text="reset"
             tools:ignore="HardcodedText" />
 
-        <Button
-            android:id="@+id/btn_stop"
-            android:layout_width="wrap_content"
+        <android.support.v7.widget.LinearLayoutCompat
+            android:layout_width="match_parent"
             android:layout_height="wrap_content"
-            android:text="stop"
-            tools:ignore="HardcodedText" />
+            android:orientation="horizontal">
 
+            <EditText
+                android:id="@+id/edit_text"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:inputType="number"
+                android:text="1"
+                tools:ignore="HardcodedText" />
+
+            <TextView
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:text="秒"
+                tools:ignore="HardcodedText" />
+
+            <Button
+                android:id="@+id/btn_play_time"
+                android:layout_width="wrap_content"
+                android:layout_height="wrap_content"
+                android:layout_marginLeft="50dp"
+                android:layout_marginStart="50dp"
+                android:text="play time"
+                tools:ignore="HardcodedText" />
+
+
+        </android.support.v7.widget.LinearLayoutCompat>
 
     </android.support.v7.widget.LinearLayoutCompat>
 
 
-    <android.support.v7.widget.LinearLayoutCompat
-        android:layout_width="match_parent"
-        android:layout_height="wrap_content"
-
-        android:orientation="horizontal"
-        >
-
-        <Button
-            android:id="@+id/btn_play"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="play"
-            tools:ignore="HardcodedText" />
-
-        <Button
-            android:id="@+id/btn_pause"
-            android:layout_width="wrap_content"
-            android:layout_height="wrap_content"
-            android:text="pause"
-            tools:ignore="HardcodedText" />
-
-
-    </android.support.v7.widget.LinearLayoutCompat>
-
-
-    <Button
-        android:id="@+id/btn_reset"
-        android:layout_width="wrap_content"
-        android:layout_height="wrap_content"
-        android:text="reset"
-        tools:ignore="HardcodedText" />
-
-</android.support.v7.widget.LinearLayoutCompat>
+</ScrollView>
