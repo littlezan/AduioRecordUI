@@ -21,6 +21,12 @@ public interface RecordCallBack {
     float getSamplePercent();
 
     /**
+     * 滑动过程中 指针中心处时间
+     * @param centerStartTimeMillis 指针中心处时间
+     */
+    void onScroll(long centerStartTimeMillis);
+
+    /**
      * 当前录音时间
      *
      * @param centerStartTimeMillis 中心点录音时间

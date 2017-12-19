@@ -4,10 +4,12 @@ import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
 import android.text.TextUtils;
+import android.util.Log;
 import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
+import com.example.administrator.aduiorecordui.playaudio.PlayAudioCallBack;
 import com.example.administrator.aduiorecordui.playaudio.PlayAudioView;
 
 import java.util.ArrayList;
@@ -22,6 +24,8 @@ import java.util.Random;
  * @since 2017-12-14  19:59
  */
 public class PlayAudioActivity extends AppCompatActivity {
+
+    private static final String TAG = "PlayAudioActivity";
 
     private int millis;
 
@@ -44,7 +48,7 @@ public class PlayAudioActivity extends AppCompatActivity {
         play.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                playAudioView.startPlay();
+                playAudioView.startPlay(millis);
             }
         });
 
@@ -66,9 +70,21 @@ public class PlayAudioActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 if (!TextUtils.isEmpty(editText.getText().toString())) {
-                    millis = Integer.parseInt(editText.getText().toString());
-                    playAudioView.setPlayingTime(millis*1000);
+                    millis = Integer.parseInt(editText.getText().toString())*1000;
+                    playAudioView.setPlayingTime(millis);
                 }
+            }
+        });
+
+        playAudioView.setPlayAudioCallBack(new PlayAudioCallBack() {
+            @Override
+            public void onPlaying(long timeInMillis) {
+                Log.d(TAG, "lll onPlaying: timeInMillis = " + timeInMillis);
+            }
+
+            @Override
+            public void onPlayingFinish() {
+
             }
         });
 

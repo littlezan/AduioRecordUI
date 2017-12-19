@@ -123,7 +123,7 @@ public class PlayAudioView extends BasePlayAudioView {
     private void initValues() {
         lastSampleXWithRectGap = lineLocationX;
         int middle = getMeasuredWidth() / 2;
-        maxScrollX = (int) (lastSampleXWithRectGap - getMeasuredWidth()+rectGap);
+        maxScrollX = (int) (lastSampleXWithRectGap - getMeasuredWidth());
         minScrollX = 0;
         animatorEndX = lastSampleXWithRectGap - middle;
     }
@@ -197,23 +197,5 @@ public class PlayAudioView extends BasePlayAudioView {
         canvas.drawLine(centerLineX, startY, centerLineX, getMeasuredHeight(), centerTargetPaint);
     }
 
-
-    public void setPlayingTime(long timeInMillis) {
-        centerLineX = timeInMillis / 1000 * audioSourceFrequency * (lineWidth + rectGap);
-        initAnimatorX();
-        int middle = getMeasuredWidth() / 2;
-        if (centerLineX <= middle) {
-            scrollTo(minScrollX, 0);
-            animatorFromX = centerLineX;
-            invalidate();
-        } else {
-            int x = (int) (centerLineX - middle);
-            scrollTo(x, 0);
-            if (centerLineX > getScrollX() - middle) {
-                animatorEndX = centerLineX;
-            }
-            invalidate();
-        }
-    }
 
 }

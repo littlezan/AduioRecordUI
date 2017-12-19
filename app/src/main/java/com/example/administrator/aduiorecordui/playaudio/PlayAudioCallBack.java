@@ -11,6 +11,13 @@ package com.example.administrator.aduiorecordui.playaudio;
 public interface PlayAudioCallBack {
 
     /**
+     * 当前播放时间
+     *
+     * @param timeInMillis 播放时间 毫秒
+     */
+    void onPlaying(long timeInMillis);
+
+    /**
      * 动画播放结束
      */
     void onPlayingFinish();

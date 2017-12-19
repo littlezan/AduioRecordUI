@@ -33,7 +33,7 @@ public abstract class BasePlayAudioView extends View {
 
     private static final String TAG = "BasePlayAudioView";
 
-    boolean canTouchScroll = true;
+    boolean canTouchScroll = false;
 
     /**
      * 圆点距离上边距
@@ -115,9 +115,21 @@ public abstract class BasePlayAudioView extends View {
 
     List<SampleLine> sampleLineList = new ArrayList<>();
 
+    /**
+     * 采样点位置x
+     */
     float lineLocationX = circleRadius;
     private long delayMillis;
+
+    /**
+     * 中心指针位置
+     */
     float centerLineX = circleRadius;
+
+    /**
+     * 当前播放时间
+     */
+    long currentPlayingTime;
 
     /**
      * 结束点的位置 包含 间距
@@ -261,31 +273,67 @@ public abstract class BasePlayAudioView extends View {
     Runnable playRunnable = new Runnable() {
         @Override
         public void run() {
-            int middle = getMeasuredWidth() / 2;
-            if (centerLineX < middle) {
-                isAutoScroll = false;
-                startCenterLineAnimationFromStart(delayMillis);
-            } else if (centerLineX > lastSampleXWithRectGap - middle) {
-                isAutoScroll = false;
-                startCenterLineAnimationFromEnd(delayMillis);
-            } else {
-                isAutoScroll = true;
-                scrollBy(scrollDx, 0);
-            }
-            playHandler.postDelayed(playRunnable, delayMillis);
-            if (centerLineX >= lastSampleXWithRectGap - rectGap) {
-                if (playAudioCallBack != null) {
-                    playAudioCallBack.onPlayingFinish();
+            if (isPlaying) {
+                int middle = getMeasuredWidth() / 2;
+                if (centerLineX < middle) {
+                    isAutoScroll = false;
+                    startCenterLineAnimationFromStart(delayMillis);
+                } else if (centerLineX >= lastSampleXWithRectGap - middle) {
+                    isAutoScroll = false;
+                    startCenterLineAnimationFromEnd(delayMillis);
+                } else {
+                    isAutoScroll = true;
+                    scrollBy(scrollDx, 0);
                 }
-                stopPlay();
+                if (centerLineX >= lastSampleXWithRectGap - rectGap) {
+                    if (playAudioCallBack != null) {
+                        playAudioCallBack.onPlayingFinish();
+                    }
+                    stopPlay();
+                } else {
+                    playHandler.postDelayed(playRunnable, delayMillis);
+                    currentPlayingTime += delayMillis;
+                }
+                if (playAudioCallBack != null) {
+                    playAudioCallBack.onPlaying(currentPlayingTime);
+                }
             }
         }
     };
 
-    public void startPlay() {
+    public void startPlay(long timeInMillis) {
         if (!isPlaying) {
-            playHandler.post(playRunnable);
+            setPlayingTime(timeInMillis);
             isPlaying = true;
+            playHandler.postDelayed(playRunnable, 100);
+        }
+    }
+
+    /**
+     * 设置播放时间
+     *
+     * @param timeInMillis 播放时间 毫秒
+     */
+    public void setPlayingTime(long timeInMillis) {
+        if (!isPlaying) {
+            centerLineX = timeInMillis / 1000 * audioSourceFrequency * (lineWidth + rectGap);
+            if (timeInMillis == 0) {
+                centerLineX = circleRadius;
+            }
+            initAnimatorX();
+            int middle = getMeasuredWidth() / 2;
+            if (centerLineX <= middle) {
+                scrollTo(minScrollX, 0);
+                animatorFromX = centerLineX;
+                invalidate();
+            } else {
+                int x = (int) (centerLineX - middle);
+                scrollTo(x, 0);
+                if (centerLineX > lastSampleXWithRectGap - middle) {
+                    animatorEndX = centerLineX;
+                }
+                invalidate();
+            }
         }
     }
 
@@ -311,6 +359,7 @@ public abstract class BasePlayAudioView extends View {
     }
 
     float animatorEndX;
+
     private void startCenterLineAnimationFromEnd(long delayMillis) {
         ObjectAnimator animator = ObjectAnimator.ofFloat(this, "centerLineX", animatorEndX, animatorEndX + scrollDx);
         animator.setDuration(delayMillis);

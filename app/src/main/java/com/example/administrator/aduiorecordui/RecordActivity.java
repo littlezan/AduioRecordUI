@@ -93,6 +93,11 @@ public class RecordActivity extends AppCompatActivity {
             }
 
             @Override
+            public void onScroll(long centerStartTimeMillis) {
+
+            }
+
+            @Override
             public void onRecordCurrent(long centerStartTimeMillis, long recordTimeInMillis) {
                 Log.d(TAG, "lll onRecordCurrent: centerStartTimeMillis = " + centerStartTimeMillis + ",  inSecond = " + TimeUnit.MILLISECONDS.toSeconds(centerStartTimeMillis)
                         + ", recordTimeInMillis = " + recordTimeInMillis+", inSecond = " + TimeUnit.MILLISECONDS.toSeconds(recordTimeInMillis));
