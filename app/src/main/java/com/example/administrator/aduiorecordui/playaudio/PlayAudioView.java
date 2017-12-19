@@ -3,13 +3,11 @@ package com.example.administrator.aduiorecordui.playaudio;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.os.Build;
 import android.os.Handler;
 import android.os.HandlerThread;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.view.ViewTreeObserver;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -29,7 +27,10 @@ public class PlayAudioView extends BasePlayAudioView {
 
     Paint linePaint = new Paint();
     Paint centerTargetPaint = new Paint();
+    private List<Float> audioSourceList;
 
+    HandlerThread handlerThread = new HandlerThread("PlayAudioView");
+    Handler handler;
 
     public PlayAudioView(Context context) {
         super(context);
@@ -47,6 +48,8 @@ public class PlayAudioView extends BasePlayAudioView {
     }
 
     private void init(Context context) {
+        handlerThread.start();
+        handler = new Handler(handlerThread.getLooper());
 
         linePaint.setAntiAlias(true);
         linePaint.setColor(unSwipeColor);
@@ -58,6 +61,7 @@ public class PlayAudioView extends BasePlayAudioView {
         centerTargetPaint.setStrokeWidth(centerLineWidth);
     }
 
+
     /**
      * 设置音频
      *
@@ -68,28 +72,13 @@ public class PlayAudioView extends BasePlayAudioView {
     }
 
     private void createAudioSample(final List<Float> audioSourceList) {
-        HandlerThread handlerThread = new HandlerThread("PlayAudioView");
-        handlerThread.start();
-        final Handler handler = new Handler(handlerThread.getLooper());
-
-        ViewTreeObserver vto = getViewTreeObserver();
-        if (vto.isAlive()) {
-            vto.addOnGlobalLayoutListener(new ViewTreeObserver.OnGlobalLayoutListener() {
-                @Override
-                public void onGlobalLayout() {
-                    addSampleLine(audioSourceList, handler);
-                    if (Build.VERSION.SDK_INT < 16) {
-                        getViewTreeObserver().removeGlobalOnLayoutListener(this);
-                    } else {
-                        getViewTreeObserver().removeOnGlobalLayoutListener(this);
-                    }
-                }
-            });
-        }
-
+        this.audioSourceList = audioSourceList;
+        requestLayout();
     }
 
-    private void addSampleLine(final List<Float> audioSourceList, Handler handler) {
+
+    private void addSampleLine(final List<Float> audioSourceList) {
+
         handler.post(new Runnable() {
             @Override
             public void run() {
@@ -126,6 +115,12 @@ public class PlayAudioView extends BasePlayAudioView {
         maxScrollX = (int) (lastSampleXWithRectGap - getMeasuredWidth());
         minScrollX = 0;
         animatorEndX = lastSampleXWithRectGap - middle;
+    }
+
+    @Override
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
+        addSampleLine(audioSourceList);
     }
 
     @Override
