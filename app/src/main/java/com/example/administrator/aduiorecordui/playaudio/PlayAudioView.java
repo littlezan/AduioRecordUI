@@ -188,6 +188,15 @@ public class PlayAudioView extends BasePlayAudioView {
         float startY = circleMarginTop;
         canvas.drawCircle(centerLineX, startY, circleRadius, centerTargetPaint);
         canvas.drawLine(centerLineX, startY, centerLineX, getMeasuredHeight(), centerTargetPaint);
+        if (playAudioCallBack != null) {
+            long centerStartTimeMillis;
+            if (centerLineX == circleRadius) {
+                centerStartTimeMillis = 0;
+            } else {
+                centerStartTimeMillis = (long) (centerLineX * 1000L / (audioSourceFrequency * (lineWidth + rectGap)));
+            }
+            playAudioCallBack.onPlaying(centerStartTimeMillis);
+        }
     }
 
 

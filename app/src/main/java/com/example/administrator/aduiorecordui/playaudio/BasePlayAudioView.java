@@ -6,14 +6,12 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
-import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -36,7 +34,6 @@ import java.util.List;
  */
 public abstract class BasePlayAudioView extends View {
 
-    private static final String TAG = "BasePlayAudioView";
 
     boolean canTouchScroll = true;
 
@@ -138,7 +135,7 @@ public abstract class BasePlayAudioView extends View {
      * 结束点的位置 包含 间距
      */
     float lastSampleXWithRectGap;
-    private PlayAudioCallBack playAudioCallBack;
+    PlayAudioCallBack playAudioCallBack;
 
     public BasePlayAudioView(Context context) {
         super(context);
@@ -271,15 +268,6 @@ public abstract class BasePlayAudioView extends View {
             x = maxScrollX;
         }
         super.scrollTo(x, y);
-        if (playAudioCallBack != null) {
-            long centerStartTimeMillis;
-            if (x == minScrollX) {
-                centerStartTimeMillis = 0;
-            } else {
-                centerStartTimeMillis = (long) (centerLineX * 1000L / (audioSourceFrequency * (lineWidth + rectGap)));
-            }
-            playAudioCallBack.onPlaying(centerStartTimeMillis);
-        }
     }
 
     long tempTime = 0;
@@ -291,7 +279,6 @@ public abstract class BasePlayAudioView extends View {
         public void run() {
             if (isPlaying) {
                 int middle = getMeasuredWidth() / 2;
-                Log.d(TAG, "run: lll centerLineX = " + centerLineX + ", lastSampleXWithRectGap - middle = " + (lastSampleXWithRectGap - middle));
                 if (centerLineX < middle) {
                     isAutoScroll = false;
                     startCenterLineAnimationFromStart();
@@ -385,55 +372,9 @@ public abstract class BasePlayAudioView extends View {
 
     public void setTranslateX(float translateX) {
         this.translateX = translateX;
-        Log.d(TAG, "setTranslateX: lll translateX = " + translateX);
         scrollTo((int) translateX, 0);
         invalidate();
     }
-
-    private CountDownTimer countDownTimer;
-
-    private void startCanvasScroll() {
-        startCountDownTime();
-    }
-
-    private void stopCanvasScroll() {
-        stopCountDownTime();
-    }
-
-    private void stopCountDownTime() {
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
-            countDownTimer = null;
-        }
-    }
-
-    private void startCountDownTime() {
-        if (countDownTimer != null) {
-            countDownTimer.cancel();
-            countDownTimer = null;
-        }
-
-        isAutoScroll = true;
-        int middle = getMeasuredWidth() / 2;
-        final int startX = (int) centerLineX;
-        int endX = (int) (lastSampleXWithRectGap - middle);
-        int dx = endX - startX;
-        final int duration = (1000 * dx / (audioSourceFrequency * (lineWidth + rectGap)));
-        final float scrollX = 1;
-        int intervalInMillis = (int) (scrollX * duration / dx);
-        countDownTimer = new CountDownTimer(duration, intervalInMillis) {
-            @Override
-            public void onTick(long millisUntilFinished) {
-                scrollBy((int) scrollX, 0);
-            }
-
-            @Override
-            public void onFinish() {
-                playHandler.post(playRunnable);
-            }
-        }.start();
-    }
-
 
     public void startPlay(long timeInMillis) {
         if (!isPlaying) {
@@ -473,7 +414,6 @@ public abstract class BasePlayAudioView extends View {
     public void stopPlay() {
         if (isPlaying) {
             animator.cancel();
-            stopCanvasScroll();
             playHandler.removeCallbacks(playRunnable);
             isPlaying = false;
             isAutoScroll = false;
