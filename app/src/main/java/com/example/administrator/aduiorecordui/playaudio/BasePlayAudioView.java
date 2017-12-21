@@ -38,7 +38,7 @@ public abstract class BasePlayAudioView extends View {
 
     private static final String TAG = "BasePlayAudioView";
 
-    boolean canTouchScroll = false;
+    boolean canTouchScroll = true;
 
     /**
      * 圆点距离上边距
@@ -124,18 +124,15 @@ public abstract class BasePlayAudioView extends View {
      * 采样点位置x
      */
     float lineLocationX = circleRadius;
-    private long delayMillis;
 
-
+    /**
+     * 画布移动距离
+     */
+    float translateX = 0;
     /**
      * 中心指针位置
      */
     float centerLineX = circleRadius;
-
-    /**
-     * 当前播放时间
-     */
-    long currentPlayingTime;
 
     /**
      * 结束点的位置 包含 间距
@@ -262,6 +259,7 @@ public abstract class BasePlayAudioView extends View {
         //滑动处理
         if (overScroller.computeScrollOffset()) {
             scrollTo(overScroller.getCurrX(), overScroller.getCurrY());
+            invalidate();
         }
     }
 
@@ -277,8 +275,6 @@ public abstract class BasePlayAudioView extends View {
             long centerStartTimeMillis;
             if (x == minScrollX) {
                 centerStartTimeMillis = 0;
-            } else if (x == maxScrollX) {
-                centerStartTimeMillis = currentPlayingTime;
             } else {
                 centerStartTimeMillis = (long) (centerLineX * 1000L / (audioSourceFrequency * (lineWidth + rectGap)));
             }
@@ -295,7 +291,6 @@ public abstract class BasePlayAudioView extends View {
         public void run() {
             if (isPlaying) {
                 int middle = getMeasuredWidth() / 2;
-                Log.d(TAG, "run: lll real time = " + (SystemClock.elapsedRealtime() - tempTime) + ", currentPlayingTime = " + currentPlayingTime);
                 Log.d(TAG, "run: lll centerLineX = " + centerLineX + ", lastSampleXWithRectGap - middle = " + (lastSampleXWithRectGap - middle));
                 if (centerLineX < middle) {
                     isAutoScroll = false;
@@ -304,7 +299,7 @@ public abstract class BasePlayAudioView extends View {
                     isAutoScroll = false;
                     startCenterLineAnimationFromEnd();
                 } else {
-                    startCanvasScroll();
+                    startTranslateCanvas();
                 }
                 if (centerLineX >= lastSampleXWithRectGap - rectGap) {
                     if (playAudioCallBack != null) {
@@ -312,15 +307,12 @@ public abstract class BasePlayAudioView extends View {
                     }
                     stopPlay();
                 }
-                if (playAudioCallBack != null) {
-                    playAudioCallBack.onPlaying(currentPlayingTime);
-                }
             }
         }
     };
 
-
     ObjectAnimator animator;
+
 
     private void startCenterLineAnimationFromStart() {
         final int animatorFromDX = getMeasuredWidth() / 2;
@@ -335,11 +327,29 @@ public abstract class BasePlayAudioView extends View {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                currentPlayingTime += duration;
                 playHandler.post(playRunnable);
             }
         });
 
+    }
+
+    private void startTranslateCanvas() {
+        int middle = getMeasuredWidth() / 2;
+        isAutoScroll = true;
+        int dx = maxScrollX - minScrollX;
+        final int duration = (1000 * dx / (audioSourceFrequency * (lineWidth + rectGap)));
+        animator = ObjectAnimator.ofFloat(this, "translateX", minScrollX, maxScrollX);
+        animator.setInterpolator(new LinearInterpolator());
+        animator.setDuration(duration);
+        animator.start();
+        animator.addListener(new AnimatorListenerAdapter() {
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                playHandler.post(playRunnable);
+            }
+        });
     }
 
     private void startCenterLineAnimationFromEnd() {
@@ -355,7 +365,6 @@ public abstract class BasePlayAudioView extends View {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                currentPlayingTime += duration;
                 stopPlay();
             }
         });
@@ -370,7 +379,16 @@ public abstract class BasePlayAudioView extends View {
         invalidate();
     }
 
+    public float getTranslateX() {
+        return translateX;
+    }
 
+    public void setTranslateX(float translateX) {
+        this.translateX = translateX;
+        Log.d(TAG, "setTranslateX: lll translateX = " + translateX);
+        scrollTo((int) translateX, 0);
+        invalidate();
+    }
 
     private CountDownTimer countDownTimer;
 
@@ -414,11 +432,7 @@ public abstract class BasePlayAudioView extends View {
                 playHandler.post(playRunnable);
             }
         }.start();
-        currentPlayingTime += duration;
     }
-
-
-
 
 
     public void startPlay(long timeInMillis) {
@@ -437,7 +451,6 @@ public abstract class BasePlayAudioView extends View {
      */
     public void setPlayingTime(long timeInMillis) {
         if (!isPlaying) {
-            currentPlayingTime = timeInMillis;
             centerLineX = timeInMillis / 1000 * audioSourceFrequency * (lineWidth + rectGap);
             if (timeInMillis == 0) {
                 centerLineX = circleRadius;
@@ -476,7 +489,6 @@ public abstract class BasePlayAudioView extends View {
         stopPlay();
         centerLineX = circleRadius;
         isAutoScroll = false;
-        currentPlayingTime = 0;
         scrollTo(minScrollX, 0);
         invalidate();
     }

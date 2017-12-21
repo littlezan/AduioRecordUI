@@ -122,6 +122,7 @@ public class PlayAudioView extends BasePlayAudioView {
         addSampleLine(audioSourceList);
     }
 
+
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
