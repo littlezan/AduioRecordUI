@@ -6,6 +6,7 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
+import android.os.CountDownTimer;
 import android.os.Handler;
 import android.os.SystemClock;
 import android.support.annotation.ColorInt;
@@ -125,6 +126,7 @@ public abstract class BasePlayAudioView extends View {
     float lineLocationX = circleRadius;
     private long delayMillis;
 
+
     /**
      * 中心指针位置
      */
@@ -178,6 +180,7 @@ public abstract class BasePlayAudioView extends View {
     }
 
     long scrollDelayMillis;
+
     private void init(Context context) {
 
         scrollDelayMillis = 1000 * scrollDx / (audioSourceFrequency * (lineWidth + rectGap));
@@ -270,6 +273,17 @@ public abstract class BasePlayAudioView extends View {
             x = maxScrollX;
         }
         super.scrollTo(x, y);
+        if (playAudioCallBack != null) {
+            long centerStartTimeMillis;
+            if (x == minScrollX) {
+                centerStartTimeMillis = 0;
+            } else if (x == maxScrollX) {
+                centerStartTimeMillis = currentPlayingTime;
+            } else {
+                centerStartTimeMillis = (long) (centerLineX * 1000L / (audioSourceFrequency * (lineWidth + rectGap)));
+            }
+            playAudioCallBack.onPlaying(centerStartTimeMillis);
+        }
     }
 
     long tempTime = 0;
@@ -282,7 +296,7 @@ public abstract class BasePlayAudioView extends View {
             if (isPlaying) {
                 int middle = getMeasuredWidth() / 2;
                 Log.d(TAG, "run: lll real time = " + (SystemClock.elapsedRealtime() - tempTime) + ", currentPlayingTime = " + currentPlayingTime);
-                Log.d(TAG, "run: lll centerLineX = " + centerLineX+ ", lastSampleXWithRectGap - middle = " + (lastSampleXWithRectGap - middle));
+                Log.d(TAG, "run: lll centerLineX = " + centerLineX + ", lastSampleXWithRectGap - middle = " + (lastSampleXWithRectGap - middle));
                 if (centerLineX < middle) {
                     isAutoScroll = false;
                     startCenterLineAnimationFromStart();
@@ -290,11 +304,7 @@ public abstract class BasePlayAudioView extends View {
                     isAutoScroll = false;
                     startCenterLineAnimationFromEnd();
                 } else {
-                    delayMillis = scrollDelayMillis;
-                    isAutoScroll = true;
-                    scrollBy(scrollDx, 0);
-                    playHandler.postDelayed(playRunnable, delayMillis);
-                    currentPlayingTime += delayMillis;
+                    startCanvasScroll();
                 }
                 if (centerLineX >= lastSampleXWithRectGap - rectGap) {
                     if (playAudioCallBack != null) {
@@ -309,7 +319,9 @@ public abstract class BasePlayAudioView extends View {
         }
     };
 
+
     ObjectAnimator animator;
+
     private void startCenterLineAnimationFromStart() {
         final int animatorFromDX = getMeasuredWidth() / 2;
         float dx = (animatorFromDX - centerLineX);
@@ -331,7 +343,7 @@ public abstract class BasePlayAudioView extends View {
     }
 
     private void startCenterLineAnimationFromEnd() {
-        final float animatorEndDX = lastSampleXWithRectGap-rectGap;
+        final float animatorEndDX = lastSampleXWithRectGap - rectGap;
         float dx = (animatorEndDX - centerLineX);
         final long duration = (long) (1000 * dx / (audioSourceFrequency * (lineWidth + rectGap)));
         animator = ObjectAnimator.ofFloat(this, "centerLineX", centerLineX, animatorEndDX);
@@ -347,7 +359,6 @@ public abstract class BasePlayAudioView extends View {
                 stopPlay();
             }
         });
-
     }
 
     public float getCenterLineX() {
@@ -358,6 +369,57 @@ public abstract class BasePlayAudioView extends View {
         this.centerLineX = centerLineX;
         invalidate();
     }
+
+
+
+    private CountDownTimer countDownTimer;
+
+    private void startCanvasScroll() {
+        startCountDownTime();
+    }
+
+    private void stopCanvasScroll() {
+        stopCountDownTime();
+    }
+
+    private void stopCountDownTime() {
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+            countDownTimer = null;
+        }
+    }
+
+    private void startCountDownTime() {
+        if (countDownTimer != null) {
+            countDownTimer.cancel();
+            countDownTimer = null;
+        }
+
+        isAutoScroll = true;
+        int middle = getMeasuredWidth() / 2;
+        final int startX = (int) centerLineX;
+        int endX = (int) (lastSampleXWithRectGap - middle);
+        int dx = endX - startX;
+        final int duration = (1000 * dx / (audioSourceFrequency * (lineWidth + rectGap)));
+        final float scrollX = 1;
+        int intervalInMillis = (int) (scrollX * duration / dx);
+        countDownTimer = new CountDownTimer(duration, intervalInMillis) {
+            @Override
+            public void onTick(long millisUntilFinished) {
+                scrollBy((int) scrollX, 0);
+            }
+
+            @Override
+            public void onFinish() {
+                playHandler.post(playRunnable);
+            }
+        }.start();
+        currentPlayingTime += duration;
+    }
+
+
+
+
 
     public void startPlay(long timeInMillis) {
         if (!isPlaying) {

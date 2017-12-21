@@ -90,7 +90,7 @@ public class PlayAudioActivity extends AppCompatActivity {
 
     }
 
-    int max = 100;
+    int max = 1000;
 
     private void fakeData(ArrayList<Float> audioSourceList) {
         for (int i = 0; i < max; i++) {
