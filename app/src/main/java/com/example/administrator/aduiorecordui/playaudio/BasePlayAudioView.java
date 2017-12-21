@@ -317,6 +317,7 @@ public abstract class BasePlayAudioView extends View {
     public void setPlayingTime(long timeInMillis) {
         if (!isPlaying) {
             centerLineX = timeInMillis / 1000 * audioSourceFrequency * (lineWidth + rectGap);
+            currentPlayingTime = timeInMillis;
             if (timeInMillis == 0) {
                 centerLineX = circleRadius;
             }
@@ -386,6 +387,7 @@ public abstract class BasePlayAudioView extends View {
         initAnimatorX();
         centerLineX = circleRadius;
         isAutoScroll = false;
+        currentPlayingTime = 0;
         scrollTo(minScrollX, 0);
         invalidate();
     }
