@@ -115,7 +115,6 @@ public class PlayAudioView extends BasePlayAudioView {
         maxScrollX = Math.round(lastSampleXWithRectGap - getMeasuredWidth())+1 ;
         maxScrollX = maxScrollX > 0 ? maxScrollX : 0;
         minScrollX = 0;
-        animatorEndX = lastSampleXWithRectGap - middle;
     }
 
     @Override
