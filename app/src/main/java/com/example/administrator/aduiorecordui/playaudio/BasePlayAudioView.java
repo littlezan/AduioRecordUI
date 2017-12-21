@@ -460,6 +460,7 @@ public abstract class BasePlayAudioView extends View {
     public void stopPlay() {
         if (isPlaying) {
             animator.cancel();
+            stopCanvasScroll();
             playHandler.removeCallbacks(playRunnable);
             isPlaying = false;
             isAutoScroll = false;
