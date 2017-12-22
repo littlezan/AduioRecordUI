@@ -303,6 +303,12 @@ public class AudioRecord extends BaseAudioRecord {
 
     }
 
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        reset();
+    }
+
 
     public void reset() {
         stopRecord();

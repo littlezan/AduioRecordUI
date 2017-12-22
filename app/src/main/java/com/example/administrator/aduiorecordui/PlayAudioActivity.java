@@ -27,7 +27,7 @@ public class PlayAudioActivity extends AppCompatActivity {
 
     private static final String TAG = "PlayAudioActivity";
 
-    private int millis;
+    private long millis;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -80,6 +80,7 @@ public class PlayAudioActivity extends AppCompatActivity {
             @Override
             public void onPlaying(long timeInMillis) {
                 Log.d(TAG, "lll onPlaying: timeInMillis = " + timeInMillis);
+                millis = timeInMillis;
             }
 
             @Override

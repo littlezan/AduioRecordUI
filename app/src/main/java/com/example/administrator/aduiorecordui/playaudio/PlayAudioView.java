@@ -195,9 +195,20 @@ public class PlayAudioView extends BasePlayAudioView {
             } else {
                 centerStartTimeMillis = (long) (centerLineX * 1000L / (audioSourceFrequency * (lineWidth + rectGap)));
             }
-            playAudioCallBack.onPlaying(centerStartTimeMillis);
+            if (centerLineX >= lastSampleXWithRectGap - rectGap) {
+                playAudioCallBack.onPlayingFinish();
+            } else {
+                playAudioCallBack.onPlaying(centerStartTimeMillis);
+            }
+
         }
     }
 
 
+
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        reset();
+    }
 }

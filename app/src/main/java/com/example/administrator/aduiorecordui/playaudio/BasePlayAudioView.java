@@ -35,7 +35,7 @@ import java.util.List;
 public abstract class BasePlayAudioView extends View {
 
 
-    boolean canTouchScroll = true;
+    boolean canTouchScroll = false;
 
     /**
      * 圆点距离上边距
@@ -280,18 +280,15 @@ public abstract class BasePlayAudioView extends View {
             if (isPlaying) {
                 int middle = getMeasuredWidth() / 2;
                 if (centerLineX < middle) {
-                    isAutoScroll = false;
+
                     startCenterLineAnimationFromStart();
                 } else if (centerLineX >= lastSampleXWithRectGap - middle) {
-                    isAutoScroll = false;
+
                     startCenterLineAnimationFromEnd();
                 } else {
                     startTranslateCanvas();
                 }
                 if (centerLineX >= lastSampleXWithRectGap - rectGap) {
-                    if (playAudioCallBack != null) {
-                        playAudioCallBack.onPlayingFinish();
-                    }
                     stopPlay();
                 }
             }
@@ -300,8 +297,8 @@ public abstract class BasePlayAudioView extends View {
 
     ObjectAnimator animator;
 
-
     private void startCenterLineAnimationFromStart() {
+        isAutoScroll = false;
         final int animatorFromDX = getMeasuredWidth() / 2;
         float dx = (animatorFromDX - centerLineX);
         final long duration = (long) (1000 * dx / (audioSourceFrequency * (lineWidth + rectGap)));
@@ -314,18 +311,20 @@ public abstract class BasePlayAudioView extends View {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                playHandler.post(playRunnable);
+                if (isPlaying){
+                    playHandler.post(playRunnable);
+                }
+
             }
         });
 
     }
 
     private void startTranslateCanvas() {
-        int middle = getMeasuredWidth() / 2;
         isAutoScroll = true;
-        int dx = maxScrollX - minScrollX;
+        int dx = maxScrollX - getScrollX();
         final int duration = (1000 * dx / (audioSourceFrequency * (lineWidth + rectGap)));
-        animator = ObjectAnimator.ofFloat(this, "translateX", minScrollX, maxScrollX);
+        animator = ObjectAnimator.ofFloat(this, "translateX", getScrollX(), maxScrollX);
         animator.setInterpolator(new LinearInterpolator());
         animator.setDuration(duration);
         animator.start();
@@ -334,12 +333,15 @@ public abstract class BasePlayAudioView extends View {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                playHandler.post(playRunnable);
+                if (isPlaying){
+                    startCenterLineAnimationFromEnd();
+                }
             }
         });
     }
 
     private void startCenterLineAnimationFromEnd() {
+        isAutoScroll = false;
         final float animatorEndDX = lastSampleXWithRectGap - rectGap;
         float dx = (animatorEndDX - centerLineX);
         final long duration = (long) (1000 * dx / (audioSourceFrequency * (lineWidth + rectGap)));
@@ -348,6 +350,13 @@ public abstract class BasePlayAudioView extends View {
         animator.setDuration(duration);
         animator.start();
         animator.addListener(new AnimatorListenerAdapter() {
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                super.onAnimationCancel(animation);
+                stopPlay();
+
+            }
 
             @Override
             public void onAnimationEnd(Animator animation) {
@@ -392,7 +401,8 @@ public abstract class BasePlayAudioView extends View {
      */
     public void setPlayingTime(long timeInMillis) {
         if (!isPlaying) {
-            centerLineX = timeInMillis / 1000 * audioSourceFrequency * (lineWidth + rectGap);
+
+            centerLineX = timeInMillis*audioSourceFrequency * (lineWidth + rectGap) /1000 ;
             if (timeInMillis == 0) {
                 centerLineX = circleRadius;
             }
@@ -413,10 +423,11 @@ public abstract class BasePlayAudioView extends View {
      */
     public void stopPlay() {
         if (isPlaying) {
-            animator.cancel();
-            playHandler.removeCallbacks(playRunnable);
             isPlaying = false;
             isAutoScroll = false;
+            animator.cancel();
+            playHandler.removeCallbacks(playRunnable);
+
         }
     }
 
