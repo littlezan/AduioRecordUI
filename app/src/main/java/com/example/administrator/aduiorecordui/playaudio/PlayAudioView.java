@@ -111,8 +111,7 @@ public class PlayAudioView extends BasePlayAudioView {
      */
     private void initValues() {
         lastSampleXWithRectGap = lineLocationX;
-        maxScrollX = Math.round(lastSampleXWithRectGap - getMeasuredWidth())+1 ;
-        maxScrollX = maxScrollX > 0 ? maxScrollX : 0;
+
         minScrollX = 0;
     }
 
@@ -126,6 +125,9 @@ public class PlayAudioView extends BasePlayAudioView {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
+        //
+        maxScrollX = Math.round(lastSampleXWithRectGap - canvas.getWidth())+1 ;
+        maxScrollX = maxScrollX > 0 ? maxScrollX : 0;
         //绘制采样波形
         drawSampleLine(canvas);
         //绘制垂直的线
