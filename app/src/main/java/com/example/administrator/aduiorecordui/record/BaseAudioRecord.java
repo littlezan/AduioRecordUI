@@ -1,5 +1,8 @@
 package com.example.administrator.aduiorecordui.record;
 
+import android.animation.Animator;
+import android.animation.AnimatorListenerAdapter;
+import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
@@ -12,6 +15,7 @@ import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
+import android.view.animation.LinearInterpolator;
 import android.widget.EdgeEffect;
 import android.widget.OverScroller;
 
@@ -203,8 +207,6 @@ public abstract class BaseAudioRecord extends View {
     protected int minVelocity;
 
 
-    boolean needEdgeEffect = false;
-
     /**
      * 开始边界效果
      */
@@ -252,6 +254,11 @@ public abstract class BaseAudioRecord extends View {
      * 中心点的位置
      */
     protected float centerLineX = 0;
+
+    /**
+     * 采样最后的位置
+     */
+    int lineLocationX;
 
     public BaseAudioRecord(Context context) {
         super(context);
@@ -322,33 +329,12 @@ public abstract class BaseAudioRecord extends View {
         velocityTracker = VelocityTracker.obtain();
         maxVelocity = ViewConfiguration.get(context).getScaledMaximumFlingVelocity();
         minVelocity = ViewConfiguration.get(context).getScaledMinimumFlingVelocity();
-        initEdgeEffects(context);
         checkAPILevel();
     }
 
     private void checkAPILevel() {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
             setLayerType(LAYER_TYPE_NONE, null);
-        }
-    }
-
-
-    /**
-     * 初始化边缘效果
-     *
-     * @param context context
-     */
-    public void initEdgeEffects(Context context) {
-        needEdgeEffect = true;
-        edgeColor = ContextCompat.getColor(context, android.R.color.holo_red_light);
-        if (startEdgeEffect == null || endEdgeEffect == null) {
-            startEdgeEffect = new EdgeEffect(context);
-            endEdgeEffect = new EdgeEffect(context);
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.LOLLIPOP) {
-                startEdgeEffect.setColor(edgeColor);
-                endEdgeEffect.setColor(edgeColor);
-            }
-            mEdgeLength = getMeasuredWidth() / 2;
         }
     }
 
@@ -381,14 +367,12 @@ public abstract class BaseAudioRecord extends View {
                     fling(-velocityX);
                 }
                 finishVelocityTracker();
-                releaseEdgeEffects();
                 break;
             case MotionEvent.ACTION_CANCEL:
                 if (!overScroller.isFinished()) {
                     overScroller.abortAnimation();
                 }
                 finishVelocityTracker();
-                releaseEdgeEffects();
                 break;
             default:
                 break;
@@ -425,7 +409,6 @@ public abstract class BaseAudioRecord extends View {
     @Override
     public void scrollTo(int x, int y) {
         if (x < minScrollX) {
-            goStartEdgeEffect(x);
             x = minScrollX;
         } else if (x > maxScrollX) {
             x = maxScrollX;
@@ -440,36 +423,7 @@ public abstract class BaseAudioRecord extends View {
             } else {
                 centerStartTimeMillis = (long) (centerLineX * 1000L / (intervalCount * scaleIntervalLength));
             }
-          recordCallBack.onScroll(centerStartTimeMillis);
-        }
-    }
-
-
-    /**
-     * 头部边缘效果处理
-     *
-     * @param x 移动距离
-     */
-    private void goStartEdgeEffect(int x) {
-        if (needEdgeEffect) {
-            if (!overScroller.isFinished()) {
-                startEdgeEffect.onAbsorb((int) overScroller.getCurrVelocity());
-                overScroller.abortAnimation();
-            } else {
-                startEdgeEffect.onPull(x);
-                startEdgeEffect.setSize(getMeasuredHeight(), getMeasuredHeight());
-            }
-
-            if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                postInvalidateOnAnimation();
-            }
-        }
-    }
-
-    private void releaseEdgeEffects() {
-        if (needEdgeEffect) {
-            startEdgeEffect.onRelease();
-            endEdgeEffect.onRelease();
+            recordCallBack.onScroll(centerStartTimeMillis);
         }
     }
 
@@ -497,7 +451,7 @@ public abstract class BaseAudioRecord extends View {
                 if (currentRecordTime >= TimeUnit.MINUTES.toMillis(recordTimeInMinutes)) {
                     stopRecord();
                     if (recordCallBack != null) {
-                        recordCallBack.onRecordFinish();
+                        recordCallBack.onFinishRecord();
                     }
                 } else {
                     //录音中
@@ -521,15 +475,21 @@ public abstract class BaseAudioRecord extends View {
             scrollToEnd();
             isRecording = true;
             recordHandler.post(recordRunnable);
+            if (recordCallBack != null) {
+                recordCallBack.onStartRecord();
+            }
         }
     }
 
 
     public void stopRecord() {
         if (isRecording) {
-            recordHandler.removeCallbacks(recordRunnable);
             isRecording = false;
             isAutoScroll = false;
+            recordHandler.removeCallbacks(recordRunnable);
+            if (recordCallBack != null) {
+                recordCallBack.onStopRecord();
+            }
         }
     }
 
@@ -578,41 +538,75 @@ public abstract class BaseAudioRecord extends View {
     }
 
 
-    protected long currentPlayRecordTime;
-    Handler playRecordHandler = new Handler();
-    Runnable playRecordRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (isPlayingRecord) {
-                isAutoScroll = true;
-                scrollBy(lineWidth + rectGap, 0);
+    /**
+     * 画布移动距离
+     */
+    float translateX = 0;
+    ObjectAnimator animator;
 
-                //自动停止播放
-                if (centerLineX >= getLastSampleLineRightX() || currentPlayRecordTime >= currentRecordTime) {
-                    stopPlayRecord();
-                    if (recordCallBack != null) {
-                        recordCallBack.onPlayingRecordFinish();
-                    }
-                } else {
-                    //播放中
-                    playRecordHandler.postDelayed(playRecordRunnable, recordDelayMillis);
-                    currentPlayRecordTime = currentPlayRecordTime + recordDelayMillis;
-                }
+    private void startTranslateCanvas() {
+        isPlayingRecord = true;
+        isAutoScroll = true;
+        float startX = getScrollX() < 0 ? centerLineX : getScrollX();
+        float endX = getScrollX() < 0 ? lineLocationX : maxScrollX;
+        float dx = endX - startX;
+        final long duration = (long) (1000 * dx / (recordSamplingFrequency * (lineWidth + rectGap)));
+        animator = ObjectAnimator.ofFloat(this, "translateX", startX, endX);
+        animator.setInterpolator(new LinearInterpolator());
+        animator.setDuration(duration);
+        animator.start();
+        animator.addListener(new AnimatorListenerAdapter() {
 
+
+            @Override
+            public void onAnimationStart(Animator animation) {
+                super.onAnimationStart(animation);
                 if (recordCallBack != null) {
-                    recordCallBack.onPlayingRecord(currentPlayRecordTime);
+                    recordCallBack.onStartPlayRecord();
                 }
-
             }
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                super.onAnimationCancel(animation);
+                stopPlayRecord();
+                if (recordCallBack != null) {
+                    recordCallBack.onStopPlayRecode();
+                }
+            }
+
+            @Override
+            public void onAnimationEnd(Animator animation) {
+                super.onAnimationEnd(animation);
+                stopPlayRecord();
+                if (recordCallBack != null) {
+                    recordCallBack.onStopPlayRecode();
+                    recordCallBack.onFinishPlayingRecord();
+                }
+            }
+        });
+    }
+
+    public float getTranslateX() {
+        return translateX;
+    }
+
+    public void setTranslateX(float translateX) {
+        this.translateX = translateX;
+        if (centerLineX - lineLocationX == 0) {
+            stopPlayRecord();
+            return;
         }
-    };
+        scrollTo((int) translateX, 0);
+        invalidate();
+    }
 
     public void startPlayRecord(long timeInMillis) {
         if (!isPlayingRecord) {
             stopRecord();
             //1.timeInMillis > 0 从指定的时间开始播放
             if (timeInMillis > 0) {
-                long scrollLength = timeInMillis * scaleIntervalLength * intervalCount / 1000+minScrollX;
+                long scrollLength = timeInMillis * scaleIntervalLength * intervalCount / 1000 + minScrollX;
                 scrollTo((int) scrollLength, 0);
             } else {
                 //2.timeInMillis == 0 从指针指向位置开始播放
@@ -621,9 +615,7 @@ public abstract class BaseAudioRecord extends View {
                     scrollTo(minScrollX - lineWidth - rectGap, 0);
                 }
             }
-            currentPlayRecordTime = timeInMillis;
-            isPlayingRecord = true;
-            playRecordHandler.postDelayed(playRecordRunnable, 100);
+            startTranslateCanvas();
         }
     }
 
@@ -632,9 +624,9 @@ public abstract class BaseAudioRecord extends View {
      */
     public void stopPlayRecord() {
         if (isPlayingRecord) {
-            playRecordHandler.removeCallbacks(playRecordRunnable);
             isPlayingRecord = false;
             isAutoScroll = false;
+            animator.cancel();
         }
     }
 

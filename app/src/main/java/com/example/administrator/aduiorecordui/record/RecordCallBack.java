@@ -20,8 +20,10 @@ public interface RecordCallBack {
     @FloatRange(from = 0, to = 1)
     float getSamplePercent();
 
+
     /**
      * 滑动过程中 指针中心处时间
+     *
      * @param centerStartTimeMillis 指针中心处时间
      */
     void onScroll(long centerStartTimeMillis);
@@ -34,15 +36,7 @@ public interface RecordCallBack {
      */
     void onRecordCurrent(long centerStartTimeMillis, long recordTimeInMillis);
 
-    /**
-     * 录音结束
-     */
-    void onRecordFinish();
 
-    /**
-     * 结束播放录音
-     */
-    void onPlayingRecordFinish();
 
     /**
      * 当前播放时间
@@ -50,4 +44,36 @@ public interface RecordCallBack {
      * @param playingTimeInMillis 当前播放时间 单位毫秒
      */
     void onPlayingRecord(long playingTimeInMillis);
+
+    /**
+     * 开始录音
+     */
+    void onStartRecord();
+
+    /**
+     * 暂停录音
+     */
+    void onStopRecord();
+
+
+    /**
+     * 录音结束
+     */
+    void onFinishRecord();
+
+    /**
+     * 开始播放录音
+     */
+    void onStartPlayRecord();
+
+    /**
+     * 暂停播放录音
+     */
+    void onStopPlayRecode();
+
+    /**
+     * 结束播放录音
+     */
+    void onFinishPlayingRecord();
+
 }

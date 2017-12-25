@@ -280,10 +280,8 @@ public abstract class BasePlayAudioView extends View {
             if (isPlaying) {
                 int middle = getMeasuredWidth() / 2;
                 if (centerLineX < middle) {
-
                     startCenterLineAnimationFromStart();
                 } else if (centerLineX >= lastSampleXWithRectGap - middle) {
-
                     startCenterLineAnimationFromEnd();
                 } else {
                     startTranslateCanvas();
@@ -312,7 +310,7 @@ public abstract class BasePlayAudioView extends View {
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
                 if (isPlaying){
-                    playHandler.post(playRunnable);
+                   startTranslateCanvas();
                 }
 
             }
@@ -323,12 +321,12 @@ public abstract class BasePlayAudioView extends View {
     private void startTranslateCanvas() {
         isAutoScroll = true;
         int dx = maxScrollX - getScrollX();
-        final int duration = (1000 * dx / (audioSourceFrequency * (lineWidth + rectGap)));
+        final long duration = (1000 * dx / (audioSourceFrequency * (lineWidth + rectGap)));
         animator = ObjectAnimator.ofFloat(this, "translateX", getScrollX(), maxScrollX);
         animator.setInterpolator(new LinearInterpolator());
         animator.setDuration(duration);
         animator.start();
-        animator.addListener(new AnimatorListenerAdapter() {
+        animator.addListener( new AnimatorListenerAdapter() {
 
             @Override
             public void onAnimationEnd(Animator animation) {

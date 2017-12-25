@@ -3,11 +3,9 @@ package com.example.administrator.aduiorecordui.record;
 import android.content.Context;
 import android.graphics.Canvas;
 import android.graphics.Paint;
-import android.os.Build;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -26,7 +24,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class AudioRecord extends BaseAudioRecord {
 
-    private static final String TAG = "AudioRecord";
 
     Paint ruleHorizontalLinePaint = new Paint();
     Paint smallScalePaint = new Paint();
@@ -45,7 +42,7 @@ public class AudioRecord extends BaseAudioRecord {
      */
     protected int mDrawOffset;
 
-    private int lineLocationX;
+
 
 
     public AudioRecord(Context context) {
@@ -130,7 +127,13 @@ public class AudioRecord extends BaseAudioRecord {
         lineLocationX = lineLocationX + lineWidth + rectGap;
         sampleLineList.add(sampleLineModel);
 
-        maxScrollX = lineLocationX - getMeasuredWidth() / 2 > 0 ? lineLocationX - getMeasuredWidth() / 2 : lineLocationX;
+
+        if (lineLocationX < getMeasuredWidth()) {
+            maxScrollX = 0;
+        } else {
+            maxScrollX = lineLocationX - getMeasuredWidth() / 2;
+        }
+
         minScrollX = -getMeasuredWidth() / 2;
         invalidate();
     }
@@ -138,11 +141,9 @@ public class AudioRecord extends BaseAudioRecord {
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        Log.d(TAG, "lll onDraw: getScrollX() = " + getScrollX());
         drawScale(canvas);
         drawLine(canvas);
         drawCenterVerticalLine(canvas);
-        drawEdgeEffect(canvas);
     }
 
 
@@ -270,39 +271,6 @@ public class AudioRecord extends BaseAudioRecord {
         canvas.drawText(text, getScrollX() + canvasMiddle, bottomCircleY + bottomTextSize + 20, bottomTextPaint);
     }
 
-    private void drawEdgeEffect(Canvas canvas) {
-        if (needEdgeEffect) {
-            if (!startEdgeEffect.isFinished()) {
-                int count = canvas.save();
-                canvas.rotate(270);
-                canvas.translate(-getHeight(), getScrollX());
-                if (startEdgeEffect.draw(canvas)) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        postInvalidateOnAnimation();
-                    }
-                }
-                canvas.restoreToCount(count);
-            } else {
-                startEdgeEffect.finish();
-            }
-            if (!endEdgeEffect.isFinished()) {
-                int count = canvas.save();
-                canvas.rotate(90);
-//                canvas.translate((getHeight() - mParent.getCursorHeight()), -mLength);
-                if (endEdgeEffect.draw(canvas)) {
-                    if (Build.VERSION.SDK_INT >= Build.VERSION_CODES.JELLY_BEAN) {
-                        postInvalidateOnAnimation();
-                    }
-                }
-                canvas.restoreToCount(count);
-            } else {
-                endEdgeEffect.finish();
-            }
-
-        }
-
-    }
-
     @Override
     protected void onDetachedFromWindow() {
         super.onDetachedFromWindow();
@@ -315,7 +283,6 @@ public class AudioRecord extends BaseAudioRecord {
         stopPlayRecord();
         centerLineX = 0;
         currentRecordTime = 0;
-        currentPlayRecordTime = 0;
         mLastX = 0;
         sampleLineList.clear();
         lineLocationX = 0;

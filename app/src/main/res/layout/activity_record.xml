@@ -15,7 +15,7 @@
 
 
         <com.example.administrator.aduiorecordui.record.AudioRecord
-            android:id="@+id/ruler"
+            android:id="@+id/audio_record_ui"
             android:layout_width="match_parent"
             android:layout_height="350dp"
             android:background="#E5C85D"
