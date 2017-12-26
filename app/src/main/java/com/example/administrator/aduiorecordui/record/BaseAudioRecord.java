@@ -11,6 +11,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -507,11 +508,7 @@ public abstract class BaseAudioRecord extends View {
     }
 
     protected float getLastSampleLineRightX() {
-        if (sampleLineList.size() > 0) {
-            return sampleLineList.get(sampleLineList.size() - 1).startX + lineWidth / 2;
-        } else {
-            return 0;
-        }
+        return lineLocationX;
     }
 
 
@@ -545,31 +542,28 @@ public abstract class BaseAudioRecord extends View {
     ObjectAnimator animator;
 
     private void startTranslateCanvas() {
-        isPlayingRecord = true;
-        isAutoScroll = true;
-        float startX = getScrollX() < 0 ? centerLineX : getScrollX();
-        float endX = getScrollX() < 0 ? lineLocationX : maxScrollX;
-        float dx = endX - startX;
+        float startX = getScrollX();
+        float endX = maxScrollX;
+        Log.d(TAG, "startTranslateCanvas: lll startX = " + startX + ", endX = " + endX);
+        float dx = Math.abs(lineLocationX - centerLineX);
         final long duration = (long) (1000 * dx / (recordSamplingFrequency * (lineWidth + rectGap)));
         animator = ObjectAnimator.ofFloat(this, "translateX", startX, endX);
         animator.setInterpolator(new LinearInterpolator());
         animator.setDuration(duration);
+        isPlayingRecord = true;
+        isAutoScroll = true;
+        if (recordCallBack != null) {
+            recordCallBack.onStartPlayRecord();
+        }
         animator.start();
         animator.addListener(new AnimatorListenerAdapter() {
-
-
-            @Override
-            public void onAnimationStart(Animator animation) {
-                super.onAnimationStart(animation);
-                if (recordCallBack != null) {
-                    recordCallBack.onStartPlayRecord();
-                }
-            }
 
             @Override
             public void onAnimationCancel(Animator animation) {
                 super.onAnimationCancel(animation);
+                //播放结束
                 stopPlayRecord();
+                animator.removeAllListeners();
                 if (recordCallBack != null) {
                     recordCallBack.onStopPlayRecode();
                 }
@@ -578,7 +572,9 @@ public abstract class BaseAudioRecord extends View {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
+                //播放结束
                 stopPlayRecord();
+                animator.removeAllListeners();
                 if (recordCallBack != null) {
                     recordCallBack.onStopPlayRecode();
                     recordCallBack.onFinishPlayingRecord();
@@ -594,6 +590,7 @@ public abstract class BaseAudioRecord extends View {
     public void setTranslateX(float translateX) {
         this.translateX = translateX;
         if (centerLineX - lineLocationX == 0) {
+            Log.d(TAG, "setTranslateX: lll setTranslateX stop");
             stopPlayRecord();
             return;
         }
@@ -615,7 +612,13 @@ public abstract class BaseAudioRecord extends View {
                     scrollTo(minScrollX - lineWidth - rectGap, 0);
                 }
             }
-            startTranslateCanvas();
+
+            postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    startTranslateCanvas();
+                }
+            }, 200);
         }
     }
 

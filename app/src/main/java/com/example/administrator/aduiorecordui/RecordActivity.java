@@ -44,7 +44,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
  */
 public class RecordActivity extends AppCompatActivity {
 
-    static final boolean needVoice = false;
+    static final boolean needVoice = true;
     static final int BUFFER_SIZE = 2048;
 
     private static final String TAG = "RecordActivity";

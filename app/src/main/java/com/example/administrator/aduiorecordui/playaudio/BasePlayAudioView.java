@@ -6,7 +6,6 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
-import android.os.Handler;
 import android.os.SystemClock;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
@@ -273,25 +272,6 @@ public abstract class BasePlayAudioView extends View {
     long tempTime = 0;
     boolean isPlaying;
     boolean isAutoScroll;
-    Handler playHandler = new Handler();
-    Runnable playRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (isPlaying) {
-                int middle = getMeasuredWidth() / 2;
-                if (centerLineX < middle) {
-                    startCenterLineAnimationFromStart();
-                } else if (centerLineX >= lastSampleXWithRectGap - middle) {
-                    startCenterLineAnimationFromEnd();
-                } else {
-                    startTranslateCanvas();
-                }
-                if (centerLineX >= lastSampleXWithRectGap - rectGap) {
-                    stopPlay();
-                }
-            }
-        }
-    };
 
     ObjectAnimator animator;
 
@@ -307,10 +287,16 @@ public abstract class BasePlayAudioView extends View {
         animator.addListener(new AnimatorListenerAdapter() {
 
             @Override
+            public void onAnimationCancel(Animator animation) {
+                super.onAnimationCancel(animation);
+                animator.removeAllListeners();
+            }
+
+            @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                if (isPlaying){
-                   startTranslateCanvas();
+                if (isPlaying) {
+                    startTranslateCanvas();
                 }
 
             }
@@ -326,12 +312,19 @@ public abstract class BasePlayAudioView extends View {
         animator.setInterpolator(new LinearInterpolator());
         animator.setDuration(duration);
         animator.start();
-        animator.addListener( new AnimatorListenerAdapter() {
+        animator.addListener(new AnimatorListenerAdapter() {
+
+            @Override
+            public void onAnimationCancel(Animator animation) {
+                super.onAnimationCancel(animation);
+                animator.removeAllListeners();
+            }
 
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
-                if (isPlaying){
+                animator.removeAllListeners();
+                if (isPlaying) {
                     startCenterLineAnimationFromEnd();
                 }
             }
@@ -353,13 +346,14 @@ public abstract class BasePlayAudioView extends View {
             public void onAnimationCancel(Animator animation) {
                 super.onAnimationCancel(animation);
                 stopPlay();
-
+                animator.removeAllListeners();
             }
 
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
                 stopPlay();
+                animator.removeAllListeners();
             }
         });
     }
@@ -388,7 +382,17 @@ public abstract class BasePlayAudioView extends View {
             tempTime = SystemClock.elapsedRealtime();
             setPlayingTime(timeInMillis);
             isPlaying = true;
-            playHandler.post(playRunnable);
+            int middle = getMeasuredWidth() / 2;
+            if (centerLineX < middle) {
+                startCenterLineAnimationFromStart();
+            } else if (centerLineX >= lastSampleXWithRectGap - middle) {
+                startCenterLineAnimationFromEnd();
+            } else {
+                startTranslateCanvas();
+            }
+            if (centerLineX >= lastSampleXWithRectGap - rectGap) {
+                stopPlay();
+            }
         }
     }
 
@@ -399,8 +403,7 @@ public abstract class BasePlayAudioView extends View {
      */
     public void setPlayingTime(long timeInMillis) {
         if (!isPlaying) {
-
-            centerLineX = timeInMillis*audioSourceFrequency * (lineWidth + rectGap) /1000 ;
+            centerLineX = timeInMillis * audioSourceFrequency * (lineWidth + rectGap) / 1000;
             if (timeInMillis == 0) {
                 centerLineX = circleRadius;
             }
@@ -424,8 +427,6 @@ public abstract class BasePlayAudioView extends View {
             isPlaying = false;
             isAutoScroll = false;
             animator.cancel();
-            playHandler.removeCallbacks(playRunnable);
-
         }
     }
 

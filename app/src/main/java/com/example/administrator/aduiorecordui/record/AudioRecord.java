@@ -43,8 +43,6 @@ public class AudioRecord extends BaseAudioRecord {
     protected int mDrawOffset;
 
 
-
-
     public AudioRecord(Context context) {
         super(context);
         init();
@@ -123,18 +121,13 @@ public class AudioRecord extends BaseAudioRecord {
         sampleLineModel.startX = lineLocationX + lineWidth / 2;
         sampleLineModel.stopX = sampleLineModel.startX;
         sampleLineModel.startY = lineTop;
-        sampleLineModel.stopY = getMeasuredHeight() / 2;
+        sampleLineModel.stopY = rectBottom;
         lineLocationX = lineLocationX + lineWidth + rectGap;
         sampleLineList.add(sampleLineModel);
 
-
-        if (lineLocationX < getMeasuredWidth()) {
-            maxScrollX = 0;
-        } else {
-            maxScrollX = lineLocationX - getMeasuredWidth() / 2;
-        }
-
-        minScrollX = -getMeasuredWidth() / 2;
+        int widthMiddle = getMeasuredWidth() / 2;
+        maxScrollX = lineLocationX < widthMiddle ? 0 : lineLocationX - widthMiddle;
+        minScrollX = -widthMiddle;
         invalidate();
     }
 
@@ -145,8 +138,6 @@ public class AudioRecord extends BaseAudioRecord {
         drawLine(canvas);
         drawCenterVerticalLine(canvas);
     }
-
-
 
 
     private void drawScale(Canvas canvas) {
