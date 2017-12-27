@@ -11,13 +11,11 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
 import android.view.animation.LinearInterpolator;
-import android.widget.EdgeEffect;
 import android.widget.OverScroller;
 
 import com.example.administrator.aduiorecordui.R;
@@ -207,26 +205,9 @@ public abstract class BaseAudioRecord extends View {
      */
     protected int minVelocity;
 
-
-    /**
-     * 开始边界效果
-     */
-    protected EdgeEffect startEdgeEffect;
-    /**
-     * 结束边界效果
-     */
-    protected EdgeEffect endEdgeEffect;
-
-    protected @ColorInt
-    int edgeColor;
-
-
     protected long maxLength;
-    /**
-     * 边缘效应长度
-     */
-    protected int mEdgeLength;
-    private RecordCallBack recordCallBack;
+
+    RecordCallBack recordCallBack;
 
     /**
      * 矩形间距
@@ -487,6 +468,7 @@ public abstract class BaseAudioRecord extends View {
         if (isRecording) {
             isRecording = false;
             isAutoScroll = false;
+            overScroller.abortAnimation();
             recordHandler.removeCallbacks(recordRunnable);
             if (recordCallBack != null) {
                 recordCallBack.onStopRecord();
@@ -497,7 +479,8 @@ public abstract class BaseAudioRecord extends View {
     private void scrollToEnd() {
         if (sampleLineList.size() > 0) {
             float lastSampleLineRightX = getLastSampleLineRightX();
-            if (lastSampleLineRightX >= getMeasuredWidth() / 2) {
+            int middle = getMeasuredWidth() / 2;
+            if (lastSampleLineRightX >= middle) {
                 scrollTo((int) lastSampleLineRightX, 0);
             } else {
                 scrollTo(0, 0);
@@ -535,6 +518,39 @@ public abstract class BaseAudioRecord extends View {
     }
 
 
+    public void startPlayRecord(long timeInMillis) {
+        if (!isPlayingRecord) {
+            stopRecord();
+            if (timeInMillis == 0) {
+                //从0开始播放
+                scrollTo(minScrollX, 0);
+            } else {
+                //从指定的时间开始播放
+                long scrollLength = timeInMillis * scaleIntervalLength * intervalCount / 1000 + minScrollX;
+                scrollTo((int) scrollLength, 0);
+            }
+            postDelayed(new Runnable() {
+                @Override
+                public void run() {
+                    startTranslateCanvas();
+                }
+            }, 100);
+
+        }
+    }
+
+    /**
+     * 暂停播放录音
+     */
+    public void stopPlayRecord() {
+        if (isPlayingRecord) {
+            isPlayingRecord = false;
+            isAutoScroll = false;
+            animator.cancel();
+        }
+    }
+
+
     /**
      * 画布移动距离
      */
@@ -542,9 +558,10 @@ public abstract class BaseAudioRecord extends View {
     ObjectAnimator animator;
 
     private void startTranslateCanvas() {
+        int middle = getMeasuredWidth() / 2;
         float startX = getScrollX();
-        float endX = maxScrollX;
-        Log.d(TAG, "startTranslateCanvas: lll startX = " + startX + ", endX = " + endX);
+        //小于半屏的时候，要重新计算偏移量，因为有个左滑的动作
+        float endX = lineLocationX < middle ? getScrollX() + Math.abs(lineLocationX - centerLineX) : maxScrollX;
         float dx = Math.abs(lineLocationX - centerLineX);
         final long duration = (long) (1000 * dx / (recordSamplingFrequency * (lineWidth + rectGap)));
         animator = ObjectAnimator.ofFloat(this, "translateX", startX, endX);
@@ -577,7 +594,6 @@ public abstract class BaseAudioRecord extends View {
                 animator.removeAllListeners();
                 if (recordCallBack != null) {
                     recordCallBack.onStopPlayRecode();
-                    recordCallBack.onFinishPlayingRecord();
                 }
             }
         });
@@ -589,48 +605,7 @@ public abstract class BaseAudioRecord extends View {
 
     public void setTranslateX(float translateX) {
         this.translateX = translateX;
-        if (centerLineX - lineLocationX == 0) {
-            Log.d(TAG, "setTranslateX: lll setTranslateX stop");
-            stopPlayRecord();
-            return;
-        }
         scrollTo((int) translateX, 0);
-        invalidate();
-    }
-
-    public void startPlayRecord(long timeInMillis) {
-        if (!isPlayingRecord) {
-            stopRecord();
-            //1.timeInMillis > 0 从指定的时间开始播放
-            if (timeInMillis > 0) {
-                long scrollLength = timeInMillis * scaleIntervalLength * intervalCount / 1000 + minScrollX;
-                scrollTo((int) scrollLength, 0);
-            } else {
-                //2.timeInMillis == 0 从指针指向位置开始播放
-                //指针在结束位置，从头开始播放
-                if (centerLineX >= getLastSampleLineRightX() - lineWidth - rectGap) {
-                    scrollTo(minScrollX - lineWidth - rectGap, 0);
-                }
-            }
-
-            postDelayed(new Runnable() {
-                @Override
-                public void run() {
-                    startTranslateCanvas();
-                }
-            }, 200);
-        }
-    }
-
-    /**
-     * 暂停播放录音
-     */
-    public void stopPlayRecord() {
-        if (isPlayingRecord) {
-            isPlayingRecord = false;
-            isAutoScroll = false;
-            animator.cancel();
-        }
     }
 
     /**

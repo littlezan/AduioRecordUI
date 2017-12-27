@@ -44,7 +44,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
  */
 public class RecordActivity extends AppCompatActivity {
 
-    static final boolean needVoice = true;
+    static final boolean needVoice = false;
     static final int BUFFER_SIZE = 2048;
 
     private static final String TAG = "RecordActivity";
@@ -136,7 +136,7 @@ public class RecordActivity extends AppCompatActivity {
         btnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                audioRecordUi.startPlayRecord(0);
+                audioRecordUi.startPlayRecord(playingTimeInMillis);
             }
         });
 
@@ -184,7 +184,7 @@ public class RecordActivity extends AppCompatActivity {
 
             @Override
             public void onFinishPlayingRecord() {
-
+                playingTimeInMillis = 0;
             }
 
             @Override

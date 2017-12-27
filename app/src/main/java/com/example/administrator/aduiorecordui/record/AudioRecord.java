@@ -260,6 +260,20 @@ public class AudioRecord extends BaseAudioRecord {
             text = time + "." + decimal + "/" + recordTimeInMinutes;
         }
         canvas.drawText(text, getScrollX() + canvasMiddle, bottomCircleY + bottomTextSize + 20, bottomTextPaint);
+
+        if (recordCallBack != null) {
+            long centerStartTimeMillis;
+            if (centerLineX == 0) {
+                centerStartTimeMillis = 0;
+            } else {
+                centerStartTimeMillis = (long) (centerLineX * 1000L / (recordSamplingFrequency * (lineWidth + rectGap)));
+            }
+            if (centerLineX >= lineLocationX) {
+                recordCallBack.onFinishPlayingRecord();
+            } else {
+                recordCallBack.onPlayingRecord(centerStartTimeMillis);
+            }
+        }
     }
 
     @Override
