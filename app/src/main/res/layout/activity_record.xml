@@ -14,7 +14,7 @@
         tools:context="com.example.administrator.aduiorecordui.MainActivity">
 
 
-        <com.example.administrator.aduiorecordui.record.AudioRecord
+        <com.example.administrator.aduiorecordui.record.AudioRecordView
             android:id="@+id/audio_record_ui"
             android:layout_width="match_parent"
             android:layout_height="350dp"

@@ -2,7 +2,7 @@
 <resources>
 
     <!--录音-->
-    <declare-styleable name="AudioRecord">
+    <declare-styleable name="AudioRecordView">
         <!--录音时长 单位分钟-->
         <attr name="recordTimeInMinutes" format="integer" />
         <!--录音采样频率 每秒钟采样个数-->

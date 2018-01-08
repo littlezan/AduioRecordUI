@@ -22,7 +22,7 @@ import java.util.concurrent.TimeUnit;
  * @version 1.0
  * @since 2017-12-07  20:00
  */
-public class AudioRecord extends BaseAudioRecord {
+public class AudioRecordView extends BaseAudioRecordView {
 
 
     Paint ruleHorizontalLinePaint = new Paint();
@@ -43,17 +43,17 @@ public class AudioRecord extends BaseAudioRecord {
     protected int mDrawOffset;
 
 
-    public AudioRecord(Context context) {
+    public AudioRecordView(Context context) {
         super(context);
         init();
     }
 
-    public AudioRecord(Context context, @Nullable AttributeSet attrs) {
+    public AudioRecordView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         init();
     }
 
-    public AudioRecord(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public AudioRecordView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         init();
     }

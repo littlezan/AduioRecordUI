@@ -1,7 +1,8 @@
 package com.example.administrator.aduiorecordui;
 
-import android.content.Context;
+import android.Manifest;
 import android.media.AudioManager;
+import android.media.MediaRecorder;
 import android.os.Bundle;
 import android.os.Environment;
 import android.support.annotation.Nullable;
@@ -13,22 +14,22 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.administrator.aduiorecordui.record.AudioRecord;
+import com.example.administrator.aduiorecordui.record.AudioRecordView;
 import com.example.administrator.aduiorecordui.record.RecordCallBack;
-import com.github.piasy.audioprocessor.AudioProcessor;
-import com.github.piasy.rxandroidaudio.StreamAudioPlayer;
-import com.github.piasy.rxandroidaudio.StreamAudioRecorder;
+import com.github.piasy.rxandroidaudio.AudioRecorder;
+import com.github.piasy.rxandroidaudio.PlayConfig;
+import com.github.piasy.rxandroidaudio.RxAmplitude;
+import com.github.piasy.rxandroidaudio.RxAudioPlayer;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
-import java.io.FileInputStream;
-import java.io.FileOutputStream;
 import java.io.IOException;
 import java.util.Random;
-import java.util.concurrent.TimeUnit;
 
 import io.reactivex.Observable;
+import io.reactivex.android.schedulers.AndroidSchedulers;
 import io.reactivex.functions.Consumer;
+import io.reactivex.internal.functions.Functions;
 import io.reactivex.schedulers.Schedulers;
 
 import static android.Manifest.permission.RECORD_AUDIO;
@@ -44,22 +45,17 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
  */
 public class RecordActivity extends AppCompatActivity {
 
-    static final boolean needVoice = false;
-    static final int BUFFER_SIZE = 2048;
+    public static final int MIN_AUDIO_LENGTH_SECONDS = 2;
+    static final boolean needVoice = true;
 
     private static final String TAG = "RecordActivity";
+    private RxPermissions mPermissions;
     private long playingTimeInMillis;
 
+    private AudioRecorder mAudioRecorder;
+    private RxAudioPlayer mRxAudioPlayer;
+    private File mAudioFile;
 
-    private RxPermissions mPermissions;
-    private StreamAudioRecorder mStreamAudioRecorder;
-    private StreamAudioPlayer mStreamAudioPlayer;
-    private AudioProcessor mAudioProcessor;
-    private FileOutputStream mFileOutputStream;
-    private File mOutputFile;
-    private byte[] mBuffer;
-    private boolean mIsRecording = false;
-    private float mRatio = 1;
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
@@ -67,26 +63,32 @@ public class RecordActivity extends AppCompatActivity {
         setContentView(R.layout.activity_record);
         initAudioRecorder();
         initView();
-
     }
 
     private void initAudioRecorder() {
-        mOutputFile = new File(Environment.getExternalStorageDirectory().getAbsolutePath() +
-                File.separator + System.nanoTime() + ".stream.m4a");
-        try {
-            mOutputFile.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-        mStreamAudioRecorder = StreamAudioRecorder.getInstance();
-        mStreamAudioPlayer = StreamAudioPlayer.getInstance();
-        mAudioProcessor = new AudioProcessor(BUFFER_SIZE);
-        mBuffer = new byte[BUFFER_SIZE];
+        mAudioRecorder = AudioRecorder.getInstance();
+        mRxAudioPlayer = RxAudioPlayer.getInstance();
 
+        mAudioFile = new File(
+                Environment.getExternalStorageDirectory().getAbsolutePath()
+                        + File.separator + System.nanoTime() + ".file.m4a");
+        if (!mAudioFile.exists()) {
+            try {
+                mAudioFile.createNewFile();
+            } catch (IOException e) {
+                e.printStackTrace();
+            }
+        }
+        mAudioRecorder.setOnErrorListener(new AudioRecorder.OnErrorListener() {
+            @Override
+            public void onError(int error) {
+                Log.d(TAG, "onError: lll error = " + error);
+            }
+        });
     }
 
     private void initView() {
-        final AudioRecord audioRecordUi = findViewById(R.id.audio_record_ui);
+        final AudioRecordView audioRecordView = findViewById(R.id.audio_record_ui);
         Button btnStart = findViewById(R.id.btn_start);
         Button btnStop = findViewById(R.id.btn_stop);
         Button btnPlay = findViewById(R.id.btn_play);
@@ -118,8 +120,7 @@ public class RecordActivity extends AppCompatActivity {
                                 }
                             });
                 } else {
-                    audioRecordUi.startRecord();
-                    mIsRecording = true;
+                    audioRecordView.startRecord();
                 }
 
 
@@ -129,28 +130,28 @@ public class RecordActivity extends AppCompatActivity {
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                audioRecordUi.stopRecord();
+                audioRecordView.stopRecord();
             }
         });
 
         btnPlay.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                audioRecordUi.startPlayRecord(playingTimeInMillis);
+                audioRecordView.startPlayRecord(playingTimeInMillis);
             }
         });
 
         btnPause.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                audioRecordUi.stopPlayRecord();
+                audioRecordView.stopPlayRecord();
             }
         });
 
         btnReset.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                audioRecordUi.reset();
+                audioRecordView.reset();
             }
         });
 
@@ -159,12 +160,12 @@ public class RecordActivity extends AppCompatActivity {
             public void onClick(View v) {
                 if (!TextUtils.isEmpty(editText.getText().toString())) {
                     int millis = Integer.parseInt(editText.getText().toString());
-                    audioRecordUi.startPlayRecord(millis * 1000);
+                    audioRecordView.startPlayRecord(millis * 1000);
                 }
             }
         });
 
-        audioRecordUi.setRecordCallBack(new RecordCallBack() {
+        audioRecordView.setRecordCallBack(new RecordCallBack() {
 
             @Override
             public float getSamplePercent() {
@@ -178,8 +179,8 @@ public class RecordActivity extends AppCompatActivity {
 
             @Override
             public void onRecordCurrent(long centerStartTimeMillis, long recordTimeInMillis) {
-                Log.d(TAG, "lll onRecordCurrent: centerStartTimeMillis = " + centerStartTimeMillis + ",  inSecond = " + TimeUnit.MILLISECONDS.toSeconds(centerStartTimeMillis)
-                        + ", recordTimeInMillis = " + recordTimeInMillis + ", inSecond = " + TimeUnit.MILLISECONDS.toSeconds(recordTimeInMillis));
+//                Log.d(TAG, "lll onRecordCurrent: centerStartTimeMillis = " + centerStartTimeMillis + ",  inSecond = " + TimeUnit.MILLISECONDS.toSeconds(centerStartTimeMillis)
+//                        + ", recordTimeInMillis = " + recordTimeInMillis + ", inSecond = " + TimeUnit.MILLISECONDS.toSeconds(recordTimeInMillis));
             }
 
             @Override
@@ -189,7 +190,7 @@ public class RecordActivity extends AppCompatActivity {
 
             @Override
             public void onPlayingRecord(long playingTimeInMillis) {
-                Log.d(TAG, "lll onPlayingRecord: playingTimeInMillis = " + playingTimeInMillis);
+//                Log.d(TAG, "lll onPlayingRecord: playingTimeInMillis = " + playingTimeInMillis);
                 RecordActivity.this.playingTimeInMillis = playingTimeInMillis;
             }
 
@@ -209,7 +210,6 @@ public class RecordActivity extends AppCompatActivity {
 
             @Override
             public void onFinishRecord() {
-
             }
 
             @Override
@@ -238,69 +238,79 @@ public class RecordActivity extends AppCompatActivity {
     }
 
     private void startRecord() {
-        try {
-            mFileOutputStream = new FileOutputStream(mOutputFile);
-            mStreamAudioRecorder.start(new StreamAudioRecorder.AudioDataCallback() {
-                @Override
-                public void onAudioData(byte[] data, int size) {
-                    if (mFileOutputStream != null) {
-                        try {
-                            mFileOutputStream.write(data, 0, size);
-                        } catch (IOException e) {
-                            e.printStackTrace();
+        boolean isPermissionsGranted
+                = mPermissions.isGranted(Manifest.permission.WRITE_EXTERNAL_STORAGE)
+                && mPermissions.isGranted(Manifest.permission.RECORD_AUDIO);
+        if (!isPermissionsGranted) {
+            mPermissions
+                    .request(Manifest.permission.WRITE_EXTERNAL_STORAGE,
+                            Manifest.permission.RECORD_AUDIO)
+                    .subscribe(granted -> {
+                        // not record first time to request permission
+                        if (granted) {
+                            Toast.makeText(getApplicationContext(), "Permission granted",
+                                    Toast.LENGTH_SHORT).show();
+                        } else {
+                            Toast.makeText(getApplicationContext(), "Permission not granted",
+                                    Toast.LENGTH_SHORT).show();
                         }
-                    }
-                }
-
-                @Override
-                public void onError() {
-                    mIsRecording = false;
-                }
-            });
-        } catch (IOException e) {
-            e.printStackTrace();
+                    }, Throwable::printStackTrace);
+        } else {
+            recordAfterPermissionGranted();
         }
+    }
 
+    private void recordAfterPermissionGranted() {
+        boolean startRecord = mAudioRecorder.startRecord();
+        Log.d(TAG, "recordAfterPermissionGranted: lll startRecord = " + startRecord);
+        Observable
+                .fromCallable((() -> {
+
+                    return mAudioRecorder.prepareRecord(MediaRecorder.AudioSource.MIC,
+                            MediaRecorder.OutputFormat.MPEG_4, MediaRecorder.AudioEncoder.AAC,
+                            192000, 192000, mAudioFile);
+                }))
+                .flatMap(b -> {
+                    Log.d(TAG, "prepareRecord success");
+                    Log.d(TAG, "to play audio_record_ready: " + R.raw.audio_record_ready);
+                    return mRxAudioPlayer.play(
+                            PlayConfig.res(getApplicationContext(), R.raw.audio_record_ready)
+                                    .build());
+                })
+                .doOnComplete(() -> {
+                    Log.d(TAG, "audio_record_ready play finished");
+                    mAudioRecorder.startRecord();
+                })
+                .doOnNext(b -> Log.d(TAG, "startRecord success"))
+                .flatMap(o -> RxAmplitude.from(mAudioRecorder))
+                .subscribeOn(Schedulers.io())
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(level -> {
+                    int progress = mAudioRecorder.progress();
+                    Log.d(TAG, "recordAfterPermissionGranted: lll level = " + level + ", progress = " + progress);
+                }, Throwable::printStackTrace);
     }
 
     private void stopRecord() {
-        mStreamAudioRecorder.stop();
-        try {
-            mFileOutputStream.close();
-            mFileOutputStream = null;
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
+        mAudioRecorder.stopRecord();
     }
 
     public void play() {
-        Context context = getApplicationContext();
-        AudioManager audioManager = (AudioManager) context.getSystemService(Context.AUDIO_SERVICE);
-        audioManager.setMode(AudioManager.MODE_IN_COMMUNICATION);
-        audioManager.setSpeakerphoneOn(true);
-
-        Observable.just(mOutputFile)
+        mRxAudioPlayer.play(
+                PlayConfig.file(mAudioFile)
+                        .streamType(AudioManager.STREAM_VOICE_CALL)
+                        .build())
                 .subscribeOn(Schedulers.io())
-                .subscribe(new Consumer<File>() {
-                    @Override
-                    public void accept(File file) throws Exception {
-                        try {
-                            mStreamAudioPlayer.init();
-                            FileInputStream inputStream = new FileInputStream(file);
-                            int read;
-                            while ((read = inputStream.read(mBuffer)) > 0) {
-                                mStreamAudioPlayer.play(mBuffer, read);
-                            }
-                            inputStream.close();
-                            mStreamAudioPlayer.release();
-                        } catch (IOException e) {
-                            e.printStackTrace();
-                        }
-                    }
-                });
+                .observeOn(AndroidSchedulers.mainThread())
+                .subscribe(Functions.emptyConsumer(), Throwable::printStackTrace);
     }
 
     private void stopPlay() {
-        mStreamAudioPlayer.release();
+//        mRxAudioPlayer.pause();
+    }
+
+    @Override
+    protected void onDestroy() {
+        super.onDestroy();
     }
 }
