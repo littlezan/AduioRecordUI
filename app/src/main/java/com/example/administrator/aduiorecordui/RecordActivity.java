@@ -23,7 +23,6 @@ import com.github.piasy.rxandroidaudio.RxAudioPlayer;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
-import java.io.IOException;
 import java.util.Random;
 
 import io.reactivex.Observable;
@@ -72,13 +71,6 @@ public class RecordActivity extends AppCompatActivity {
         mAudioFile = new File(
                 Environment.getExternalStorageDirectory().getAbsolutePath()
                         + File.separator + System.nanoTime() + ".file.m4a");
-        if (!mAudioFile.exists()) {
-            try {
-                mAudioFile.createNewFile();
-            } catch (IOException e) {
-                e.printStackTrace();
-            }
-        }
         mAudioRecorder.setOnErrorListener(new AudioRecorder.OnErrorListener() {
             @Override
             public void onError(int error) {
@@ -264,19 +256,9 @@ public class RecordActivity extends AppCompatActivity {
         boolean startRecord = mAudioRecorder.startRecord();
         Log.d(TAG, "recordAfterPermissionGranted: lll startRecord = " + startRecord);
         Observable
-                .fromCallable((() -> {
-
-                    return mAudioRecorder.prepareRecord(MediaRecorder.AudioSource.MIC,
-                            MediaRecorder.OutputFormat.MPEG_4, MediaRecorder.AudioEncoder.AAC,
-                            192000, 192000, mAudioFile);
-                }))
-                .flatMap(b -> {
-                    Log.d(TAG, "prepareRecord success");
-                    Log.d(TAG, "to play audio_record_ready: " + R.raw.audio_record_ready);
-                    return mRxAudioPlayer.play(
-                            PlayConfig.res(getApplicationContext(), R.raw.audio_record_ready)
-                                    .build());
-                })
+                .fromCallable((() -> mAudioRecorder.prepareRecord(MediaRecorder.AudioSource.MIC,
+                        MediaRecorder.OutputFormat.MPEG_4, MediaRecorder.AudioEncoder.AAC,
+                        192000, 192000, mAudioFile)))
                 .doOnComplete(() -> {
                     Log.d(TAG, "audio_record_ready play finished");
                     mAudioRecorder.startRecord();
@@ -300,8 +282,6 @@ public class RecordActivity extends AppCompatActivity {
                 PlayConfig.file(mAudioFile)
                         .streamType(AudioManager.STREAM_VOICE_CALL)
                         .build())
-                .subscribeOn(Schedulers.io())
-                .observeOn(AndroidSchedulers.mainThread())
                 .subscribe(Functions.emptyConsumer(), Throwable::printStackTrace);
     }
 
