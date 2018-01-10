@@ -11,6 +11,7 @@ import android.widget.EditText;
 
 import com.example.administrator.aduiorecordui.playaudio.PlayAudioCallBack;
 import com.example.administrator.aduiorecordui.playaudio.PlayAudioView;
+import com.google.android.exoplayer2.SimpleExoPlayer;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -28,12 +29,47 @@ public class PlayAudioActivity extends AppCompatActivity {
     private static final String TAG = "PlayAudioActivity";
 
     private long millis;
+    private SimpleExoPlayer mSimpleExoPlayer;
+
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_play_audio);
+//        initPlayer();
+        initView();
+    }
 
+//    void initPlayer() {
+//        //1. 创建一个默认的 TrackSelector
+//        BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
+//        TrackSelection.Factory videoTackSelectionFactory =
+//                new AdaptiveTrackSelection.Factory(bandwidthMeter);
+//        TrackSelector trackSelector =
+//                new DefaultTrackSelector(videoTackSelectionFactory);
+//        LoadControl loadControl = new DefaultLoadControl();
+//        //2.创建ExoPlayer
+//        mSimpleExoPlayer = ExoPlayerFactory.newSimpleInstance(new DefaultRenderersFactory(this), trackSelector, loadControl);
+//
+//        Visualizer mVisualizer =  new Visualizer(mSimpleExoPlayer.getAudioSessionId());
+//        mVisualizer.setCaptureSize(Visualizer.getCaptureSizeRange()[1]);
+//
+//        mVisualizer.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
+//            @Override
+//            public void onWaveFormDataCapture(Visualizer visualizer, byte[] waveform, int samplingRate) {
+//
+//            }
+//
+//            @Override
+//            public void onFftDataCapture(Visualizer visualizer, byte[] fft, int samplingRate) {
+//
+//            }
+//        }, Visualizer.getMaxCaptureRate() / 2, true, true);
+//        mVisualizer.setEnabled(true);
+//
+//    }
+
+    private void initView() {
         final PlayAudioView playAudioView = findViewById(R.id.play_audio_view);
         Button play = findViewById(R.id.play);
         Button stop = findViewById(R.id.stop);
@@ -81,6 +117,17 @@ public class PlayAudioActivity extends AppCompatActivity {
             public void onPlaying(long timeInMillis) {
                 Log.d(TAG, "lll onPlaying: timeInMillis = " + timeInMillis);
                 millis = timeInMillis;
+                Log.d(TAG, "onPlaying: lll = " + mSimpleExoPlayer.getVolume());
+            }
+
+            @Override
+            public void onStartPlay(long timeInMillis) {
+
+            }
+
+            @Override
+            public void onPausePlay() {
+
             }
 
             @Override
@@ -88,7 +135,6 @@ public class PlayAudioActivity extends AppCompatActivity {
 
             }
         });
-
     }
 
     int max = 100;

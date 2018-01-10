@@ -42,7 +42,6 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
-import java.util.Random;
 
 import io.reactivex.functions.Consumer;
 
@@ -59,6 +58,9 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
  */
 public class RecordActivity extends AppCompatActivity {
 
+    static float DECIBEL_MAX = 90.3f;
+    static float DECIBEL_MIX = 0f;
+
     static final boolean needVoice = true;
 
     private static final String TAG = "RecordActivity";
@@ -67,7 +69,7 @@ public class RecordActivity extends AppCompatActivity {
 
     AudioRecorder mAudioRecorder;
     private SimpleExoPlayer mSimpleExoPlayer;
-    public static String activeRecordFileName;
+    public String activeRecordFileName;
 
 
     @Override
@@ -93,7 +95,7 @@ public class RecordActivity extends AppCompatActivity {
         return Environment.getExternalStoragePublicDirectory(Environment.DIRECTORY_MUSIC)
                 .getAbsolutePath()
                 + File.separator
-                +"MY_"
+                + "MY_"
                 + "Record_"
                 + System.currentTimeMillis()
                 + ".mp4";
@@ -101,7 +103,7 @@ public class RecordActivity extends AppCompatActivity {
 
 
     void initPlayer() {
-//1. 创建一个默认的 TrackSelector
+        //1. 创建一个默认的 TrackSelector
         BandwidthMeter bandwidthMeter = new DefaultBandwidthMeter();
         TrackSelection.Factory videoTackSelectionFactory =
                 new AdaptiveTrackSelection.Factory(bandwidthMeter);
@@ -171,6 +173,7 @@ public class RecordActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 audioRecordView.stopPlayRecord();
+                stopPlay();
             }
         });
 
@@ -195,7 +198,19 @@ public class RecordActivity extends AppCompatActivity {
 
             @Override
             public float getSamplePercent() {
-                return new Random().nextFloat();
+                double ratio = mAudioRecorder.getMediaRecorder().getMaxAmplitude();
+                if (ratio > 1) {
+                    ratio = 20 * Math.log10(ratio);
+                }
+
+                float percent = (float) (ratio / DECIBEL_MAX);
+                if (percent - 0.2f <= 0) {
+                    percent = 0.2f;
+                } else if (percent - 1 >= 0) {
+                    percent = 1f;
+                }
+                Log.d(TAG, "getSamplePercent: lll ratio = " + ratio + ", percent = " + percent);
+                return percent;
             }
 
             @Override
@@ -247,9 +262,6 @@ public class RecordActivity extends AppCompatActivity {
 
             @Override
             public void onStopPlayRecode() {
-                if (needVoice) {
-                    stopPlay();
-                }
             }
 
         });
@@ -333,13 +345,13 @@ public class RecordActivity extends AppCompatActivity {
     }
 
 
-
     @Override
     protected void onDestroy() {
         super.onDestroy();
     }
 
     private Uri mAudioRecordUri;
+
     /**
      * Creates new item in the system's media database.
      *

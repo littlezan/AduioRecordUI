@@ -23,7 +23,7 @@
                 android:id="@+id/play_audio_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
-                app:p_audioSourceFrequency="20"
+                app:p_audioSourceFrequency="10"
                 app:p_rectMarginTop="1dp" />
 
 

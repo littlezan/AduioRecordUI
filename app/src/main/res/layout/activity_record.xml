@@ -9,7 +9,7 @@
         xmlns:app="http://schemas.android.com/apk/res-auto"
         xmlns:tools="http://schemas.android.com/tools"
         android:layout_width="match_parent"
-        android:layout_height="match_parent"
+        android:layout_height="wrap_content"
         android:orientation="vertical"
         tools:context="com.example.administrator.aduiorecordui.MainActivity">
 
@@ -20,7 +20,8 @@
             android:layout_height="350dp"
             android:background="#E5C85D"
             app:intervalCount="4"
-            app:recordSamplingFrequency="20"
+            app:recordSamplingFrequency="10"
+            app:recordTimeInMinutes="4"
             app:rectGap="2dp"
             app:scaleIntervalLength="10dp"
             app:showRuleText="true" />
@@ -53,7 +54,6 @@
         <android.support.v7.widget.LinearLayoutCompat
             android:layout_width="match_parent"
             android:layout_height="wrap_content"
-
             android:orientation="horizontal">
 
             <Button
