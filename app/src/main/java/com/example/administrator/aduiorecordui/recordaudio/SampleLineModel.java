@@ -1,4 +1,4 @@
-package com.example.administrator.aduiorecordui.record;
+package com.example.administrator.aduiorecordui.recordaudio;
 
 /**
  * ClassName: SampleLineModel

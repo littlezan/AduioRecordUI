@@ -14,12 +14,13 @@
         tools:context="com.example.administrator.aduiorecordui.MainActivity">
 
 
-        <com.example.administrator.aduiorecordui.record.AudioRecordView
+        <com.example.administrator.aduiorecordui.recordaudio.AudioRecordView
             android:id="@+id/audio_record_ui"
             android:layout_width="match_parent"
             android:layout_height="350dp"
             android:background="#E5C85D"
             app:intervalCount="4"
+            app:recordSamplingFrequency="20"
             app:rectGap="2dp"
             app:scaleIntervalLength="10dp"
             app:showRuleText="true" />

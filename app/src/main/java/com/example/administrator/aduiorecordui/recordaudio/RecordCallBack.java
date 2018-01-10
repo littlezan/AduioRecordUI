@@ -1,4 +1,4 @@
-package com.example.administrator.aduiorecordui.record;
+package com.example.administrator.aduiorecordui.recordaudio;
 
 import android.support.annotation.FloatRange;
 
@@ -37,7 +37,6 @@ public interface RecordCallBack {
     void onRecordCurrent(long centerStartTimeMillis, long recordTimeInMillis);
 
 
-
     /**
      * 当前播放时间
      *
@@ -63,8 +62,10 @@ public interface RecordCallBack {
 
     /**
      * 开始播放录音
+     *
+     * @param timeMillis 时间 毫秒
      */
-    void onStartPlayRecord();
+    void onStartPlayRecord(long timeMillis);
 
     /**
      * 暂停播放录音

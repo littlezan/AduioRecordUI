@@ -1,4 +1,4 @@
-package com.example.administrator.aduiorecordui.record;
+package com.example.administrator.aduiorecordui.recordaudio;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -236,6 +236,8 @@ public abstract class BaseAudioRecordView extends View {
      * 中心点的位置
      */
     protected float centerLineX = 0;
+
+    long centerTimeMillis;
 
     /**
      * 采样最后的位置
@@ -569,10 +571,6 @@ public abstract class BaseAudioRecordView extends View {
         animator.setDuration(duration);
         isPlayingRecord = true;
         isAutoScroll = true;
-        if (recordCallBack != null) {
-            recordCallBack.onStartPlayRecord();
-        }
-        animator.start();
         animator.addListener(new AnimatorListenerAdapter() {
 
             @Override
@@ -597,6 +595,12 @@ public abstract class BaseAudioRecordView extends View {
                 }
             }
         });
+
+
+        animator.start();
+        if (recordCallBack != null) {
+            recordCallBack.onStartPlayRecord(centerTimeMillis);
+        }
     }
 
     public float getTranslateX() {

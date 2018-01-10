@@ -1,4 +1,4 @@
-package com.example.administrator.aduiorecordui.record;
+package com.example.administrator.aduiorecordui.recordaudio;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -262,16 +262,15 @@ public class AudioRecordView extends BaseAudioRecordView {
         canvas.drawText(text, getScrollX() + canvasMiddle, bottomCircleY + bottomTextSize + 20, bottomTextPaint);
 
         if (recordCallBack != null) {
-            long centerStartTimeMillis;
             if (centerLineX == 0) {
-                centerStartTimeMillis = 0;
+                centerTimeMillis = 0;
             } else {
-                centerStartTimeMillis = (long) (centerLineX * 1000L / (recordSamplingFrequency * (lineWidth + rectGap)));
+                centerTimeMillis = (long) (centerLineX * 1000L / (recordSamplingFrequency * (lineWidth + rectGap)));
             }
             if (centerLineX >= lineLocationX) {
                 recordCallBack.onFinishPlayingRecord();
             } else {
-                recordCallBack.onPlayingRecord(centerStartTimeMillis);
+                recordCallBack.onPlayingRecord(centerTimeMillis);
             }
         }
     }
