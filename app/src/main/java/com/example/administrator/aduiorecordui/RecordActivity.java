@@ -42,6 +42,7 @@ import java.io.File;
 import java.text.SimpleDateFormat;
 import java.util.Date;
 import java.util.Locale;
+import java.util.Random;
 
 import io.reactivex.functions.Consumer;
 
@@ -194,6 +195,10 @@ public class RecordActivity extends AppCompatActivity {
             }
         });
 
+        initListener(audioRecordView);
+    }
+
+    private void initListener(AudioRecordView audioRecordView) {
         audioRecordView.setRecordCallBack(new RecordCallBack() {
 
             @Override
@@ -204,8 +209,11 @@ public class RecordActivity extends AppCompatActivity {
                 }
 
                 float percent = (float) (ratio / DECIBEL_MAX);
-                if (percent - 0.2f <= 0) {
-                    percent = 0.2f;
+                if (percent - 0.4f <= 0) {
+                    float minX = 0.2f;
+                    float maxX = 0.4f;
+                    Random random = new Random();
+                    percent = random.nextFloat() * (maxX - minX) + minX;
                 } else if (percent - 1 >= 0) {
                     percent = 1f;
                 }
