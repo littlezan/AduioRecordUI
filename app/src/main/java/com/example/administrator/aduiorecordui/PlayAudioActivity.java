@@ -117,7 +117,7 @@ public class PlayAudioActivity extends AppCompatActivity {
             public void onPlaying(long timeInMillis) {
                 Log.d(TAG, "lll onPlaying: timeInMillis = " + timeInMillis);
                 millis = timeInMillis;
-                Log.d(TAG, "onPlaying: lll = " + mSimpleExoPlayer.getVolume());
+//                Log.d(TAG, "onPlaying: lll = " + mSimpleExoPlayer.getVolume());
             }
 
             @Override
