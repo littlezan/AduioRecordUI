@@ -262,15 +262,17 @@ public class AudioRecordView extends BaseAudioRecordView {
         canvas.drawText(text, getScrollX() + canvasMiddle, bottomCircleY + bottomTextSize + 20, bottomTextPaint);
 
         if (recordCallBack != null) {
-            if (centerLineX == 0) {
-                centerTimeMillis = 0;
-            } else {
-                centerTimeMillis = (long) (centerLineX * 1000L / (recordSamplingFrequency * (lineWidth + rectGap)));
-            }
-            if (centerLineX >= lineLocationX && lineLocationX > 0) {
-                recordCallBack.onFinishPlayingRecord();
-            } else {
-                recordCallBack.onPlayingRecord(centerTimeMillis);
+            if (!isRecording) {
+                if (centerLineX == 0) {
+                    centerTimeMillis = 0;
+                } else {
+                    centerTimeMillis = (long) (centerLineX * 1000L / (recordSamplingFrequency * (lineWidth + rectGap)));
+                }
+                if (centerLineX >= lineLocationX && lineLocationX>0) {
+                    recordCallBack.onFinishPlayingRecord();
+                } else {
+                    recordCallBack.onCenterLineTime(centerTimeMillis);
+                }
             }
         }
     }

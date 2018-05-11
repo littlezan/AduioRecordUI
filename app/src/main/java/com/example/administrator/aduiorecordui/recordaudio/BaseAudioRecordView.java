@@ -411,6 +411,12 @@ public abstract class BaseAudioRecordView extends View {
         }
     }
 
+    @Override
+    protected void onDetachedFromWindow() {
+        super.onDetachedFromWindow();
+        recordHandler.removeCallbacksAndMessages(null);
+    }
+
 
     Handler recordHandler = new Handler();
     Runnable recordRunnable = new Runnable() {
@@ -449,6 +455,7 @@ public abstract class BaseAudioRecordView extends View {
             }
         }
     };
+
 
 
     public void startRecord() {

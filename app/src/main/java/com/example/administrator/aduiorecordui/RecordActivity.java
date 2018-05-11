@@ -238,7 +238,7 @@ public class RecordActivity extends AppCompatActivity {
             }
 
             @Override
-            public void onPlayingRecord(long playingTimeInMillis) {
+            public void onCenterLineTime(long playingTimeInMillis) {
 //                Log.d(TAG, "lll onPlayingRecord: playingTimeInMillis = " + playingTimeInMillis);
                 RecordActivity.this.playingTimeInMillis = playingTimeInMillis;
             }

@@ -38,11 +38,11 @@ public interface RecordCallBack {
 
 
     /**
-     * 当前播放时间
+     * 当前中心线播放时间
      *
      * @param playingTimeInMillis 当前播放时间 单位毫秒
      */
-    void onPlayingRecord(long playingTimeInMillis);
+    void onCenterLineTime(long playingTimeInMillis);
 
     /**
      * 开始录音
