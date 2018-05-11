@@ -267,7 +267,7 @@ public class AudioRecordView extends BaseAudioRecordView {
             } else {
                 centerTimeMillis = (long) (centerLineX * 1000L / (recordSamplingFrequency * (lineWidth + rectGap)));
             }
-            if (centerLineX >= lineLocationX) {
+            if (centerLineX >= lineLocationX && lineLocationX > 0) {
                 recordCallBack.onFinishPlayingRecord();
             } else {
                 recordCallBack.onPlayingRecord(centerTimeMillis);
