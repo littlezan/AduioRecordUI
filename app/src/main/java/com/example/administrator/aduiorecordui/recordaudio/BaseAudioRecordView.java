@@ -538,6 +538,7 @@ public abstract class BaseAudioRecordView extends View {
                 long scrollLength = timeInMillis * scaleIntervalLength * intervalCount / 1000 + minScrollX;
                 scrollTo((int) scrollLength, 0);
             }
+            invalidate();
             postDelayed(new Runnable() {
                 @Override
                 public void run() {
@@ -578,6 +579,7 @@ public abstract class BaseAudioRecordView extends View {
         animator.setDuration(duration);
         isPlayingRecord = true;
         isAutoScroll = true;
+        animator.removeAllListeners();
         animator.addListener(new AnimatorListenerAdapter() {
 
             @Override
