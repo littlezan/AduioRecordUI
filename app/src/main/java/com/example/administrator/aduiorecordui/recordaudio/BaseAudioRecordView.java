@@ -584,6 +584,8 @@ public abstract class BaseAudioRecordView extends View {
             @Override
             public void onAnimationCancel(Animator animation) {
                 super.onAnimationCancel(animation);
+                //回调播放结束
+                invalidate();
                 //播放结束
                 stopPlayRecord();
                 animator.removeAllListeners();
@@ -595,6 +597,8 @@ public abstract class BaseAudioRecordView extends View {
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
+                //回调播放结束
+                invalidate();
                 //播放结束
                 stopPlayRecord();
                 animator.removeAllListeners();
