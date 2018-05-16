@@ -6,6 +6,7 @@ import android.graphics.Paint;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
+import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -24,6 +25,7 @@ import java.util.concurrent.TimeUnit;
  */
 public class AudioRecordView extends BaseAudioRecordView {
 
+    private static final String TAG = "AudioRecordView";
 
     Paint ruleHorizontalLinePaint = new Paint();
     Paint smallScalePaint = new Paint();
@@ -127,7 +129,7 @@ public class AudioRecordView extends BaseAudioRecordView {
 
         int widthMiddle = getMeasuredWidth() / 2;
         maxScrollX = lineLocationX < widthMiddle ? 0 : lineLocationX - widthMiddle;
-        minScrollX = -widthMiddle;
+        minScrollX = lineLocationX < widthMiddle ? -lineLocationX : -widthMiddle;
         invalidate();
     }
 
@@ -232,6 +234,9 @@ public class AudioRecordView extends BaseAudioRecordView {
         if (circleX > getScrollX() + canvasMiddle) {
             circleX = getScrollX() + canvasMiddle;
         }
+        if (circleX < canvasMiddle) {
+            circleX = circleX + getScrollX();
+        }
         centerLineX = circleX;
         float topCircleY = ruleHorizontalLineHeight - middleCircleRadius;
         float bottomCircleY = canvas.getHeight() / 2 + (canvas.getHeight() / 2 - ruleHorizontalLineHeight) + middleCircleRadius;
@@ -242,6 +247,7 @@ public class AudioRecordView extends BaseAudioRecordView {
         //下圆
         canvas.drawCircle(circleX, bottomCircleY, middleCircleRadius, middleVerticalLinePaint);
         //垂直 直线
+        Log.d(TAG, "drawCenterVerticalLine: lll circleX = " + circleX + ", getScrollX() = " + getScrollX());
         canvas.drawLine(circleX, topCircleY, circleX, bottomCircleY, middleVerticalLinePaint);
 
         //底部文字

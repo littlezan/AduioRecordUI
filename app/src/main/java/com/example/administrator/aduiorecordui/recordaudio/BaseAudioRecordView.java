@@ -11,6 +11,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -392,6 +393,7 @@ public abstract class BaseAudioRecordView extends View {
 
     @Override
     public void scrollTo(int x, int y) {
+        Log.d(TAG, "scrollTo: lll maxScrollX = " + maxScrollX);
         if (x < minScrollX) {
             x = minScrollX;
         } else if (x > maxScrollX) {

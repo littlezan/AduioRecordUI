@@ -21,7 +21,7 @@
             android:background="#E5C85D"
             app:intervalCount="4"
             app:recordSamplingFrequency="10"
-            app:recordTimeInMinutes="4"
+            app:recordTimeInMinutes="1"
             app:rectGap="2dp"
             app:scaleIntervalLength="10dp"
             app:showRuleText="true" />
