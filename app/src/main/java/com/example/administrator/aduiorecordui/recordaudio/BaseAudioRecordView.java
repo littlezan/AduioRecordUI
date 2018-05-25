@@ -6,12 +6,10 @@ import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.os.Build;
-import android.os.Handler;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -52,6 +50,10 @@ public abstract class BaseAudioRecordView extends View {
      * 录音采样频率 每秒钟采样个数
      */
     protected int recordSamplingFrequency = 10;
+    /**
+     * 是否显示刻度尺上
+     */
+    protected boolean showRule = true;
     /**
      * 是否显示刻度尺上的文字
      */
@@ -186,7 +188,7 @@ public abstract class BaseAudioRecordView extends View {
     /**
      * 正在录制
      */
-    protected boolean isRecording;
+    protected volatile boolean isRecording;
 
 
     /**
@@ -220,7 +222,7 @@ public abstract class BaseAudioRecordView extends View {
     protected int rectMarginTop = 50;
     protected List<SampleLineModel> sampleLineList = new ArrayList<>();
 
-    protected boolean isAutoScroll;
+    protected volatile boolean isAutoScroll;
 
     protected float mLastX = 0;
     /**
@@ -238,12 +240,18 @@ public abstract class BaseAudioRecordView extends View {
      */
     protected float centerLineX = 0;
 
+    /**
+     * 垂直线x坐标
+     */
+    protected float translateVerticalLineX;
+
     long centerTimeMillis;
 
     /**
      * 采样最后的位置
      */
     int lineLocationX;
+
 
     public BaseAudioRecordView(Context context) {
         super(context);
@@ -267,6 +275,7 @@ public abstract class BaseAudioRecordView extends View {
         TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.AudioRecordView, 0, 0);
         recordTimeInMinutes = typedArray.getInteger(R.styleable.AudioRecordView_recordTimeInMinutes, recordTimeInMinutes);
         recordSamplingFrequency = typedArray.getInteger(R.styleable.AudioRecordView_recordSamplingFrequency, recordSamplingFrequency);
+        showRule = typedArray.getBoolean(R.styleable.AudioRecordView_showRule, showRule);
         showRuleText = typedArray.getBoolean(R.styleable.AudioRecordView_showRuleText, showRuleText);
         intervalCount = typedArray.getInteger(R.styleable.AudioRecordView_intervalCount, intervalCount);
         scaleIntervalLength = typedArray.getDimensionPixelSize(R.styleable.AudioRecordView_scaleIntervalLength, scaleIntervalLength);
@@ -329,6 +338,7 @@ public abstract class BaseAudioRecordView extends View {
         if (isPlayingRecord || isRecording) {
             return false;
         }
+        getParent().requestDisallowInterceptTouchEvent(true);
         float currentX = event.getX();
         //开始速度检测
         startVelocityTracker(event);
@@ -393,7 +403,6 @@ public abstract class BaseAudioRecordView extends View {
 
     @Override
     public void scrollTo(int x, int y) {
-        Log.d(TAG, "scrollTo: lll maxScrollX = " + maxScrollX);
         if (x < minScrollX) {
             x = minScrollX;
         } else if (x > maxScrollX) {
@@ -413,61 +422,56 @@ public abstract class BaseAudioRecordView extends View {
         }
     }
 
-    @Override
-    protected void onDetachedFromWindow() {
-        super.onDetachedFromWindow();
-        recordHandler.removeCallbacksAndMessages(null);
-    }
 
-
-    Handler recordHandler = new Handler();
-    Runnable recordRunnable = new Runnable() {
-        @Override
-        public void run() {
-            if (isRecording) {
-                if (recordCallBack != null) {
+    /**
+     * 采样
+     *
+     * @param translateX 移动距离
+     */
+    private void onTick(float translateX) {
+        if (isRecording) {
+            long recordTimeInMillis = TimeUnit.MINUTES.toMillis(recordTimeInMinutes);
+            long duration = (long) (translateX * recordTimeInMillis / maxLength);
+            currentRecordTime = duration;
+            if (currentRecordTime < recordTimeInMillis) {
+                //录音中
+                //采样
+                if (recordCallBack != null && duration > getSampleCount() * recordDelayMillis) {
                     makeSampleLine(recordCallBack.getSamplePercent());
                 }
-                float lastSampleLineRightX = getLastSampleLineRightX();
-                int middleX = getScrollX() + getMeasuredWidth() / 2;
-                long maxX = maxLength;
-                if (lastSampleLineRightX > middleX && lastSampleLineRightX <= maxX) {
-                    isAutoScroll = true;
-                    int dx = Math.round(lastSampleLineRightX + rectGap - getScrollX());
-                    overScroller.startScroll(getScrollX(), 0, dx, 0, recordDelayMillis);
-                } else {
-                    isAutoScroll = false;
-                }
-
+            } else {
                 //结束录音
-                if (currentRecordTime >= TimeUnit.MINUTES.toMillis(recordTimeInMinutes)) {
-                    stopRecord();
-                    if (recordCallBack != null) {
-                        recordCallBack.onFinishRecord();
-                    }
-                } else {
-                    //录音中
-                    recordHandler.postDelayed(recordRunnable, recordDelayMillis);
-                    currentRecordTime = currentRecordTime + recordDelayMillis;
-                }
-
+                stopRecord();
                 if (recordCallBack != null) {
-                    recordCallBack.onRecordCurrent(currentRecordTime, currentRecordTime);
+                    recordCallBack.onFinishRecord();
                 }
             }
+            if (recordCallBack != null) {
+                recordCallBack.onRecordCurrent(currentRecordTime, currentRecordTime);
+            }
         }
-    };
 
+    }
 
 
     public void startRecord() {
         if (!isRecording) {
+            setCanScrollX();
             if (currentRecordTime >= TimeUnit.MINUTES.toMillis(recordTimeInMinutes)) {
                 return;
             }
-            scrollToEnd();
+            scrollTo(maxScrollX, 0);
             isRecording = true;
-            recordHandler.post(recordRunnable);
+            //移动画布
+            float lastSampleLineRightX = getLastSampleLineRightX();
+            int middleX = getScrollX() + getMeasuredWidth() / 2;
+            if (lastSampleLineRightX >= middleX - lineWidth - rectGap && lastSampleLineRightX <= maxLength) {
+                startRecordTranslateCanvas();
+                isAutoScroll = true;
+            } else {
+                startVerticalLineTranslate();
+                isAutoScroll = false;
+            }
             if (recordCallBack != null) {
                 recordCallBack.onStartRecord();
             }
@@ -479,27 +483,18 @@ public abstract class BaseAudioRecordView extends View {
         if (isRecording) {
             isRecording = false;
             isAutoScroll = false;
+            isStartVerticalLineTranslate = false;
+            isStartRecordTranslateCanvas = false;
             overScroller.abortAnimation();
-            recordHandler.removeCallbacks(recordRunnable);
+            animator.removeAllListeners();
+            animator.cancel();
+            setCanScrollX();
             if (recordCallBack != null) {
                 recordCallBack.onStopRecord();
             }
         }
     }
 
-    private void scrollToEnd() {
-        if (sampleLineList.size() > 0) {
-            float lastSampleLineRightX = getLastSampleLineRightX();
-            int middle = getMeasuredWidth() / 2;
-            if (lastSampleLineRightX >= middle) {
-                scrollTo((int) lastSampleLineRightX, 0);
-            } else {
-                scrollTo(0, 0);
-            }
-        } else {
-            scrollTo(0, 0);
-        }
-    }
 
     protected float getLastSampleLineRightX() {
         return lineLocationX;
@@ -512,6 +507,19 @@ public abstract class BaseAudioRecordView extends View {
      * @param percent 矩形高度 百分比
      */
     protected abstract void makeSampleLine(float percent);
+
+    /**
+     * 获取采样点个数
+     *
+     * @return 获取采样点个数
+     */
+    protected abstract int getSampleCount();
+
+
+    /**
+     * 初始化 可以滑动距离
+     */
+    protected abstract void setCanScrollX();
 
 
     public void setRecordCallBack(RecordCallBack recordCallBack) {
@@ -543,7 +551,7 @@ public abstract class BaseAudioRecordView extends View {
             postDelayed(new Runnable() {
                 @Override
                 public void run() {
-                    startTranslateCanvas();
+                    startPlayTranslateCanvas();
                 }
             }, 100);
 
@@ -557,8 +565,103 @@ public abstract class BaseAudioRecordView extends View {
         if (isPlayingRecord) {
             isPlayingRecord = false;
             isAutoScroll = false;
+            animator.removeAllListeners();
             animator.cancel();
+            if (recordCallBack != null) {
+                recordCallBack.onStopPlayRecode();
+            }
+
         }
+    }
+
+    protected volatile boolean isStartVerticalLineTranslate;
+
+    private void startVerticalLineTranslate() {
+        if (isRecording && !isStartVerticalLineTranslate) {
+            isStartVerticalLineTranslate = true;
+            float startX = translateVerticalLineX;
+            float endX = getMeasuredWidth() / 2;
+            float dx = Math.abs(endX - startX);
+            final long duration = (long) (1000 * dx / (recordSamplingFrequency * (lineWidth + rectGap)));
+            animator = ObjectAnimator.ofFloat(this, "translateVerticalLineX", startX, endX);
+            animator.setInterpolator(new LinearInterpolator());
+            animator.setDuration(duration);
+            isAutoScroll = true;
+            animator.removeAllListeners();
+            animator.addListener(new AnimatorListenerAdapter() {
+
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+                    super.onAnimationCancel(animation);
+                    isStartVerticalLineTranslate = false;
+                    //录制暂停
+                    invalidate();
+                    //录制暂停
+                    animator.removeAllListeners();
+                    startRecordTranslateCanvas();
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    isStartVerticalLineTranslate = false;
+                    //录制暂停
+                    invalidate();
+                    animator.removeAllListeners();
+                    startRecordTranslateCanvas();
+                }
+            });
+            animator.start();
+        } else {
+            if (animator != null) {
+                animator.cancel();
+            }
+        }
+    }
+
+    protected volatile boolean isStartRecordTranslateCanvas;
+
+    private void startRecordTranslateCanvas() {
+        if (isRecording && !isStartRecordTranslateCanvas) {
+            isStartRecordTranslateCanvas = true;
+            maxScrollX = Integer.MAX_VALUE;
+            float startX = getScrollX();
+            //小于半屏的时候，要重新计算偏移量，因为有个左滑的动作
+            float endX = maxLength - getMeasuredWidth() / 2;
+            float dx = Math.abs(endX - startX);
+            final long duration = (long) (1000 * dx / (recordSamplingFrequency * (lineWidth + rectGap)));
+            animator = ObjectAnimator.ofFloat(this, "translateX", startX, endX);
+            animator.setInterpolator(new LinearInterpolator());
+            animator.setDuration(duration);
+            animator.removeAllListeners();
+            animator.addListener(new AnimatorListenerAdapter() {
+
+                @Override
+                public void onAnimationCancel(Animator animation) {
+                    super.onAnimationCancel(animation);
+                    isStartRecordTranslateCanvas = false;
+                    //录制暂停
+                    invalidate();
+                    animator.removeAllListeners();
+                }
+
+                @Override
+                public void onAnimationEnd(Animator animation) {
+                    super.onAnimationEnd(animation);
+                    isStartRecordTranslateCanvas = false;
+                    //录制暂停
+                    invalidate();
+                    animator.removeAllListeners();
+                }
+            });
+            animator.start();
+        } else {
+            if (animator != null) {
+                animator.cancel();
+            }
+        }
+
     }
 
 
@@ -568,7 +671,7 @@ public abstract class BaseAudioRecordView extends View {
     float translateX = 0;
     ObjectAnimator animator;
 
-    private void startTranslateCanvas() {
+    private void startPlayTranslateCanvas() {
         int middle = getMeasuredWidth() / 2;
         float startX = getScrollX();
         //小于半屏的时候，要重新计算偏移量，因为有个左滑的动作
@@ -591,9 +694,6 @@ public abstract class BaseAudioRecordView extends View {
                 //播放结束
                 stopPlayRecord();
                 animator.removeAllListeners();
-                if (recordCallBack != null) {
-                    recordCallBack.onStopPlayRecode();
-                }
             }
 
             @Override
@@ -604,9 +704,6 @@ public abstract class BaseAudioRecordView extends View {
                 //播放结束
                 stopPlayRecord();
                 animator.removeAllListeners();
-                if (recordCallBack != null) {
-                    recordCallBack.onStopPlayRecode();
-                }
             }
         });
 
@@ -624,6 +721,22 @@ public abstract class BaseAudioRecordView extends View {
     public void setTranslateX(float translateX) {
         this.translateX = translateX;
         scrollTo((int) translateX, 0);
+        if (isStartRecordTranslateCanvas) {
+            translateVerticalLineX = getScrollX() + getMeasuredWidth() / 2 + rectGap;
+        }
+        onTick(getScrollX() + getMeasuredWidth() / 2);
+
+    }
+
+
+    public float getTranslateVerticalLineX() {
+        return translateVerticalLineX;
+    }
+
+    public void setTranslateVerticalLineX(float translateVerticalLineX) {
+        this.translateVerticalLineX = translateVerticalLineX;
+        invalidate();
+        onTick(translateVerticalLineX);
     }
 
     /**
@@ -635,5 +748,7 @@ public abstract class BaseAudioRecordView extends View {
         return isPlayingRecord;
     }
 
-
+    public int getRecordSamplingFrequency() {
+        return recordSamplingFrequency;
+    }
 }

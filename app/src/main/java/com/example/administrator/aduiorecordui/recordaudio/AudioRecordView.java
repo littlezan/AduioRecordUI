@@ -92,10 +92,12 @@ public class AudioRecordView extends BaseAudioRecordView {
 
         linePaint.setAntiAlias(true);
         linePaint.setStrokeWidth(lineWidth);
+        linePaint.setStrokeCap(Paint.Cap.ROUND);
         linePaint.setColor(rectColor);
 
         lineInvertedPaint.setAntiAlias(true);
         lineInvertedPaint.setStrokeWidth(lineWidth);
+        lineInvertedPaint.setStrokeCap(Paint.Cap.ROUND);
         lineInvertedPaint.setColor(rectInvertColor);
 
         bottomTextPaint.setAntiAlias(true);
@@ -126,17 +128,27 @@ public class AudioRecordView extends BaseAudioRecordView {
         sampleLineModel.stopY = rectBottom;
         lineLocationX = lineLocationX + lineWidth + rectGap;
         sampleLineList.add(sampleLineModel);
+    }
 
+    @Override
+    protected int getSampleCount() {
+        return sampleLineList.size();
+    }
+
+
+    @Override
+    protected void setCanScrollX() {
         int widthMiddle = getMeasuredWidth() / 2;
-        maxScrollX = lineLocationX < widthMiddle ? 0 : lineLocationX - widthMiddle;
-        minScrollX = lineLocationX < widthMiddle ? -lineLocationX : -widthMiddle;
-        invalidate();
+        maxScrollX = lineLocationX < widthMiddle ? rectGap : lineLocationX - widthMiddle;
+        minScrollX = lineLocationX < widthMiddle ? -lineLocationX : -widthMiddle - rectGap;
     }
 
     @Override
     protected void onDraw(Canvas canvas) {
         super.onDraw(canvas);
-        drawScale(canvas);
+        if (showRule) {
+            drawScale(canvas);
+        }
         drawLine(canvas);
         drawCenterVerticalLine(canvas);
     }
@@ -222,20 +234,12 @@ public class AudioRecordView extends BaseAudioRecordView {
 
     private void drawCenterVerticalLine(Canvas canvas) {
 
-        SampleLineModel sampleLineModel;
-        if (sampleLineList.size() == 0) {
-            sampleLineModel = new SampleLineModel();
-        } else {
-            sampleLineModel = sampleLineList.get(sampleLineList.size() - 1);
-        }
-
-        float circleX = sampleLineModel.startX + lineWidth / 2 + rectGap;
+        float circleX = translateVerticalLineX;
         int canvasMiddle = canvas.getWidth() / 2;
-        if (circleX > getScrollX() + canvasMiddle) {
-            circleX = getScrollX() + canvasMiddle;
-        }
-        if (circleX < canvasMiddle) {
+        if (isStartVerticalLineTranslate || circleX < canvasMiddle) {
             circleX = circleX + getScrollX();
+        } else if (isStartRecordTranslateCanvas || circleX >= getScrollX() + canvasMiddle - rectGap) {
+            circleX = getScrollX() + canvasMiddle + rectGap;
         }
         centerLineX = circleX;
         float topCircleY = ruleHorizontalLineHeight - middleCircleRadius;
@@ -302,6 +306,8 @@ public class AudioRecordView extends BaseAudioRecordView {
         lineLocationX = 0;
         minScrollX = 0;
         maxScrollX = 0;
+        translateX = 0;
+        translateVerticalLineX = 0;
         scrollTo(minScrollX, 0);
         invalidate();
     }

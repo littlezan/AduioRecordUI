@@ -7,6 +7,8 @@
         <attr name="recordTimeInMinutes" format="integer" />
         <!--录音采样频率 每秒钟采样个数-->
         <attr name="recordSamplingFrequency" format="integer" />
+        <!--是否显示刻度尺-->
+        <attr name="showRule" format="boolean" />
         <!--是否显示刻度尺上的文字-->
         <attr name="showRuleText" format="boolean" />
         <!--一格大刻度多少格小刻度-->
