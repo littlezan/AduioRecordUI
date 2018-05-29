@@ -29,7 +29,7 @@ public class AudioRecordMp3 {
     private static final String TAG = "AudioRecordMp3";
     private final Handler handler;
 
-    private String audioFile;
+    private File audioFile;
     private static final int sampleRateInHz = 8000;
     private volatile boolean isRecording = false;
     private RecordMp3Listener recordMp3Listener;
@@ -38,7 +38,7 @@ public class AudioRecordMp3 {
 
     private ExecutorService executorService;
 
-    public AudioRecordMp3(Handler handler, String audioFile, RecordMp3Listener recordMp3Listener) {
+    public AudioRecordMp3(Handler handler, File audioFile, RecordMp3Listener recordMp3Listener) {
         this.handler = handler;
         this.audioFile = audioFile;
         this.recordMp3Listener = recordMp3Listener;
@@ -113,11 +113,10 @@ public class AudioRecordMp3 {
             publishStartRecord();
 
             try {
-                File file = new File(audioFile);
-                if (!file.exists()) {
-                    file.createNewFile();
+                if (!audioFile.exists()) {
+                    audioFile.createNewFile();
                 }
-                DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(file, true)));
+                DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(audioFile, true)));
                 int readSize;
                 while (isRecording) {
                     readSize = audioRecord.read(buffer, 0, minBufferSize);

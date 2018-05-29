@@ -1,4 +1,4 @@
-package com.example.administrator.aduiorecordui.recordaudio;
+package com.littlezan.recordui.recordaudio;
 
 import android.support.annotation.FloatRange;
 

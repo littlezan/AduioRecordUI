@@ -11,14 +11,24 @@
         android:id="@+id/btn_record"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="record"
+        android:textAllCaps="false"
+        android:text="MediaRecord UI"
         tools:ignore="HardcodedText" />
 
     <Button
         android:id="@+id/btn_play_audio"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="play audio"
+        android:textAllCaps="false"
+        android:text="play audio UI"
+        tools:ignore="HardcodedText" />
+
+    <Button
+        android:id="@+id/btn_audio_record"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="AudioRecord UI"
+        android:textAllCaps="false"
         tools:ignore="HardcodedText" />
 
 

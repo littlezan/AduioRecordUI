@@ -1,4 +1,4 @@
-package com.example.administrator.aduiorecordui.recordaudio;
+package com.littlezan.recordui.recordaudio;
 
 import android.content.Context;
 import android.graphics.Canvas;
@@ -307,7 +307,7 @@ public class AudioRecordView extends BaseAudioRecordView {
         minScrollX = 0;
         maxScrollX = 0;
         translateX = 0;
-        translateVerticalLineX = 0;
+        translateVerticalLineX = middleCircleRadius/2;
         scrollTo(minScrollX, 0);
         invalidate();
     }

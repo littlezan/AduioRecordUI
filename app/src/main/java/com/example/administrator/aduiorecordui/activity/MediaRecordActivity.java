@@ -1,4 +1,4 @@
-package com.example.administrator.aduiorecordui;
+package com.example.administrator.aduiorecordui.activity;
 
 import android.Manifest;
 import android.content.ContentResolver;
@@ -18,8 +18,7 @@ import android.widget.Button;
 import android.widget.EditText;
 import android.widget.Toast;
 
-import com.example.administrator.aduiorecordui.recordaudio.AudioRecordView;
-import com.example.administrator.aduiorecordui.recordaudio.RecordCallBack;
+import com.example.administrator.aduiorecordui.R;
 import com.github.lassana.recorder.AudioRecorder;
 import com.github.lassana.recorder.AudioRecorderBuilder;
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -36,6 +35,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.FileDataSourceFactory;
+import com.littlezan.recordui.recordaudio.AudioRecordView;
+import com.littlezan.recordui.recordaudio.RecordCallBack;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
@@ -57,7 +58,7 @@ import static android.Manifest.permission.WRITE_EXTERNAL_STORAGE;
  * @version 1.0
  * @since 2017-12-14  19:59
  */
-public class RecordActivity extends AppCompatActivity {
+public class MediaRecordActivity extends AppCompatActivity {
 
     static float DECIBEL_MAX = 90.3f;
     static float DECIBEL_MIX = 0f;
@@ -240,7 +241,7 @@ public class RecordActivity extends AppCompatActivity {
             @Override
             public void onCenterLineTime(long playingTimeInMillis) {
 //                Log.d(TAG, "lll onPlayingRecord: playingTimeInMillis = " + playingTimeInMillis);
-                RecordActivity.this.playingTimeInMillis = playingTimeInMillis;
+                MediaRecordActivity.this.playingTimeInMillis = playingTimeInMillis;
             }
 
             @Override
@@ -296,10 +297,10 @@ public class RecordActivity extends AppCompatActivity {
                         public void accept(Boolean granted) throws Exception {
                             // not record first time to request permission
                             if (granted) {
-                                Toast.makeText(RecordActivity.this.getApplicationContext(), "Permission granted",
+                                Toast.makeText(MediaRecordActivity.this.getApplicationContext(), "Permission granted",
                                         Toast.LENGTH_SHORT).show();
                             } else {
-                                Toast.makeText(RecordActivity.this.getApplicationContext(), "Permission not granted",
+                                Toast.makeText(MediaRecordActivity.this.getApplicationContext(), "Permission not granted",
                                         Toast.LENGTH_SHORT).show();
                             }
                         }
@@ -327,7 +328,7 @@ public class RecordActivity extends AppCompatActivity {
         mAudioRecorder.pause(new AudioRecorder.OnPauseListener() {
             @Override
             public void onPaused(String activeRecordFileName) {
-                RecordActivity.this.activeRecordFileName = activeRecordFileName;
+                MediaRecordActivity.this.activeRecordFileName = activeRecordFileName;
                 saveCurrentRecordToMediaDB(activeRecordFileName);
             }
 

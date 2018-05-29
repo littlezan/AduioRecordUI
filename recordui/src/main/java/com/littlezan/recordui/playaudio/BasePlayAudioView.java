@@ -1,4 +1,4 @@
-package com.example.administrator.aduiorecordui.playaudio;
+package com.littlezan.recordui.playaudio;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
@@ -18,7 +18,7 @@ import android.view.ViewConfiguration;
 import android.view.animation.LinearInterpolator;
 import android.widget.OverScroller;
 
-import com.example.administrator.aduiorecordui.R;
+import com.littlezan.recordui.R;
 
 import java.util.ArrayList;
 import java.util.List;

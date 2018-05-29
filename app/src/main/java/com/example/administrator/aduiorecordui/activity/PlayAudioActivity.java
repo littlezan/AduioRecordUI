@@ -1,4 +1,4 @@
-package com.example.administrator.aduiorecordui;
+package com.example.administrator.aduiorecordui.activity;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
@@ -9,9 +9,10 @@ import android.view.View;
 import android.widget.Button;
 import android.widget.EditText;
 
-import com.example.administrator.aduiorecordui.playaudio.PlayAudioCallBack;
-import com.example.administrator.aduiorecordui.playaudio.PlayAudioView;
+import com.example.administrator.aduiorecordui.R;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.littlezan.recordui.playaudio.PlayAudioCallBack;
+import com.littlezan.recordui.playaudio.PlayAudioView;
 
 import java.util.ArrayList;
 import java.util.Random;
