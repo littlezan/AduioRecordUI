@@ -19,7 +19,7 @@
             android:layout_height="400dp"
             android:orientation="vertical">
 
-            <com.example.administrator.aduiorecordui.playaudio.PlayAudioView
+            <com.littlezan.recordui.playaudio.PlayAudioView
                 android:id="@+id/play_audio_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"

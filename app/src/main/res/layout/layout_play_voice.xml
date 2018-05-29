@@ -1,0 +1,72 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="wrap_content">
+
+    <RelativeLayout
+        android:id="@+id/rl_container"
+        android:layout_width="match_parent"
+        android:layout_height="66dp"
+        android:background="@drawable/sound_bg"
+        android:orientation="horizontal">
+
+        <TextView
+            android:id="@+id/tvPlay"
+            android:layout_width="44dp"
+            android:layout_height="44dp"
+            android:layout_centerVertical="true"
+            android:layout_gravity="center"
+            android:layout_marginLeft="8dp"
+            android:background="@drawable/selector_sound_play" />
+
+
+        <com.littlezan.recordui.playaudio.PlayAudioView
+            android:id="@+id/playView"
+            android:layout_width="match_parent"
+            android:layout_height="match_parent"
+            android:layout_centerVertical="true"
+            android:layout_toEndOf="@+id/tvPlay"
+            android:layout_toLeftOf="@+id/tvDuration"
+            android:layout_toRightOf="@+id/tvPlay"
+            android:layout_toStartOf="@+id/tvDuration"
+            app:p_audioSourceFrequency="5"
+            app:p_circleMarginTop="0dp"
+            app:p_rectMarginTop="0dp"
+            app:p_swipedColor="#FFA4B5"
+            app:p_unSwipeColor="#DBDAD9" />
+
+        <TextView
+            android:id="@+id/tvAuthPass"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:layout_centerVertical="true"
+            android:layout_marginLeft="20dp"
+            android:layout_toEndOf="@+id/tvPlay"
+            android:layout_toLeftOf="@+id/tvDuration"
+            android:layout_toRightOf="@+id/tvPlay"
+            android:layout_toStartOf="@+id/tvDuration"
+            android:text="正在审核中..."
+            android:textColor="#FFFFFF"
+            android:textSize="14sp"
+            android:visibility="gone"
+            tools:ignore="HardcodedText" />
+
+        <TextView
+            android:id="@+id/tvDuration"
+            android:layout_width="wrap_content"
+            android:layout_height="match_parent"
+            android:layout_alignParentEnd="true"
+            android:layout_alignParentRight="true"
+            android:layout_marginEnd="8dp"
+            android:layout_marginLeft="12dp"
+            android:layout_marginRight="8dp"
+            android:layout_marginStart="12dp"
+            android:gravity="center"
+            android:textColor="#FFFFFF"
+            android:textSize="12sp"
+            tools:text="00:13" />
+
+    </RelativeLayout>
+</LinearLayout>

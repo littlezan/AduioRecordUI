@@ -22,8 +22,6 @@ import java.util.List;
  */
 public class PlayAudioView extends BasePlayAudioView {
 
-    private static final String TAG = "PlayAudioView";
-
 
     Paint linePaint = new Paint();
     Paint centerTargetPaint = new Paint();
@@ -70,6 +68,8 @@ public class PlayAudioView extends BasePlayAudioView {
     public void setAudioSource(List<Float> audioSourceList) {
         createAudioSample(audioSourceList);
     }
+
+
 
     private void createAudioSample(final List<Float> audioSourceList) {
         this.audioSourceList = audioSourceList;

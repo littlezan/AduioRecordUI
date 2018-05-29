@@ -63,8 +63,6 @@ public class MediaRecordActivity extends AppCompatActivity {
     static float DECIBEL_MAX = 90.3f;
     static float DECIBEL_MIX = 0f;
 
-    static final boolean needVoice = true;
-
     private static final String TAG = "RecordActivity";
     private RxPermissions mPermissions;
     private long playingTimeInMillis;
@@ -150,6 +148,7 @@ public class MediaRecordActivity extends AppCompatActivity {
                                 }
                             });
                 } else {
+                    startRecord();
                     audioRecordView.startRecord();
                 }
 
@@ -160,6 +159,7 @@ public class MediaRecordActivity extends AppCompatActivity {
         btnStop.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                stopRecord();
                 audioRecordView.stopRecord();
             }
         });
@@ -246,17 +246,13 @@ public class MediaRecordActivity extends AppCompatActivity {
 
             @Override
             public void onStartRecord() {
-                if (needVoice) {
-                    startRecord();
-                }
+
             }
 
             @Override
             public void onStopRecord() {
-                if (needVoice) {
-                    stopRecord();
-                }
-            }
+
+        }
 
             @Override
             public void onFinishRecord() {
@@ -264,9 +260,7 @@ public class MediaRecordActivity extends AppCompatActivity {
 
             @Override
             public void onStartPlayRecord(long timeMillis) {
-                if (needVoice) {
                     play(timeMillis);
-                }
             }
 
             @Override

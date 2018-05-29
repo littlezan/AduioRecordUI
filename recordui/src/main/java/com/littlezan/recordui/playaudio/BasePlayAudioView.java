@@ -136,6 +136,8 @@ public abstract class BasePlayAudioView extends View {
     float lastSampleXWithRectGap;
     PlayAudioCallBack playAudioCallBack;
 
+    boolean isTouching;
+
     public BasePlayAudioView(Context context) {
         super(context);
         initAttrs(context, null);
@@ -196,6 +198,7 @@ public abstract class BasePlayAudioView extends View {
         if (!canTouchScroll) {
             return false;
         }
+        isTouching = true;
         float currentX = event.getX();
         //开始速度检测
         startVelocityTracker(event);
@@ -252,8 +255,11 @@ public abstract class BasePlayAudioView extends View {
 
     @Override
     public void computeScroll() {
+        if (!canTouchScroll) {
+            return;
+        }
         //滑动处理
-        if (overScroller.computeScrollOffset()) {
+        if (isTouching && overScroller.computeScrollOffset()) {
             scrollTo(overScroller.getCurrX(), overScroller.getCurrY());
             invalidate();
         }
@@ -332,6 +338,9 @@ public abstract class BasePlayAudioView extends View {
     }
 
     private void startCenterLineAnimationFromEnd() {
+        if (centerLineX >= lastSampleXWithRectGap - getMeasuredWidth()/2) {
+            return;
+        }
         isAutoScroll = false;
         final float animatorEndDX = lastSampleXWithRectGap - rectGap;
         float dx = (animatorEndDX - centerLineX);
@@ -379,6 +388,7 @@ public abstract class BasePlayAudioView extends View {
 
     public void startPlay(long timeInMillis) {
         if (!isPlaying) {
+            isTouching = false;
             tempTime = SystemClock.elapsedRealtime();
             setPlayingTime(timeInMillis);
             isPlaying = true;
@@ -424,6 +434,7 @@ public abstract class BasePlayAudioView extends View {
      */
     public void stopPlay() {
         if (isPlaying) {
+            isTouching = false;
             isPlaying = false;
             isAutoScroll = false;
             animator.cancel();
@@ -435,10 +446,15 @@ public abstract class BasePlayAudioView extends View {
         this.playAudioCallBack = playAudioCallBack;
     }
 
+    public void setAudioSourceFrequency(int audioSourceFrequency) {
+        this.audioSourceFrequency = audioSourceFrequency;
+    }
+
     public void reset() {
         stopPlay();
         centerLineX = circleRadius;
         isAutoScroll = false;
+        isTouching = false;
         scrollTo(minScrollX, 0);
         invalidate();
     }

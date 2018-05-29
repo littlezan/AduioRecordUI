@@ -173,8 +173,10 @@ public class RecordAudioFragment extends Fragment implements View.OnClickListene
         if (audioRecordView != null) {
             audioRecordView.setRecordCallBack(null);
         }
-        stopPlay();
-        simpleExoPlayer.release();
+        if (simpleExoPlayer != null) {
+            stopPlay();
+            simpleExoPlayer.release();
+        }
     }
 
     protected void initView() {
@@ -242,7 +244,7 @@ public class RecordAudioFragment extends Fragment implements View.OnClickListene
             return;
         }
 
-        tvRecord.setEnabled(true);
+        tvRecord.setEnabled(recordTimeInMillis <= TimeUnit.MINUTES.toMillis(RECORD_TIME_IN_MINUTES) - 300);
         tvDelete.setEnabled(true);
         tvPlay.setEnabled(true);
 
