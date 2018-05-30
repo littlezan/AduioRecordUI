@@ -659,6 +659,13 @@ public abstract class BaseAudioRecordView extends View {
                     //录制暂停
                     invalidate();
                     animator.removeAllListeners();
+                    if (currentRecordTime >= TimeUnit.MINUTES.toMillis(recordTimeInMinutes) - 100) {
+                        //结束录音
+                        stopRecord();
+                        if (recordCallBack != null) {
+                            recordCallBack.onFinishRecord();
+                        }
+                    }
                 }
             });
             animator.start();

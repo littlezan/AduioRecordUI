@@ -310,5 +310,8 @@ public class AudioRecordView extends BaseAudioRecordView {
         translateVerticalLineX = middleCircleRadius/2;
         scrollTo(minScrollX, 0);
         invalidate();
+        if (recordCallBack != null) {
+            recordCallBack.onRecordCurrent(currentRecordTime, currentRecordTime);
+        }
     }
 }
