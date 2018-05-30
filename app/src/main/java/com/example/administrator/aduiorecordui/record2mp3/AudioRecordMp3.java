@@ -109,6 +109,8 @@ public class AudioRecordMp3 {
             //根据开始录音判断是否有录音权限
             if (audioRecord.getRecordingState() != AudioRecord.RECORDSTATE_RECORDING) {
                 stopRecord();
+            } else {
+                publishStartRecord();
             }
             publishStartRecord();
 
