@@ -252,6 +252,7 @@ public abstract class BaseAudioRecordView extends View {
 
 
     boolean isTouching;
+    private long recordTimeInMillis;
 
 
     public BaseAudioRecordView(Context context) {
@@ -317,6 +318,7 @@ public abstract class BaseAudioRecordView extends View {
     }
 
     private void init(Context context) {
+        recordTimeInMillis = TimeUnit.MINUTES.toMillis(recordTimeInMinutes);
         maxLength = TimeUnit.MINUTES.toSeconds(recordTimeInMinutes) * intervalCount * scaleIntervalLength;
         recordDelayMillis = 1000 / recordSamplingFrequency;
         lineWidth = (intervalCount * scaleIntervalLength) / recordSamplingFrequency - rectGap;
@@ -442,14 +444,21 @@ public abstract class BaseAudioRecordView extends View {
      */
     private void onTick(float translateX) {
         if (isRecording) {
-            long recordTimeInMillis = TimeUnit.MINUTES.toMillis(recordTimeInMinutes);
             long duration = (long) (translateX * recordTimeInMillis / maxLength);
             currentRecordTime = duration;
             if (currentRecordTime < recordTimeInMillis) {
                 //录音中
                 //采样
-                if (recordCallBack != null && duration > getSampleCount() * recordDelayMillis) {
-                    makeSampleLine(recordCallBack.getSamplePercent());
+                if (recordCallBack != null) {
+                    if (getSampleCount() >= recordTimeInMillis * recordSamplingFrequency) {
+                        //结束录音
+                        stopRecord();
+                        if (recordCallBack != null) {
+                            recordCallBack.onFinishRecord();
+                        }
+                    } else if (duration > getSampleCount() * recordDelayMillis) {
+                        makeSampleLine(recordCallBack.getSamplePercent());
+                    }
                 }
             } else {
                 //结束录音
@@ -560,6 +569,14 @@ public abstract class BaseAudioRecordView extends View {
                 scrollTo(minScrollX, 0);
             }
             startPlayTranslateCanvas();
+            if (recordCallBack != null) {
+                if (timeInMillis <= 0) {
+                    recordCallBack.onStartPlayRecord(0);
+                } else {
+                    recordCallBack.onStartPlayRecord(centerTimeMillis);
+                }
+            }
+
         }
     }
 
@@ -718,12 +735,7 @@ public abstract class BaseAudioRecordView extends View {
                 animator.removeAllListeners();
             }
         });
-
-
         animator.start();
-        if (recordCallBack != null) {
-            recordCallBack.onStartPlayRecord(centerTimeMillis);
-        }
     }
 
     public float getTranslateX() {

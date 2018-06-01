@@ -6,7 +6,6 @@ import android.graphics.Paint;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
-import android.util.Log;
 
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
@@ -25,7 +24,6 @@ import java.util.concurrent.TimeUnit;
  */
 public class AudioRecordView extends BaseAudioRecordView {
 
-    private static final String TAG = "AudioRecordView";
 
     Paint ruleHorizontalLinePaint = new Paint();
     Paint smallScalePaint = new Paint();
@@ -251,7 +249,6 @@ public class AudioRecordView extends BaseAudioRecordView {
         //下圆
         canvas.drawCircle(circleX, bottomCircleY, middleCircleRadius, middleVerticalLinePaint);
         //垂直 直线
-        Log.d(TAG, "drawCenterVerticalLine: lll circleX = " + circleX + ", getScrollX() = " + getScrollX());
         canvas.drawLine(circleX, topCircleY, circleX, bottomCircleY, middleVerticalLinePaint);
 
         //底部文字
@@ -272,19 +269,18 @@ public class AudioRecordView extends BaseAudioRecordView {
         canvas.drawText(text, getScrollX() + canvasMiddle, bottomCircleY + bottomTextSize + 20, bottomTextPaint);
 
         if (recordCallBack != null) {
-            if (centerLineX == 0) {
+            if (centerLineX <= 0) {
                 centerTimeMillis = 0;
             } else {
                 centerTimeMillis = (long) (centerLineX * 1000L / (recordSamplingFrequency * (lineWidth + rectGap)));
             }
             if (lineLocationX > 0) {
-                if (centerLineX >= lineLocationX) {
-                    if (isPlayingRecord()) {
+                if (isPlayingRecord()) {
+                    if (centerLineX >= lineLocationX) {
                         recordCallBack.onFinishPlayingRecord();
                     }
-                } else {
-                    recordCallBack.onCenterLineTime(centerTimeMillis);
                 }
+                recordCallBack.onCenterLineTime(centerTimeMillis);
             }
         }
     }
@@ -307,7 +303,7 @@ public class AudioRecordView extends BaseAudioRecordView {
         minScrollX = 0;
         maxScrollX = 0;
         translateX = 0;
-        translateVerticalLineX = middleCircleRadius/2;
+        translateVerticalLineX = middleCircleRadius / 2;
         scrollTo(minScrollX, 0);
         invalidate();
         if (recordCallBack != null) {
