@@ -292,6 +292,7 @@ public class AudioRecordView extends BaseAudioRecordView {
     }
 
 
+    @Override
     public void reset() {
         stopRecord();
         stopPlayRecord();
@@ -299,6 +300,7 @@ public class AudioRecordView extends BaseAudioRecordView {
         currentRecordTime = 0;
         mLastX = 0;
         sampleLineList.clear();
+        deleteIndexList.clear();
         lineLocationX = 0;
         minScrollX = 0;
         maxScrollX = 0;

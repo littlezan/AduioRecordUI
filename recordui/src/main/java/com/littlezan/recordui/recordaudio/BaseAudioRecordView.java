@@ -10,6 +10,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -33,6 +34,7 @@ import java.util.concurrent.TimeUnit;
  */
 public abstract class BaseAudioRecordView extends View {
 
+    private static final String TAG = "BaseAudioRecordView";
 
     /**
      * 采样时间
@@ -219,6 +221,11 @@ public abstract class BaseAudioRecordView extends View {
      */
     protected int rectMarginTop = 50;
     protected List<SampleLineModel> sampleLineList = new ArrayList<>();
+    /**
+     * 删除上一段的Index值
+     */
+    protected List<Integer> deleteIndexList = new ArrayList<>();
+
 
     protected volatile boolean isAutoScroll;
 
@@ -512,9 +519,52 @@ public abstract class BaseAudioRecordView extends View {
             animator.removeAllListeners();
             animator.cancel();
             setCanScrollX();
+            if (sampleLineList.size() > 0 && !deleteIndexList.contains(sampleLineList.size())) {
+                deleteIndexList.add(sampleLineList.size());
+            }
             if (recordCallBack != null) {
                 recordCallBack.onStopRecord();
             }
+        }
+    }
+
+    public void deleteLastRecord() {
+        if (deleteIndexList.size() > 1) {
+            Integer index = 0;
+            for (int i = deleteIndexList.size() - 1; i >= 0; i--) {
+                Integer integer = deleteIndexList.get(i);
+                if (integer < sampleLineList.size()) {
+                    index = integer;
+                    break;
+                }
+            }
+            if (index > 0) {
+                sampleLineList.subList(index, sampleLineList.size()).clear();
+                Log.e(TAG, "deleteLastRecord: lll index = " + index + ", size = " + deleteIndexList.size() + ", indexOf =" + deleteIndexList.indexOf(index));
+                deleteIndexList.subList(deleteIndexList.indexOf(index) + 1, deleteIndexList.size()).clear();
+                if (sampleLineList.size() > 0) {
+                    lineLocationX = Math.round(sampleLineList.get(sampleLineList.size() - 1).startX + lineWidth / 2 + rectGap);
+                    setCanScrollX();
+                    int middle = getMeasuredWidth() / 2;
+                    if (lineLocationX < middle) {
+                        scrollTo(maxScrollX, 0);
+                        translateVerticalLineX = lineLocationX;
+                    } else {
+                        scrollTo(maxScrollX, 0);
+                        translateVerticalLineX = getScrollX() + middle + rectGap;
+                    }
+                    currentRecordTime = (long) (translateVerticalLineX * recordTimeInMillis / maxLength);
+                } else {
+                    reset();
+                }
+            }
+        } else {
+            reset();
+        }
+
+        invalidate();
+        if (recordCallBack != null) {
+            recordCallBack.onRecordCurrent(currentRecordTime, currentRecordTime);
         }
     }
 
@@ -775,4 +825,6 @@ public abstract class BaseAudioRecordView extends View {
     public int getRecordSamplingFrequency() {
         return recordSamplingFrequency;
     }
+
+    public abstract void reset();
 }

@@ -27,4 +27,26 @@ public class FileUtils {
         }
         return cachePath;
     }
+
+    public static void createDir(String... dirPath) {
+        File dir;
+        for (String aDirPath : dirPath) {
+            dir = new File(aDirPath);
+            if (!dir.exists() && !dir.isDirectory()) {
+                dir.mkdirs();
+            }
+        }
+    }
+
+    public static String getRootFilePath(Context context) {
+        String path;
+        if (Environment.getExternalStorageState().equals(Environment.MEDIA_MOUNTED)) {
+            path = Environment.getExternalStorageDirectory().getAbsolutePath() + "/" + context.getPackageName() + File.separator;
+        } else {
+            path = context.getCacheDir().getPath() + File.separator;
+        }
+        createDir(path);
+        return path;
+    }
+
 }

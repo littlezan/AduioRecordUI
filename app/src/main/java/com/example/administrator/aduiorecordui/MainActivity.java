@@ -9,6 +9,7 @@ import android.widget.Button;
 import com.example.administrator.aduiorecordui.activity.AudioRecordActivity;
 import com.example.administrator.aduiorecordui.activity.MediaRecordActivity;
 import com.example.administrator.aduiorecordui.activity.PlayAudioActivity;
+import com.example.administrator.aduiorecordui.activity.RecordAudioWithDeleteActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -22,6 +23,7 @@ public class MainActivity extends AppCompatActivity {
         Button btnRecord = findViewById(R.id.btn_record);
         Button btnPlayAudio = findViewById(R.id.btn_play_audio);
         Button btnAudioRecord = findViewById(R.id.btn_audio_record);
+        Button btnAudioRecordDelete = findViewById(R.id.btn_audio_record_delete);
 
         btnRecord.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -46,5 +48,11 @@ public class MainActivity extends AppCompatActivity {
             }
         });
 
+        btnAudioRecordDelete.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                RecordAudioWithDeleteActivity.start(MainActivity.this);
+            }
+        });
     }
 }

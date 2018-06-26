@@ -1,0 +1,139 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:scaleType="fitXY"
+        android:src="@drawable/bg_release_blue"
+        app:layout_constraintBottom_toTopOf="@+id/guideline1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="ContentDescription" />
+
+    <com.littlezan.recordui.recordaudio.AudioRecordView
+        android:id="@+id/audio_record_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="20dp"
+        android:layout_marginStart="20dp"
+        app:intervalCount="10"
+        app:layout_constraintBottom_toTopOf="@+id/guideline1"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:middleCircleRadius="2dp"
+        app:middleVerticalLineColor="#FFE100"
+        app:middleVerticalLineStrokeWidth="1dp"
+        app:recordSamplingFrequency="5"
+        app:recordTimeInMinutes="5"
+        app:rectColor="#000000"
+        app:rectGap="2dp"
+        app:rectInvertColor="#000000"
+        app:rectMarginTop="20dp"
+        app:ruleHorizontalLineHeight="40dp"
+        app:scaleIntervalLength="2dp"
+        app:showRule="false" />
+
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
+
+    <TextView
+        android:id="@+id/tv_hint"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="15dp"
+        android:text="录制时长需大于3秒"
+        android:textColor="#FF95949D"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        tools:ignore="HardcodedText" />
+
+    <ImageView
+        android:layout_width="0dp"
+        android:layout_height="wrap_content"
+        android:scaleType="fitXY"
+        android:src="@drawable/bg_record_water"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        tools:ignore="ContentDescription" />
+
+    <TextView
+        android:id="@+id/tv_duration"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginEnd="8dp"
+        android:layout_marginStart="8dp"
+        android:layout_marginTop="30dp"
+        android:text="00:00:00"
+        android:textColor="#FF000000"
+        android:textSize="44sp"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/audio_record_view"
+        tools:ignore="HardcodedText" />
+
+
+    <TextView
+        android:id="@+id/tv_delete"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:layout_marginTop="45dp"
+        android:drawablePadding="35dp"
+        android:drawableTop="@drawable/selector_record_delete"
+        android:gravity="center"
+        android:text="删除"
+        android:textColor="@color/text_enable_blue"
+        android:textSize="12sp"
+        app:layout_constraintEnd_toStartOf="@+id/tv_record"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/tv_duration"
+        tools:ignore="HardcodedText" />
+
+    <TextView
+        android:id="@+id/tv_record"
+        android:layout_width="96dp"
+        android:layout_height="wrap_content"
+        android:drawablePadding="10dp"
+        android:drawableTop="@drawable/selector_record_continue"
+        android:gravity="center"
+        android:text="点击录制"
+        android:textColor="@color/text_enable_blue"
+        android:textSize="12sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/tv_delete"
+        app:layout_constraintEnd_toStartOf="@+id/tv_play"
+        app:layout_constraintStart_toEndOf="@+id/tv_delete"
+        tools:ignore="HardcodedText" />
+
+
+    <TextView
+        android:id="@+id/tv_play"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:drawablePadding="35dp"
+        android:drawableTop="@drawable/selector_record_play"
+        android:gravity="center"
+        android:text="试听"
+        android:textColor="@color/text_enable_blue"
+        android:textSize="12sp"
+        app:layout_constraintBaseline_toBaselineOf="@+id/tv_delete"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toEndOf="@+id/tv_record"
+        tools:ignore="HardcodedText" />
+
+
+</android.support.constraint.ConstraintLayout>
