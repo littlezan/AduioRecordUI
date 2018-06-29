@@ -148,8 +148,10 @@ public class MediaRecordActivity extends AppCompatActivity {
                                 }
                             });
                 } else {
-                    startRecord();
-                    audioRecordView.startRecord();
+                    if (!mAudioRecorder.isRecording()) {
+                        startRecord();
+                        audioRecordView.startRecord();
+                    }
                 }
 
 
