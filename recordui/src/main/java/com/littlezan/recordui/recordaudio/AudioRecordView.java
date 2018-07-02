@@ -2,6 +2,7 @@ package com.littlezan.recordui.recordaudio;
 
 import android.content.Context;
 import android.graphics.Canvas;
+import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
@@ -33,6 +34,7 @@ public class AudioRecordView extends BaseAudioRecordView {
     Paint middleVerticalLinePaint = new Paint();
     Paint linePaint = new Paint();
     Paint lineInvertedPaint = new Paint();
+    Paint lineDeletePaint = new Paint();
     TextPaint bottomTextPaint = new TextPaint();
     Paint bottomRectPaint = new Paint();
 
@@ -60,11 +62,9 @@ public class AudioRecordView extends BaseAudioRecordView {
 
 
     private void init() {
-
         ruleHorizontalLinePaint.setAntiAlias(true);
         ruleHorizontalLinePaint.setStrokeWidth(ruleHorizontalLineStrokeWidth);
         ruleHorizontalLinePaint.setColor(ruleHorizontalLineColor);
-
 
         smallScalePaint.setStrokeWidth(smallScaleStrokeWidth);
         smallScalePaint.setColor(ruleVerticalLineColor);
@@ -78,7 +78,6 @@ public class AudioRecordView extends BaseAudioRecordView {
         ruleTextPaint.setColor(ruleTextColor);
         ruleTextPaint.setTextSize(ruleTextSize);
         ruleTextPaint.setTextAlign(Paint.Align.LEFT);
-
 
         middleHorizontalLinePaint.setAntiAlias(true);
         middleHorizontalLinePaint.setStrokeWidth(middleHorizontalLineStrokeWidth);
@@ -98,6 +97,12 @@ public class AudioRecordView extends BaseAudioRecordView {
         lineInvertedPaint.setStrokeCap(Paint.Cap.ROUND);
         lineInvertedPaint.setColor(rectInvertColor);
 
+        lineDeletePaint.setAntiAlias(true);
+        lineDeletePaint.setStrokeWidth(lineWidth);
+        lineDeletePaint.setStrokeCap(Paint.Cap.ROUND);
+        lineDeletePaint.setColor(Color.parseColor("#F55A5A"));
+
+
         bottomTextPaint.setAntiAlias(true);
         bottomTextPaint.setColor(bottomTextColor);
         bottomTextPaint.setTextSize(bottomTextSize);
@@ -105,7 +110,6 @@ public class AudioRecordView extends BaseAudioRecordView {
 
         bottomRectPaint.setAntiAlias(true);
         bottomRectPaint.setColor(bottomRectColor);
-
 
         mDrawOffset = scaleIntervalLength;
     }
@@ -192,11 +196,17 @@ public class AudioRecordView extends BaseAudioRecordView {
             return;
         }
         //绘制采样点
+        int halfHeight = canvas.getHeight() / 2;
+        SampleLineModel lastSampleLineModel = sampleLineList.get(sampleLineList.size() - 1);
         for (SampleLineModel sampleLineModel : drawRectList) {
             canvas.drawLine(sampleLineModel.startX, sampleLineModel.startY, sampleLineModel.stopX, sampleLineModel.stopY, linePaint);
-            int invertedStartY = canvas.getHeight() / 2;
-            float invertedStopY = invertedStartY + sampleLineModel.stopY - sampleLineModel.startY;
-            canvas.drawLine(sampleLineModel.startX, invertedStartY, sampleLineModel.stopX, invertedStopY, lineInvertedPaint);
+            float invertedStopY = halfHeight + sampleLineModel.stopY - sampleLineModel.startY;
+            canvas.drawLine(sampleLineModel.startX, halfHeight, sampleLineModel.stopX, invertedStopY, lineInvertedPaint);
+            if (sampleLineModel.deleteFlag && sampleLineModel != lastSampleLineModel) {
+                int lineTop = (halfHeight - (halfHeight - ruleHorizontalLineHeight - rectMarginTop));
+                int lineBottom = canvas.getHeight() - lineTop;
+                canvas.drawLine(sampleLineModel.startX, lineTop, sampleLineModel.stopX, lineBottom, lineDeletePaint);
+            }
         }
     }
 
@@ -236,9 +246,13 @@ public class AudioRecordView extends BaseAudioRecordView {
         int canvasMiddle = canvas.getWidth() / 2;
         if (isStartVerticalLineTranslate || circleX < canvasMiddle) {
             circleX = circleX + getScrollX();
+            if (circleX < 0) {
+                circleX = 0;
+            }
         } else if (isStartRecordTranslateCanvas || circleX >= getScrollX() + canvasMiddle - rectGap) {
             circleX = getScrollX() + canvasMiddle + rectGap;
         }
+
         centerLineX = circleX;
         float topCircleY = ruleHorizontalLineHeight - middleCircleRadius;
         float bottomCircleY = canvas.getHeight() / 2 + (canvas.getHeight() / 2 - ruleHorizontalLineHeight) + middleCircleRadius;
@@ -274,6 +288,7 @@ public class AudioRecordView extends BaseAudioRecordView {
             } else {
                 centerTimeMillis = (long) (centerLineX * 1000L / (recordSamplingFrequency * (lineWidth + rectGap)));
             }
+
             if (lineLocationX > 0) {
                 if (isPlayingRecord()) {
                     if (centerLineX >= lineLocationX) {

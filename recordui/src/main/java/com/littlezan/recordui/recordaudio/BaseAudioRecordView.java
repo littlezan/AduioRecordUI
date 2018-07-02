@@ -521,6 +521,8 @@ public abstract class BaseAudioRecordView extends View {
             setCanScrollX();
             if (sampleLineList.size() > 0 && !deleteIndexList.contains(sampleLineList.size())) {
                 deleteIndexList.add(sampleLineList.size());
+                SampleLineModel sampleLineModel = sampleLineList.get(sampleLineList.size()-1);
+                sampleLineModel.deleteFlag = true;
             }
             if (recordCallBack != null) {
                 recordCallBack.onStopRecord();
@@ -540,7 +542,6 @@ public abstract class BaseAudioRecordView extends View {
             }
             if (index > 0) {
                 sampleLineList.subList(index, sampleLineList.size()).clear();
-                Log.e(TAG, "deleteLastRecord: lll index = " + index + ", size = " + deleteIndexList.size() + ", indexOf =" + deleteIndexList.indexOf(index));
                 deleteIndexList.subList(deleteIndexList.indexOf(index) + 1, deleteIndexList.size()).clear();
                 if (sampleLineList.size() > 0) {
                     lineLocationX = Math.round(sampleLineList.get(sampleLineList.size() - 1).startX + lineWidth / 2 + rectGap);
@@ -826,5 +827,12 @@ public abstract class BaseAudioRecordView extends View {
         return recordSamplingFrequency;
     }
 
+    public boolean hasTwoDeleteFragment() {
+        return deleteIndexList.size() > 1;
+    }
+
+    /**
+     * 重置
+     */
     public abstract void reset();
 }

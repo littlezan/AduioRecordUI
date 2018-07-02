@@ -36,8 +36,6 @@ import java.util.concurrent.TimeUnit;
 public class AudioRecordMp3 {
 
     private static final String TAG = "AudioRecordMp3";
-    private static final int INDEX = 2;
-
 
     private final Handler handler = new Handler(Looper.getMainLooper());
 
@@ -106,6 +104,7 @@ public class AudioRecordMp3 {
     }
 
     public void deleteLastRecord() {
+
         executorService = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new ThreadPoolExecutor.AbortPolicy());
         executorService.execute(new Runnable() {
             @Override
@@ -122,7 +121,7 @@ public class AudioRecordMp3 {
                     }
                     if (lastElement != null && lastElement > 0) {
                         splitFile(lastElement);
-                        fileLengthList.subList(fileLengthList.indexOf(lastElement), fileLengthList.size()).clear();
+                        fileLengthList.subList(fileLengthList.indexOf(lastElement)+1, fileLengthList.size()).clear();
                         currentRecordFileLength = getFinalRecordFile().length();
                     } else {
                         deleteAllRecordFile();
@@ -208,6 +207,7 @@ public class AudioRecordMp3 {
         if (androidLame != null) {
             androidLame.close();
         }
+        deleteAllRecordFile();
     }
 
     class RecordThread extends Thread {
@@ -257,7 +257,6 @@ public class AudioRecordMp3 {
                 }
                 dos.close();
                 if (!fileLengthList.contains(finalRecordFile.length())) {
-                    Log.e(TAG, "run: lll add file length = " + finalRecordFile.length());
                     fileLengthList.add(finalRecordFile.length());
                     currentRecordFileLength = finalRecordFile.length();
                 }
