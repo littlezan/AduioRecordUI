@@ -58,10 +58,12 @@ public class AudioRecordMp3 {
     private AndroidLame androidLame;
 
     private ExecutorService executorService;
+    private int minBufferSize;
 
     public AudioRecordMp3(File audioFile, RecordMp3Listener recordMp3Listener) {
         this.currentRecordFile = audioFile;
         this.recordMp3Listener = recordMp3Listener;
+        minBufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE_IN_HZ, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
         initFilePath = currentRecordFile.getAbsolutePath();
         initRecordFile();
     }
@@ -87,15 +89,22 @@ public class AudioRecordMp3 {
         if (executorService != null && !executorService.isShutdown()) {
             executorService.shutdown();
         }
-        if (audioRecord != null) {
-            audioRecord.release();
-        }
-        if (androidLame != null) {
-            androidLame.close();
-        }
+        initAudioRecord();
         executorService = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new ThreadPoolExecutor.AbortPolicy());
         executorService.execute(new RecordThread());
 
+    }
+
+    private void initAudioRecord() {
+        if (audioRecord == null) {
+            audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE_IN_HZ, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufferSize * 2);
+            androidLame = new LameBuilder()
+                    .setInSampleRate(SAMPLE_RATE_IN_HZ)
+                    .setOutChannels(1)
+                    .setOutBitrate(32)
+                    .setOutSampleRate(SAMPLE_RATE_IN_HZ)
+                    .build();
+        }
     }
 
 
@@ -214,17 +223,8 @@ public class AudioRecordMp3 {
 
         @Override
         public void run() {
-            int minBufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE_IN_HZ, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
-            int audioSource = MediaRecorder.AudioSource.MIC;
-            audioRecord = new AudioRecord(audioSource, SAMPLE_RATE_IN_HZ, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufferSize * 2);
             short[] buffer = new short[SAMPLE_RATE_IN_HZ * 2 * 5];
             byte[] mp3buffer = new byte[(int) (7200 + buffer.length * 2 * 1.25)];
-            androidLame = new LameBuilder()
-                    .setInSampleRate(SAMPLE_RATE_IN_HZ)
-                    .setOutChannels(1)
-                    .setOutBitrate(32)
-                    .setOutSampleRate(SAMPLE_RATE_IN_HZ)
-                    .build();
             try {
                 audioRecord.startRecording();
             } catch (IllegalStateException e) {
@@ -266,14 +266,11 @@ public class AudioRecordMp3 {
             } catch (Exception e) {
                 Log.d(TAG, "AudioRecordMp3 run: lll e = " + e.toString());
             } finally {
-                publishStopRecord();
                 isRecording = false;
-                androidLame.close();
                 audioRecord.stop();
-                audioRecord.release();
+                publishStopRecord();
             }
         }
-
     }
 
 
