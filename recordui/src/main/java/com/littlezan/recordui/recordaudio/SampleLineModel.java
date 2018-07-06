@@ -16,5 +16,5 @@ class SampleLineModel {
     float stopY;
 
 
-    public boolean deleteFlag;
+    public boolean stopFlag;
 }

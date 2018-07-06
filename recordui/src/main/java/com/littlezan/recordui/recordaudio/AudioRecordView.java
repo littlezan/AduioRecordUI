@@ -198,16 +198,23 @@ public class AudioRecordView extends BaseAudioRecordView {
         //绘制采样点
         int halfHeight = canvas.getHeight() / 2;
         SampleLineModel lastSampleLineModel = sampleLineList.get(sampleLineList.size() - 1);
-        for (SampleLineModel sampleLineModel : drawRectList) {
+
+        Integer stopFlagIndex = null;
+        for (int i = 0; i < drawRectList.size(); i++) {
+            SampleLineModel sampleLineModel = drawRectList.get(i);
             canvas.drawLine(sampleLineModel.startX, sampleLineModel.startY, sampleLineModel.stopX, sampleLineModel.stopY, linePaint);
             float invertedStopY = halfHeight + sampleLineModel.stopY - sampleLineModel.startY;
             canvas.drawLine(sampleLineModel.startX, halfHeight, sampleLineModel.stopX, invertedStopY, lineInvertedPaint);
-            if (sampleLineModel.deleteFlag && sampleLineModel != lastSampleLineModel) {
+            if (sampleLineModel.stopFlag && sampleLineModel != lastSampleLineModel) {
+                stopFlagIndex = i;
+            }
+            if (stopFlagIndex != null && stopFlagIndex + 1 == i) {
                 int lineTop = (halfHeight - (halfHeight - ruleHorizontalLineHeight - rectMarginTop));
                 int lineBottom = canvas.getHeight() - lineTop;
                 canvas.drawLine(sampleLineModel.startX, lineTop, sampleLineModel.stopX, lineBottom, lineDeletePaint);
             }
         }
+
     }
 
     private List<SampleLineModel> getDrawSampleLineList(Canvas canvas) {

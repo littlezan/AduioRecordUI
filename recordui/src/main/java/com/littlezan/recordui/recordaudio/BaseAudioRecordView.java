@@ -521,8 +521,8 @@ public abstract class BaseAudioRecordView extends View {
             setCanScrollX();
             if (sampleLineList.size() > 0 && !deleteIndexList.contains(sampleLineList.size())) {
                 deleteIndexList.add(sampleLineList.size());
-                SampleLineModel sampleLineModel = sampleLineList.get(sampleLineList.size()-1);
-                sampleLineModel.deleteFlag = true;
+                SampleLineModel sampleLineModel = sampleLineList.get(sampleLineList.size() - 1);
+                sampleLineModel.stopFlag = true;
             }
             if (recordCallBack != null) {
                 recordCallBack.onStopRecord();
@@ -655,11 +655,11 @@ public abstract class BaseAudioRecordView extends View {
             isStartVerticalLineTranslate = true;
             float startX = translateVerticalLineX;
             float endX = getMeasuredWidth() / 2;
-            float dx = Math.abs(endX - startX);
-            final long duration = (long) (1000 * dx / (recordSamplingFrequency * (lineWidth + rectGap)));
+            double dx = Math.abs(endX - startX);
+            final double duration = 1000 * dx / (recordSamplingFrequency * (lineWidth + rectGap));
             animator = ObjectAnimator.ofFloat(this, "translateVerticalLineX", startX, endX);
             animator.setInterpolator(new LinearInterpolator());
-            animator.setDuration(duration);
+            animator.setDuration((long) Math.floor(duration));
             isAutoScroll = true;
             animator.removeAllListeners();
             animator.addListener(new AnimatorListenerAdapter() {
@@ -704,10 +704,10 @@ public abstract class BaseAudioRecordView extends View {
             //小于半屏的时候，要重新计算偏移量，因为有个左滑的动作
             float endX = maxLength - getMeasuredWidth() / 2;
             float dx = Math.abs(endX - startX);
-            final long duration = (long) (1000 * dx / (recordSamplingFrequency * (lineWidth + rectGap)));
+            final double duration = 1000 * dx / (recordSamplingFrequency * (lineWidth + rectGap));
             animator = ObjectAnimator.ofFloat(this, "translateX", startX, endX);
             animator.setInterpolator(new LinearInterpolator());
-            animator.setDuration(duration);
+            animator.setDuration((long) Math.floor(duration));
             animator.removeAllListeners();
             animator.addListener(new AnimatorListenerAdapter() {
 
