@@ -51,7 +51,7 @@ public class AudioRecordMp3 {
     private File currentRecordFile;
     private String initFilePath;
 
-    private static final int SAMPLE_RATE_IN_HZ = 8000;
+    private static final int SAMPLE_RATE_IN_HZ = 44100;
     private volatile boolean isRecording = false;
     private RecordMp3Listener recordMp3Listener;
     private AudioRecord audioRecord;
@@ -101,7 +101,7 @@ public class AudioRecordMp3 {
             androidLame = new LameBuilder()
                     .setInSampleRate(SAMPLE_RATE_IN_HZ)
                     .setOutChannels(1)
-                    .setOutBitrate(32)
+                    .setOutBitrate(64*1024)
                     .setOutSampleRate(SAMPLE_RATE_IN_HZ)
                     .build();
         }

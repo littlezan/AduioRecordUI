@@ -8,6 +8,7 @@ import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.support.v4.app.Fragment;
+import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -57,7 +58,7 @@ import io.reactivex.functions.Consumer;
 public class RecordAudioWithDeleteFragment extends Fragment implements View.OnClickListener {
 
 
-    public static final String RECORD_FILE_NAME = "record.mp3";
+    public static final String RECORD_FILE_NAME = "record.m4a";
     /**
      * 最长录音时间 分钟
      */
@@ -347,9 +348,12 @@ public class RecordAudioWithDeleteFragment extends Fragment implements View.OnCl
 //        });
     }
 
+    private static final String TAG = "RecordAudioWithDeleteFr";
+
     private void initRecordFile() {
         try {
             recordFile = new File(FileUtils.getRootFilePath(getContext()) + RECORD_FILE_NAME);
+            Log.e(TAG, "initRecordFile: lll recordFile = "+recordFile.getAbsolutePath() );
             if (recordFile.exists()) {
                 recordFile.delete();
             }
