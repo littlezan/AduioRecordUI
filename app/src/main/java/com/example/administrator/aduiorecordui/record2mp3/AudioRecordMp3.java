@@ -37,6 +37,8 @@ public class AudioRecordMp3 {
 
     private static final String TAG = "AudioRecordMp3";
 
+    private static final int CHANNEL_CONFIG = AudioFormat.CHANNEL_IN_MONO;
+
     private final Handler handler = new Handler(Looper.getMainLooper());
 
     /**
@@ -63,7 +65,7 @@ public class AudioRecordMp3 {
     public AudioRecordMp3(File audioFile, RecordMp3Listener recordMp3Listener) {
         this.currentRecordFile = audioFile;
         this.recordMp3Listener = recordMp3Listener;
-        minBufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE_IN_HZ, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT);
+        minBufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE_IN_HZ,CHANNEL_CONFIG , AudioFormat.ENCODING_PCM_16BIT);
         initFilePath = currentRecordFile.getAbsolutePath();
         initRecordFile();
     }
@@ -97,11 +99,11 @@ public class AudioRecordMp3 {
 
     private void initAudioRecord() {
         if (audioRecord == null) {
-            audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE_IN_HZ, AudioFormat.CHANNEL_IN_MONO, AudioFormat.ENCODING_PCM_16BIT, minBufferSize * 2);
+            audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE_IN_HZ, CHANNEL_CONFIG, AudioFormat.ENCODING_PCM_16BIT, minBufferSize * 2);
             androidLame = new LameBuilder()
                     .setInSampleRate(SAMPLE_RATE_IN_HZ)
-                    .setOutChannels(1)
-                    .setOutBitrate(64*1024)
+                    .setOutChannels(CHANNEL_CONFIG)
+                    .setOutBitrate(128)
                     .setOutSampleRate(SAMPLE_RATE_IN_HZ)
                     .build();
         }
@@ -245,6 +247,7 @@ public class AudioRecordMp3 {
                     readSize = audioRecord.read(buffer, 0, minBufferSize);
                     if (readSize > 0) {
                         int bytesEncoded = androidLame.encode(buffer, buffer, readSize, mp3buffer);
+//                        int bytesEncoded = androidLame.encodeBufferInterLeaved(buffer, readSize, mp3buffer);
                         if (bytesEncoded > 0) {
                             dos.write(mp3buffer, 0, bytesEncoded);
                         }
