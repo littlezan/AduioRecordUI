@@ -65,7 +65,7 @@ public class AudioRecordMp3 {
     public AudioRecordMp3(File audioFile, RecordMp3Listener recordMp3Listener) {
         this.currentRecordFile = audioFile;
         this.recordMp3Listener = recordMp3Listener;
-        minBufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE_IN_HZ,CHANNEL_CONFIG , AudioFormat.ENCODING_PCM_16BIT);
+        minBufferSize = AudioRecord.getMinBufferSize(SAMPLE_RATE_IN_HZ, CHANNEL_CONFIG, AudioFormat.ENCODING_PCM_16BIT);
         initFilePath = currentRecordFile.getAbsolutePath();
         initRecordFile();
     }
@@ -103,7 +103,7 @@ public class AudioRecordMp3 {
             androidLame = new LameBuilder()
                     .setInSampleRate(SAMPLE_RATE_IN_HZ)
                     .setOutChannels(CHANNEL_CONFIG)
-                    .setOutBitrate(128)
+                    .setOutBitrate(64)
                     .setOutSampleRate(SAMPLE_RATE_IN_HZ)
                     .build();
         }
@@ -132,7 +132,7 @@ public class AudioRecordMp3 {
                     }
                     if (lastElement != null && lastElement > 0) {
                         splitFile(lastElement);
-                        fileLengthList.subList(fileLengthList.indexOf(lastElement)+1, fileLengthList.size()).clear();
+                        fileLengthList.subList(fileLengthList.indexOf(lastElement) + 1, fileLengthList.size()).clear();
                         currentRecordFileLength = getFinalRecordFile().length();
                     } else {
                         deleteAllRecordFile();
@@ -280,6 +280,7 @@ public class AudioRecordMp3 {
     @NonNull
     public File getFinalRecordFile() {
         initRecordFile();
+        Log.e(TAG, "getFinalRecordFile: lll getFinalRecordFile = " + currentRecordFile.getAbsolutePath());
         return currentRecordFile;
     }
 

@@ -58,7 +58,7 @@ import io.reactivex.functions.Consumer;
 public class RecordAudioWithDeleteFragment extends Fragment implements View.OnClickListener {
 
 
-    public static final String RECORD_FILE_NAME = "record.m4a";
+    public static final String RECORD_FILE_NAME = "record.mp3";
     /**
      * 最长录音时间 分钟
      */
