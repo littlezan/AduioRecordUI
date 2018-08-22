@@ -51,7 +51,7 @@ public class VerticalLineFixedAudioRecordView extends BaseDrawAudioRecordView {
     @Override
     protected void setCanScrollX() {
         int widthMiddle = getMeasuredWidth() / 2;
-        maxScrollX = lineLocationX < widthMiddle ? -widthMiddle : lineLocationX - widthMiddle;
+        maxScrollX = lineLocationX -widthMiddle;
         minScrollX = -widthMiddle;
     }
 
