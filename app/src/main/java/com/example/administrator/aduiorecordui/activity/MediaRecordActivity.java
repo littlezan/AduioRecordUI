@@ -35,7 +35,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.FileDataSourceFactory;
-import com.littlezan.recordui.recordaudio.AudioRecordView;
+import com.littlezan.recordui.recordaudio.recordview.VerticalLineMoveAudioRecordView;
 import com.littlezan.recordui.recordaudio.RecordCallBack;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
@@ -116,7 +116,7 @@ public class MediaRecordActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        final AudioRecordView audioRecordView = findViewById(R.id.audio_record_ui);
+        final VerticalLineMoveAudioRecordView audioRecordView = findViewById(R.id.audio_record_ui);
         Button btnStart = findViewById(R.id.btn_start);
         Button btnStop = findViewById(R.id.btn_stop);
         Button btnPlay = findViewById(R.id.btn_play);
@@ -201,7 +201,7 @@ public class MediaRecordActivity extends AppCompatActivity {
         initListener(audioRecordView);
     }
 
-    private void initListener(AudioRecordView audioRecordView) {
+    private void initListener(VerticalLineMoveAudioRecordView audioRecordView) {
         audioRecordView.setRecordCallBack(new RecordCallBack() {
 
             @Override

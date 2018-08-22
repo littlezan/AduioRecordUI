@@ -10,6 +10,7 @@ import com.example.administrator.aduiorecordui.activity.AudioRecordActivity;
 import com.example.administrator.aduiorecordui.activity.MediaRecordActivity;
 import com.example.administrator.aduiorecordui.activity.PlayAudioActivity;
 import com.example.administrator.aduiorecordui.activity.RecordAudioWithDeleteActivity;
+import com.example.administrator.aduiorecordui.activity.VerticalLineFixedAudioRecordActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -24,6 +25,7 @@ public class MainActivity extends AppCompatActivity {
         Button btnPlayAudio = findViewById(R.id.btn_play_audio);
         Button btnAudioRecord = findViewById(R.id.btn_audio_record);
         Button btnAudioRecordDelete = findViewById(R.id.btn_audio_record_delete);
+        Button btnAudioRecordVerticalLineFixed = findViewById(R.id.btn_audio_record_vertical_line_fixed);
 
         btnRecord.setOnClickListener(new View.OnClickListener() {
             @Override
@@ -52,6 +54,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 RecordAudioWithDeleteActivity.start(MainActivity.this);
+            }
+        });
+
+        btnAudioRecordVerticalLineFixed.setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                VerticalLineFixedAudioRecordActivity.start(MainActivity.this);
             }
         });
     }

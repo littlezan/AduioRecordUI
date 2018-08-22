@@ -59,6 +59,8 @@
         <attr name="bottomTextSize" format="dimension" />
         <!--底部 文字区域 背景颜色-->
         <attr name="bottomRectColor" format="color" />
+        <!--是否显示上一段可删除-->
+        <attr name="showStopFlag" format="boolean" />
 
     </declare-styleable>
 

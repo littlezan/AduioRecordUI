@@ -32,7 +32,7 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.FileDataSourceFactory;
-import com.littlezan.recordui.recordaudio.AudioRecordView;
+import com.littlezan.recordui.recordaudio.recordview.VerticalLineMoveAudioRecordView;
 import com.littlezan.recordui.recordaudio.RecordCallBack;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
@@ -88,7 +88,7 @@ public class RecordAudioFragment extends Fragment implements View.OnClickListene
         PausePlaying,;
     }
 
-    AudioRecordView audioRecordView;
+    VerticalLineMoveAudioRecordView audioRecordView;
     TextView tvHint;
     TextView tvDuration;
     TextView tvDelete;

@@ -32,10 +32,18 @@
         tools:ignore="HardcodedText" />
 
     <Button
-        android:id="@+id/btn_audio_record_delete"
+    android:id="@+id/btn_audio_record_delete"
+    android:layout_width="wrap_content"
+    android:layout_height="wrap_content"
+    android:text="AudioRecord Delete UI"
+    android:textAllCaps="false"
+    tools:ignore="HardcodedText" />
+
+    <Button
+        android:id="@+id/btn_audio_record_vertical_line_fixed"
         android:layout_width="wrap_content"
         android:layout_height="wrap_content"
-        android:text="AudioRecord Delete UI"
+        android:text="AudioRecord Vertical Line Fixed"
         android:textAllCaps="false"
         tools:ignore="HardcodedText" />
 

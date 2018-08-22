@@ -8,12 +8,12 @@ package com.littlezan.recordui.recordaudio;
  * @version 1.0
  * @since 2017-12-12  17:22
  */
-class SampleLineModel {
+public class SampleLineModel {
 
-    float startX;
-    float stopX;
-    float startY;
-    float stopY;
+    public  float startX;
+    public float stopX;
+    public float startY;
+    public  float stopY;
 
 
     public boolean stopFlag;

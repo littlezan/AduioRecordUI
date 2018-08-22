@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="ContentDescription" />
 
-    <com.littlezan.recordui.recordaudio.AudioRecordView
+    <com.littlezan.recordui.recordaudio.recordview.VerticalLineMoveAudioRecordView
         android:id="@+id/audio_record_view"
         android:layout_width="0dp"
         android:layout_height="0dp"

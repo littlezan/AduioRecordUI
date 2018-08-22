@@ -1,0 +1,88 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <Button
+        android:id="@+id/btnStartRecord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="startRecord"
+        android:textAllCaps="false"
+        tools:ignore="HardcodedText" />
+
+    <Button
+        android:id="@+id/btnStopRecord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="stopRecord"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toEndOf="@+id/btnStartRecord"
+        tools:ignore="HardcodedText" />
+
+
+    <Button
+        android:id="@+id/btnReset"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="reset"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toEndOf="@+id/btnStopRecord"
+        tools:ignore="HardcodedText" />
+
+    <Button
+        android:id="@+id/btnPlayRecord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="play record"
+        android:textAllCaps="false"
+        app:layout_constraintTop_toBottomOf="@+id/btnStartRecord"
+        tools:ignore="HardcodedText" />
+
+    <Button
+        android:id="@+id/btnStopPlayRecord"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="stop play record"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toEndOf="@+id/btnPlayRecord"
+        app:layout_constraintTop_toTopOf="@+id/btnPlayRecord"
+        tools:ignore="HardcodedText" />
+
+    <com.littlezan.recordui.recordaudio.recordview.VerticalLineFixedAudioRecordView
+        android:id="@+id/audio_record_view"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:layout_marginEnd="10dp"
+        android:layout_marginStart="10dp"
+        android:layout_marginTop="100dp"
+        app:intervalCount="10"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:middleCircleRadius="2dp"
+        app:middleVerticalLineColor="#FFE100"
+        app:middleVerticalLineStrokeWidth="1dp"
+        app:recordSamplingFrequency="5"
+        app:recordTimeInMinutes="1"
+        app:rectColor="#000000"
+        app:rectGap="2dp"
+        app:rectInvertColor="#000000"
+        app:rectMarginTop="25dp"
+        app:ruleHorizontalLineHeight="40dp"
+        app:scaleIntervalLength="5dp"
+        app:showRuleText="true" />
+
+
+    <android.support.constraint.Guideline
+        android:id="@+id/guideline1"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal"
+        app:layout_constraintGuide_percent="0.5" />
+
+
+</android.support.constraint.ConstraintLayout>
