@@ -297,20 +297,21 @@ public abstract class BaseAudioRecordView extends View {
         super(context);
         initAttrs(context, null);
         init(context);
+        initPaint();
     }
 
     public BaseAudioRecordView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         initAttrs(context, attrs);
-        initPaint();
         init(context);
+        initPaint();
     }
 
     public BaseAudioRecordView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initAttrs(context, attrs);
         init(context);
-
+        initPaint();
     }
 
     private void initAttrs(Context context, AttributeSet attrs) {
