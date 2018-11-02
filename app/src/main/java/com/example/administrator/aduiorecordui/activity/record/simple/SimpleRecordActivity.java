@@ -1,4 +1,4 @@
-package com.example.administrator.aduiorecordui.activity.record.verticallinefixed;
+package com.example.administrator.aduiorecordui.activity.record.simple;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -17,7 +17,7 @@ import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.upstream.FileDataSourceFactory;
 import com.littlezan.recordui.recordaudio.RecordCallBack;
-import com.littlezan.recordui.recordaudio.recordviews.VerticalLineFixedAudioRecordView;
+import com.littlezan.recordui.recordaudio.recordviews.SimpleAudioRecordView;
 
 import java.math.BigDecimal;
 import java.util.ArrayList;
@@ -25,20 +25,20 @@ import java.util.ArrayList;
 import io.reactivex.functions.Consumer;
 
 /**
- * ClassName: VerticalLineFixedAudioRecordActivity
+ * ClassName: SimpleRecordActivity
  * Description:
  *
  * @author 彭赞
  * @version 1.0
- * @since 2018-08-22  09:57
+ * @since 2018-11-02  14:58
  */
-public class VerticalLineFixedAudioRecordActivity extends BaseAudioRecordActivity {
+public class SimpleRecordActivity extends BaseAudioRecordActivity {
 
 
     public static final int MAX_RECORD_DECIBEL = 80;
     public static final int MIN_RECORD_DECIBEL = 35;
 
-    private VerticalLineFixedAudioRecordView audioRecordView;
+    private SimpleAudioRecordView audioRecordView;
 
 
     private AudioRecordMp3 audioRecordMp3;
@@ -47,13 +47,13 @@ public class VerticalLineFixedAudioRecordActivity extends BaseAudioRecordActivit
     private RecordCallBack recordCallBack;
 
     public static void start(Context context) {
-        context.startActivity(new Intent(context, VerticalLineFixedAudioRecordActivity.class));
+        context.startActivity(new Intent(context, SimpleRecordActivity.class));
     }
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_vertical_line_fixed);
+        setContentView(R.layout.activity_simple_record);
 
         initAudioRecorder();
         initView();
@@ -237,15 +237,11 @@ public class VerticalLineFixedAudioRecordActivity extends BaseAudioRecordActivit
         super.onPause();
         audioRecordMp3.stopRecord();
         audioRecordView.stopPlayRecord();
-        audioRecordView.setRecordCallBack(null);
     }
 
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (audioRecordView != null) {
-            audioRecordView.setRecordCallBack(null);
-        }
         if (simpleExoPlayer != null) {
             stopPlay();
             simpleExoPlayer.release();
@@ -253,7 +249,6 @@ public class VerticalLineFixedAudioRecordActivity extends BaseAudioRecordActivit
     }
 
     public void onFinishRelease() {
-        audioRecordView.setRecordCallBack(null);
         stopRecord();
         audioRecordView.reset();
         decibelList.clear();

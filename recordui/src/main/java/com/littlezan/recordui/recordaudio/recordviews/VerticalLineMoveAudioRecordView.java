@@ -1,9 +1,10 @@
-package com.littlezan.recordui.recordaudio.recordview;
+package com.littlezan.recordui.recordaudio.recordviews;
 
 import android.animation.Animator;
 import android.animation.AnimatorListenerAdapter;
 import android.animation.ObjectAnimator;
 import android.content.Context;
+import android.graphics.Canvas;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.view.animation.LinearInterpolator;
@@ -35,6 +36,7 @@ public class VerticalLineMoveAudioRecordView extends BaseDrawAudioRecordView {
         super(context, attrs, defStyleAttr);
     }
 
+
     @Override
     protected void setCanScrollX() {
         int widthMiddle = getMeasuredWidth() / 2;
@@ -42,6 +44,54 @@ public class VerticalLineMoveAudioRecordView extends BaseDrawAudioRecordView {
         minScrollX = lineLocationX < widthMiddle ? -lineLocationX : -widthMiddle - rectGap;
     }
 
+
+    @Override
+    protected void drawCenterVerticalLine(Canvas canvas) {
+        float circleX = translateVerticalLineX;
+        int canvasMiddle = canvas.getWidth() / 2;
+        if (isStartVerticalLineTranslate || circleX < canvasMiddle) {
+            circleX = circleX + getScrollX();
+        } else if (isStartRecordTranslateCanvas || circleX >= getScrollX() + canvasMiddle - rectGap) {
+            circleX = getScrollX() + canvasMiddle + rectGap;
+        }
+        centerLineX = circleX;
+        float topCircleY = ruleHorizontalLineHeight - middleCircleRadius;
+        float bottomCircleY = canvas.getHeight() / 2 + (canvas.getHeight() / 2 - ruleHorizontalLineHeight) + middleCircleRadius;
+
+        // 上圆
+        canvas.drawCircle(circleX, topCircleY + middleCircleRadius, middleCircleRadius, middleVerticalLinePaint);
+        //下圆
+        canvas.drawCircle(circleX, bottomCircleY - middleCircleRadius, middleCircleRadius, middleVerticalLinePaint);
+        //垂直 直线
+        canvas.drawLine(circleX, topCircleY, circleX, bottomCircleY, middleVerticalLinePaint);
+
+        if (recordCallBack != null) {
+            if (centerLineX <= 0) {
+                centerTimeMillis = 0;
+            } else {
+                centerTimeMillis = (long) (centerLineX * 1000L / (recordSamplingFrequency * (lineWidth + rectGap)));
+            }
+
+            if (lineLocationX > 0) {
+                if (isPlayingRecord()) {
+                    if (centerLineX >= lineLocationX) {
+                        recordCallBack.onFinishPlayingRecord();
+                    }
+                }
+                recordCallBack.onCenterLineTime(centerTimeMillis);
+            }
+        }
+    }
+
+    @Override
+    protected float getCenterVerticalLineXWhileTranslateRecord() {
+        return getScrollX() + getMeasuredWidth() / 2 + rectGap;
+    }
+
+    @Override
+    protected float getOnTickTranslateXWhileTranslateRecord() {
+        return getScrollX() + getMeasuredWidth() / 2;
+    }
 
     @Override
     public void startRecord() {
@@ -56,7 +106,7 @@ public class VerticalLineMoveAudioRecordView extends BaseDrawAudioRecordView {
             //移动画布
             float lastSampleLineRightX = getLastSampleLineRightX();
             int middleX = getScrollX() + getMeasuredWidth() / 2;
-            if (lastSampleLineRightX >= middleX - lineWidth - rectGap && lastSampleLineRightX <= maxLength) {
+            if (lastSampleLineRightX >= middleX - lineWidth - rectGap) {
                 startRecordTranslateCanvas();
                 isAutoScroll = true;
             } else {
@@ -78,8 +128,10 @@ public class VerticalLineMoveAudioRecordView extends BaseDrawAudioRecordView {
             isStartVerticalLineTranslate = false;
             isStartRecordTranslateCanvas = false;
             overScroller.abortAnimation();
-            animator.removeAllListeners();
-            animator.cancel();
+            if (animator != null) {
+                animator.removeAllListeners();
+                animator.cancel();
+            }
             setCanScrollX();
             if (sampleLineList.size() > 0 && !deleteIndexList.contains(sampleLineList.size())) {
                 deleteIndexList.add(sampleLineList.size());

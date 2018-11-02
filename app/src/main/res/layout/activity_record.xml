@@ -14,7 +14,7 @@
         tools:context="com.example.administrator.aduiorecordui.MainActivity">
 
 
-        <com.littlezan.recordui.recordaudio.recordview.VerticalLineMoveAudioRecordView
+        <com.littlezan.recordui.recordaudio.recordviews.VerticalLineMoveAudioRecordView
             android:id="@+id/audio_record_ui"
             android:layout_width="match_parent"
             android:layout_height="350dp"

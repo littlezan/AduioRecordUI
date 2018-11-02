@@ -51,29 +51,29 @@
         app:layout_constraintTop_toTopOf="@+id/btnPlayRecord"
         tools:ignore="HardcodedText" />
 
-    <com.littlezan.recordui.recordaudio.recordviews.VerticalLineFixedAudioRecordView
+    <com.littlezan.recordui.recordaudio.recordviews.SimpleAudioRecordView
         android:id="@+id/audio_record_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
         android:layout_marginEnd="10dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="100dp"
-        app:intervalCount="4"
+        app:intervalCount="5"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
-        app:middleCircleRadius="3.5dp"
-        app:middleVerticalLineColor="#FFE100"
-        app:middleVerticalLineStrokeWidth="1dp"
-        app:recordSamplingFrequency="20"
+        app:recordSamplingFrequency="5"
         app:recordTimeInMinutes="1"
         app:rectColor="#000000"
         app:rectInvertColor="#000000"
         app:rectMarginTop="25dp"
         app:ruleHorizontalLineHeight="40dp"
-        app:scaleIntervalLength="10dp"
-        app:rectGap="1px"
+        app:scaleIntervalLength="5dp"
+        app:rectGap="3dp"
+        app:canTouch="true"
+        app:showVerticalLine="false"
+        app:showHorizontalLine="false"
         app:showRuleText="true" />
 
 

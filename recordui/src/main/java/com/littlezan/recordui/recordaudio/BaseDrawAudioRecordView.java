@@ -40,8 +40,14 @@ public abstract class BaseDrawAudioRecordView extends BaseAudioRecordView {
             drawScale(canvas);
         }
         drawLine(canvas);
-        drawCenterVerticalLine(canvas);
+        if (showVerticalLine) {
+            drawCenterVerticalLine(canvas);
+        }
+        if (showHorizontalLine) {
+            drawCenterHorizontalLine(canvas);
+        }
     }
+
 
     private void drawScale(Canvas canvas) {
         int firstPoint = (getScrollX() - mDrawOffset) / scaleIntervalLength;
@@ -60,7 +66,7 @@ public abstract class BaseDrawAudioRecordView extends BaseAudioRecordView {
                 canvas.drawLine(locationX, ruleHorizontalLineHeight - smallScaleStrokeLength, locationX, ruleHorizontalLineHeight, smallScalePaint);
             }
         }
-        //画轮廓线
+        //画底部轮廓线
         canvas.drawLine(getScrollX(), ruleHorizontalLineHeight, getScrollX() + canvas.getWidth(), ruleHorizontalLineHeight, ruleHorizontalLinePaint);
     }
 
@@ -77,9 +83,6 @@ public abstract class BaseDrawAudioRecordView extends BaseAudioRecordView {
 
 
     private void drawLine(Canvas canvas) {
-        int middleLineY = canvas.getHeight() / 2;
-        canvas.drawLine(getScrollX(), middleLineY, getScrollX() + canvas.getWidth(), middleLineY, middleHorizontalLinePaint);
-
         //从数据源中找出需要绘制的矩形
         List<SampleLineModel> drawRectList = getDrawSampleLineList(canvas);
         if (drawRectList == null || drawRectList.size() == 0) {
@@ -106,7 +109,7 @@ public abstract class BaseDrawAudioRecordView extends BaseAudioRecordView {
         }
     }
 
-    private List<SampleLineModel> getDrawSampleLineList(Canvas canvas) {
+    protected List<SampleLineModel> getDrawSampleLineList(Canvas canvas) {
         if (sampleLineList.size() == 0) {
             return null;
         }
@@ -136,16 +139,15 @@ public abstract class BaseDrawAudioRecordView extends BaseAudioRecordView {
     }
 
 
-    private void drawCenterVerticalLine(Canvas canvas) {
-        float circleX = canvas.getWidth() / 2 + getScrollX();
-        float topCircleY = ruleHorizontalLineHeight - middleCircleRadius;
-        float bottomCircleY = canvas.getHeight() / 2 + (canvas.getHeight() / 2 - ruleHorizontalLineHeight) + middleCircleRadius;
+    /**
+     * 绘制中间垂直线
+     *
+     * @param canvas canvas
+     */
+    protected abstract void drawCenterVerticalLine(Canvas canvas);
 
-        //上圆
-        canvas.drawCircle(circleX, topCircleY, middleCircleRadius, middleVerticalLinePaint);
-        //下圆
-        canvas.drawCircle(circleX, bottomCircleY, middleCircleRadius, middleVerticalLinePaint);
-        //垂直 直线
-        canvas.drawLine(circleX, topCircleY, circleX, bottomCircleY, middleVerticalLinePaint);
+    private void drawCenterHorizontalLine(Canvas canvas) {
+        int middleLineY = canvas.getHeight() / 2;
+        canvas.drawLine(getScrollX(), middleLineY, getScrollX() + canvas.getWidth(), middleLineY, middleHorizontalLinePaint);
     }
 }

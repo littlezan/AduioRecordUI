@@ -17,7 +17,7 @@
         app:layout_constraintTop_toTopOf="parent"
         tools:ignore="ContentDescription" />
 
-    <com.littlezan.recordui.recordaudio.recordview.VerticalLineMoveAudioRecordView
+    <com.littlezan.recordui.recordaudio.recordviews.VerticalLineMoveAudioRecordView
         android:id="@+id/audio_record_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
@@ -32,7 +32,7 @@
         app:middleVerticalLineColor="#FFE100"
         app:middleVerticalLineStrokeWidth="1dp"
         app:recordSamplingFrequency="5"
-        app:recordTimeInMinutes="5"
+        app:recordTimeInMinutes="1"
         app:rectColor="#000000"
         app:rectGap="2dp"
         app:rectInvertColor="#000000"

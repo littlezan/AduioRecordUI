@@ -181,6 +181,18 @@ public abstract class BaseAudioRecordView extends View {
      * 是否显示上一段可删除
      */
     protected boolean showStopFlag = false;
+    /**
+     * 是否支持手势滑动
+     */
+    protected boolean canTouch = true;
+    /**
+     * 是否显示垂直竖线
+     */
+    protected boolean showVerticalLine = true;
+    /**
+     * 是否显示水平竖线
+     */
+    protected boolean showHorizontalLine = true;
 
     /**
      * 最小可滑动值
@@ -279,18 +291,17 @@ public abstract class BaseAudioRecordView extends View {
     protected float translateVerticalLineX = middleCircleRadius / 2;
 
 
-
-    protected  Paint ruleHorizontalLinePaint = new Paint();
-    protected  Paint smallScalePaint = new Paint();
-    protected  Paint bigScalePaint = new Paint();
-    protected   TextPaint ruleTextPaint = new TextPaint();
-    protected  Paint middleHorizontalLinePaint = new Paint();
-    protected   Paint middleVerticalLinePaint = new Paint();
-    protected    Paint linePaint = new Paint();
-    protected    Paint lineInvertedPaint = new Paint();
-    protected  Paint lineDeletePaint = new Paint();
-    protected   TextPaint bottomTextPaint = new TextPaint();
-    protected   Paint bottomRectPaint = new Paint();
+    protected Paint ruleHorizontalLinePaint = new Paint();
+    protected Paint smallScalePaint = new Paint();
+    protected Paint bigScalePaint = new Paint();
+    protected TextPaint ruleTextPaint = new TextPaint();
+    protected Paint middleHorizontalLinePaint = new Paint();
+    protected Paint middleVerticalLinePaint = new Paint();
+    protected Paint linePaint = new Paint();
+    protected Paint lineInvertedPaint = new Paint();
+    protected Paint lineDeletePaint = new Paint();
+    protected TextPaint bottomTextPaint = new TextPaint();
+    protected Paint bottomRectPaint = new Paint();
 
 
     public BaseAudioRecordView(Context context) {
@@ -349,6 +360,9 @@ public abstract class BaseAudioRecordView extends View {
 
         bottomRectColor = typedArray.getColor(R.styleable.AudioRecordView_bottomRectColor, ContextCompat.getColor(getContext(), android.R.color.holo_orange_light));
         showStopFlag = typedArray.getBoolean(R.styleable.AudioRecordView_showStopFlag, showStopFlag);
+        canTouch = typedArray.getBoolean(R.styleable.AudioRecordView_canTouch, true);
+        showVerticalLine = typedArray.getBoolean(R.styleable.AudioRecordView_showVerticalLine, true);
+        showHorizontalLine = typedArray.getBoolean(R.styleable.AudioRecordView_showVerticalLine, true);
 
         typedArray.recycle();
     }
@@ -426,7 +440,7 @@ public abstract class BaseAudioRecordView extends View {
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-        if (isPlayingRecord || isRecording) {
+        if (isPlayingRecord || isRecording || !canTouch) {
             return false;
         }
         isTouching = true;
@@ -535,17 +549,26 @@ public abstract class BaseAudioRecordView extends View {
         this.translateX = translateX;
         scrollTo((int) translateX, 0);
         if (isStartRecordTranslateCanvas) {
-            translateVerticalLineX = getScrollX() + getMeasuredWidth() / 2 + rectGap;
+            translateVerticalLineX = getCenterVerticalLineXWhileTranslateRecord();
         }
-        onTick(getScrollX() + getMeasuredWidth() / 2);
+        onTick(getOnTickTranslateXWhileTranslateRecord());
     }
 
     /**
-     * 采样打点
+     * 在View移动的过程中，垂直中心线的位置
      *
-     * @param translateX 移动距离
+     * @return 垂直中心线的位置
      */
-    protected abstract void onTick(float translateX);
+    protected abstract float getCenterVerticalLineXWhileTranslateRecord();
+
+
+    /**
+     * View移动的过程中，所走过的距离
+     *
+     * @return 所走过的距离
+     */
+    protected abstract float getOnTickTranslateXWhileTranslateRecord();
+
 
     public float getTranslateVerticalLineX() {
         return translateVerticalLineX;
@@ -556,6 +579,13 @@ public abstract class BaseAudioRecordView extends View {
         invalidate();
         onTick(translateVerticalLineX);
     }
+
+    /**
+     * 采样打点
+     *
+     * @param translateX 移动距离
+     */
+    protected abstract void onTick(float translateX);
 
     /**
      * 开始录音
@@ -601,6 +631,7 @@ public abstract class BaseAudioRecordView extends View {
         lineLocationX = lineLocationX + lineWidth + rectGap;
         sampleLineList.add(sampleLineModel);
     }
+
 
     /**
      * 获取采样点个数

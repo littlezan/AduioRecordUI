@@ -61,6 +61,12 @@
         <attr name="bottomRectColor" format="color" />
         <!--是否显示上一段可删除-->
         <attr name="showStopFlag" format="boolean" />
+        <!--是否支持手势滑动-->
+        <attr name="canTouch" format="boolean" />
+        <!--是否显示中间线-->
+        <attr name="showVerticalLine" format="boolean" />
+        <!--是否显示中间线-->
+        <attr name="showHorizontalLine" format="boolean" />
 
     </declare-styleable>
 
