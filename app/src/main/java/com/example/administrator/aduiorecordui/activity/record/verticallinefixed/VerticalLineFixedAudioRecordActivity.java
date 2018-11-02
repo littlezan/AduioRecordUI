@@ -1,4 +1,4 @@
-package com.example.administrator.aduiorecordui.activity.verticallinefixed;
+package com.example.administrator.aduiorecordui.activity.record.verticallinefixed;
 
 import android.annotation.SuppressLint;
 import android.content.Context;

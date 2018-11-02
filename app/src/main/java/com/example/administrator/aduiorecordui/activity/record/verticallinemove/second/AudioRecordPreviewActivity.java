@@ -1,4 +1,4 @@
-package com.example.administrator.aduiorecordui.activity.verticallinemove.second;
+package com.example.administrator.aduiorecordui.activity.record.verticallinemove.second;
 
 import android.content.Context;
 import android.content.Intent;

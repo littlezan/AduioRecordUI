@@ -1,4 +1,4 @@
-package com.example.administrator.aduiorecordui.activity.verticallinemove.first;
+package com.example.administrator.aduiorecordui.activity.record.verticallinemove.first;
 
 import android.Manifest;
 import android.content.ContentResolver;

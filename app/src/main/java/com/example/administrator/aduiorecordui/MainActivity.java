@@ -6,11 +6,11 @@ import android.support.v7.app.AppCompatActivity;
 import android.view.View;
 import android.widget.Button;
 
-import com.example.administrator.aduiorecordui.activity.verticallinemove.second.AudioRecordActivity;
-import com.example.administrator.aduiorecordui.activity.verticallinemove.first.MediaRecordActivity;
+import com.example.administrator.aduiorecordui.activity.record.verticallinemove.second.AudioRecordActivity;
+import com.example.administrator.aduiorecordui.activity.record.verticallinemove.first.MediaRecordActivity;
 import com.example.administrator.aduiorecordui.activity.play.PlayAudioActivity;
-import com.example.administrator.aduiorecordui.activity.verticallinemove.third.RecordAudioWithDeleteActivity;
-import com.example.administrator.aduiorecordui.activity.verticallinefixed.VerticalLineFixedAudioRecordActivity;
+import com.example.administrator.aduiorecordui.activity.record.verticallinemove.third.RecordAudioWithDeleteActivity;
+import com.example.administrator.aduiorecordui.activity.record.verticallinefixed.VerticalLineFixedAudioRecordActivity;
 
 public class MainActivity extends AppCompatActivity {
 
