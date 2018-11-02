@@ -23,6 +23,9 @@ import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.analytics.AnalyticsCollector;
+import com.google.android.exoplayer2.audio.AudioAttributes;
+import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
@@ -32,8 +35,8 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.FileDataSourceFactory;
-import com.littlezan.recordui.recordaudio.recordview.VerticalLineMoveAudioRecordView;
 import com.littlezan.recordui.recordaudio.RecordCallBack;
+import com.littlezan.recordui.recordaudio.recordview.VerticalLineMoveAudioRecordView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
@@ -479,6 +482,11 @@ public class RecordAudioFragment extends Fragment implements View.OnClickListene
         simpleExoPlayer.prepare(mediaSource);
         simpleExoPlayer.seekTo(timeMillis);
         simpleExoPlayer.setPlayWhenReady(true);
+
+        MediaCodecAudioRenderer audioRenderer = new MediaCodecAudioRenderer(getContext(), null);
+//        simpleExoPlayer.addAnalyticsListener();
+        AudioAttributes audioAttributes = simpleExoPlayer.getAudioAttributes();
+        AnalyticsCollector analyticsCollector = simpleExoPlayer.getAnalyticsCollector();
 
     }
 

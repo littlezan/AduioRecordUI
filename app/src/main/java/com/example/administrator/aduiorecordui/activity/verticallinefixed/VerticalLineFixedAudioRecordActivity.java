@@ -1,4 +1,4 @@
-package com.example.administrator.aduiorecordui.activity;
+package com.example.administrator.aduiorecordui.activity.verticallinefixed;
 
 import android.annotation.SuppressLint;
 import android.content.Context;
@@ -10,6 +10,7 @@ import android.view.View;
 import android.widget.Button;
 
 import com.example.administrator.aduiorecordui.R;
+import com.example.administrator.aduiorecordui.activity.BaseAudioRecordActivity;
 import com.example.administrator.aduiorecordui.model.Decibel;
 import com.example.administrator.aduiorecordui.record2mp3.AudioRecordMp3;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;

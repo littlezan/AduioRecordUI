@@ -20,24 +20,24 @@
             </intent-filter>
         </activity>
         <activity
-            android:name=".activity.MediaRecordActivity"
+            android:name=".activity.verticallinemove.first.MediaRecordActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustUnspecified|stateHidden" />
         <activity
-            android:name=".activity.PlayAudioActivity"
+            android:name=".activity.play.PlayAudioActivity"
             android:screenOrientation="portrait"
             android:windowSoftInputMode="adjustUnspecified|stateHidden" />
         <activity
-            android:name=".activity.AudioRecordActivity"
+            android:name=".activity.verticallinemove.second.AudioRecordActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activity.AudioRecordPreviewActivity"
+            android:name=".activity.verticallinemove.second.AudioRecordPreviewActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activity.RecordAudioWithDeleteActivity"
+            android:name=".activity.verticallinemove.third.RecordAudioWithDeleteActivity"
             android:screenOrientation="portrait" />
         <activity
-            android:name=".activity.VerticalLineFixedAudioRecordActivity"
+            android:name=".activity.verticallinefixed.VerticalLineFixedAudioRecordActivity"
             android:screenOrientation="portrait" />
     </application>
 

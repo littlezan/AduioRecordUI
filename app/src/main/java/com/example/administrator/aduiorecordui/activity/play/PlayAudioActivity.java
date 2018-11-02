@@ -1,4 +1,4 @@
-package com.example.administrator.aduiorecordui.activity;
+package com.example.administrator.aduiorecordui.activity.play;
 
 import android.os.Bundle;
 import android.support.annotation.Nullable;
