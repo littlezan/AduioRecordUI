@@ -19,11 +19,12 @@
             android:layout_height="400dp"
             android:orientation="vertical">
 
-            <com.littlezan.recordui.playaudio.PlayAudioView
+            <com.littlezan.recordui.playaudio.playviews.VerticalLineFixedInCenterPlayAudioView
                 android:id="@+id/play_audio_view"
                 android:layout_width="match_parent"
                 android:layout_height="match_parent"
                 app:p_audioSourceFrequency="10"
+                app:p_canTouchScroll="true"
                 app:p_rectMarginTop="1dp" />
 
 

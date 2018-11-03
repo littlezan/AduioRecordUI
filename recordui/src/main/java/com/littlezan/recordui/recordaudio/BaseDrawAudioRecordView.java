@@ -5,6 +5,8 @@ import android.graphics.Canvas;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 
+import com.littlezan.recordui.recordaudio.mode.RecordSampleLineModel;
+
 import java.text.SimpleDateFormat;
 import java.util.ArrayList;
 import java.util.Date;
@@ -84,17 +86,17 @@ public abstract class BaseDrawAudioRecordView extends BaseAudioRecordView {
 
     private void drawLine(Canvas canvas) {
         //从数据源中找出需要绘制的矩形
-        List<SampleLineModel> drawRectList = getDrawSampleLineList(canvas);
+        List<RecordSampleLineModel> drawRectList = getDrawSampleLineList(canvas);
         if (drawRectList == null || drawRectList.size() == 0) {
             return;
         }
         //绘制采样点
         int halfHeight = canvas.getHeight() / 2;
-        SampleLineModel lastSampleLineModel = sampleLineList.get(sampleLineList.size() - 1);
+        RecordSampleLineModel lastSampleLineModel = sampleLineList.get(sampleLineList.size() - 1);
 
         Integer stopFlagIndex = null;
         for (int i = 0; i < drawRectList.size(); i++) {
-            SampleLineModel sampleLineModel = drawRectList.get(i);
+            RecordSampleLineModel sampleLineModel = drawRectList.get(i);
             canvas.drawLine(sampleLineModel.startX, sampleLineModel.startY, sampleLineModel.stopX, sampleLineModel.stopY, linePaint);
             float invertedStopY = halfHeight + sampleLineModel.stopY - sampleLineModel.startY;
             canvas.drawLine(sampleLineModel.startX, halfHeight, sampleLineModel.stopX, invertedStopY, lineInvertedPaint);
@@ -109,11 +111,11 @@ public abstract class BaseDrawAudioRecordView extends BaseAudioRecordView {
         }
     }
 
-    protected List<SampleLineModel> getDrawSampleLineList(Canvas canvas) {
+    protected List<RecordSampleLineModel> getDrawSampleLineList(Canvas canvas) {
         if (sampleLineList.size() == 0) {
             return null;
         }
-        List<SampleLineModel> resultList = new ArrayList<>();
+        List<RecordSampleLineModel> resultList = new ArrayList<>();
 
         int rectWidthWithGap = lineWidth + rectGap;
         int recentlyRectIndex = getScrollX() / rectWidthWithGap;
@@ -126,7 +128,7 @@ public abstract class BaseDrawAudioRecordView extends BaseAudioRecordView {
         int mixWidth = getScrollX() - rectWidthWithGap;
         int maxWidth = isRecording ? getScrollX() + canvas.getWidth() / 2 + rectWidthWithGap : getScrollX() + canvas.getWidth() + rectWidthWithGap;
         for (int i = recentlyRectIndex; i < sampleLineList.size(); i++) {
-            SampleLineModel next = sampleLineList.get(i);
+            RecordSampleLineModel next = sampleLineList.get(i);
             if (next.startX >= mixWidth && next.startX + lineWidth / 2 <= maxWidth) {
                 resultList.add(next);
             }

@@ -22,7 +22,7 @@
             android:background="@drawable/selector_sound_play" />
 
 
-        <com.littlezan.recordui.playaudio.PlayAudioView
+        <com.littlezan.recordui.playaudio.playviews.VerticalLineFixedInCenterPlayAudioView
             android:id="@+id/playView"
             android:layout_width="match_parent"
             android:layout_height="match_parent"

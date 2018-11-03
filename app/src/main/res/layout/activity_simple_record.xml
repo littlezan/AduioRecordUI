@@ -51,13 +51,25 @@
         app:layout_constraintTop_toTopOf="@+id/btnPlayRecord"
         tools:ignore="HardcodedText" />
 
+
+    <Button
+        android:id="@+id/btnPreview"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="试听"
+        android:textAllCaps="false"
+        app:layout_constraintStart_toEndOf="@+id/btnStopPlayRecord"
+        app:layout_constraintTop_toTopOf="@+id/btnStopPlayRecord"
+        tools:ignore="HardcodedText" />
+
     <com.littlezan.recordui.recordaudio.recordviews.SimpleAudioRecordView
         android:id="@+id/audio_record_view"
         android:layout_width="0dp"
         android:layout_height="0dp"
-        android:layout_marginEnd="10dp"
         android:layout_marginStart="10dp"
         android:layout_marginTop="100dp"
+        android:layout_marginEnd="10dp"
+        app:canTouch="true"
         app:intervalCount="5"
         app:layout_constraintBottom_toBottomOf="parent"
         app:layout_constraintEnd_toEndOf="parent"
@@ -66,15 +78,14 @@
         app:recordSamplingFrequency="5"
         app:recordTimeInMinutes="1"
         app:rectColor="#000000"
+        app:rectGap="3dp"
         app:rectInvertColor="#000000"
         app:rectMarginTop="25dp"
         app:ruleHorizontalLineHeight="40dp"
         app:scaleIntervalLength="5dp"
-        app:rectGap="3dp"
-        app:canTouch="true"
-        app:showVerticalLine="false"
         app:showHorizontalLine="false"
-        app:showRuleText="true" />
+        app:showRuleText="true"
+        app:showVerticalLine="false" />
 
 
     <android.support.constraint.Guideline

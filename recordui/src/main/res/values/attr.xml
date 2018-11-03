@@ -87,10 +87,14 @@
         <attr name="p_unSwipeColor" format="color" />
         <!--扫描过的矩形颜色-->
         <attr name="p_swipedColor" format="color" />
-        <!--波形 宽-->
-        <attr name="p_rectWidth" format="dimension" />
+        <!--波形宽-->
+        <attr name="p_lineWidth" format="dimension" />
         <!--波形 间距-->
         <attr name="p_rectGap" format="dimension" />
+        <!--是否可以滑动View-->
+        <attr name="p_canTouchScroll" format="boolean" />
+        <!--是否能用手势滑动垂直竖线-->
+        <attr name="p_canGestureMoveCenterVerticalLine" format="boolean" />
 
     </declare-styleable>
 

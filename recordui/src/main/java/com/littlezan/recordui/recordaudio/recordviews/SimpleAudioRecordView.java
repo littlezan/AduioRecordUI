@@ -10,7 +10,7 @@ import android.util.AttributeSet;
 import android.view.animation.LinearInterpolator;
 
 import com.littlezan.recordui.recordaudio.BaseDrawAudioRecordView;
-import com.littlezan.recordui.recordaudio.SampleLineModel;
+import com.littlezan.recordui.recordaudio.mode.RecordSampleLineModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -61,11 +61,11 @@ public class SimpleAudioRecordView extends BaseDrawAudioRecordView {
     }
 
     @Override
-    protected List<SampleLineModel> getDrawSampleLineList(Canvas canvas) {
+    protected List<RecordSampleLineModel> getDrawSampleLineList(Canvas canvas) {
         if (sampleLineList.size() == 0) {
             return null;
         }
-        List<SampleLineModel> resultList = new ArrayList<>();
+        List<RecordSampleLineModel> resultList = new ArrayList<>();
 
         int rectWidthWithGap = lineWidth + rectGap;
         int recentlyRectIndex = getScrollX() / rectWidthWithGap;
@@ -78,7 +78,7 @@ public class SimpleAudioRecordView extends BaseDrawAudioRecordView {
         int mixWidth = getScrollX() - rectWidthWithGap;
         int maxWidth = getScrollX() + canvas.getWidth() + rectWidthWithGap;
         for (int i = recentlyRectIndex; i < sampleLineList.size(); i++) {
-            SampleLineModel next = sampleLineList.get(i);
+            RecordSampleLineModel next = sampleLineList.get(i);
             if (next.startX >= mixWidth && next.startX + lineWidth / 2 <= maxWidth) {
                 resultList.add(next);
             }
@@ -132,7 +132,7 @@ public class SimpleAudioRecordView extends BaseDrawAudioRecordView {
             setCanScrollX();
             if (sampleLineList.size() > 0 && !deleteIndexList.contains(sampleLineList.size())) {
                 deleteIndexList.add(sampleLineList.size());
-                SampleLineModel sampleLineModel = sampleLineList.get(sampleLineList.size() - 1);
+                RecordSampleLineModel sampleLineModel = sampleLineList.get(sampleLineList.size() - 1);
                 if (showStopFlag) {
                     sampleLineModel.stopFlag = true;
                 }

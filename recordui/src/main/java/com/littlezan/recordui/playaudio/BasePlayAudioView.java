@@ -1,24 +1,23 @@
 package com.littlezan.recordui.playaudio;
 
-import android.animation.Animator;
-import android.animation.AnimatorListenerAdapter;
-import android.animation.ObjectAnimator;
 import android.content.Context;
 import android.content.res.TypedArray;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.os.Build;
-import android.os.SystemClock;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
 import android.view.ViewConfiguration;
-import android.view.animation.LinearInterpolator;
 import android.widget.OverScroller;
 
 import com.littlezan.recordui.R;
+import com.littlezan.recordui.playaudio.mode.PlaySampleLineMode;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -33,18 +32,17 @@ import java.util.List;
  */
 public abstract class BasePlayAudioView extends View {
 
-
-    boolean canTouchScroll = false;
+    private static final String TAG = "BasePlayAudioView";
 
     /**
      * 圆点距离上边距
      */
-    int circleMarginTop = 100;
+    protected int circleMarginTop = 100;
 
     /**
      * 矩形距离圆点间距
      */
-    int rectMarginTop = 150;
+    protected int rectMarginTop = 150;
 
     /**
      * 滚动的距离
@@ -54,38 +52,47 @@ public abstract class BasePlayAudioView extends View {
     /**
      * 声音数据采集的频率 每秒钟采集个数
      */
-    int audioSourceFrequency = 10;
+    protected int audioSourceFrequency = 10;
 
     /**
      * 中心垂直线的宽
      */
-    int centerLineWidth = 4;
+    protected int centerLineWidth = 4;
 
     /**
      * 圆形半径
      */
-    int circleRadius = 10;
+    protected int circleRadius = 10;
 
     /**
      * 扫描过的矩形颜色
      */
     @ColorInt
-    int swipedColor;
+    protected int swipedColor;
 
     /**
      * 没有扫描的矩形颜色
      */
     @ColorInt
-    int unSwipeColor;
+    protected int unSwipeColor;
 
     /**
      * 线宽
      */
-    int lineWidth = 10;
+    protected int lineWidth = 10;
     /**
      * 间距
      */
-    int rectGap = 4;
+    protected int rectGap = 4;
+
+    /**
+     * 是否可以滑动View
+     */
+    protected boolean canTouchScroll = false;
+    /**
+     * 是否能用手势滑动垂直竖线
+     */
+    protected boolean canGestureMoveCenterVerticalLine = false;
 
     /**
      * 最小可滑动值
@@ -114,46 +121,57 @@ public abstract class BasePlayAudioView extends View {
 
     protected float mLastX = 0;
 
-    List<SampleLine> sampleLineList = new ArrayList<>();
+    protected List<PlaySampleLineMode> sampleLineList = new ArrayList<>();
 
     /**
      * 采样点位置x
      */
-    float lineLocationX = circleRadius;
+    protected float lineLocationX = circleRadius;
 
     /**
      * 画布移动距离
      */
-    float translateX = 0;
+    protected float translateX = 0;
     /**
      * 中心指针位置
      */
-    float centerLineX = circleRadius;
+    protected float centerLineX = circleRadius;
 
     /**
      * 结束点的位置 包含 间距
      */
-    float lastSampleXWithRectGap;
-    PlayAudioCallBack playAudioCallBack;
+    protected float lastSampleXWithRectGap;
 
-    boolean isTouching;
+    protected Paint linePaint = new Paint();
+    protected Paint centerTargetPaint = new Paint();
+    protected Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+    protected PlayAudioCallBack playAudioCallBack;
+
+    protected boolean isTouching;
+
+    private List<Float> audioSourceList;
+
 
     public BasePlayAudioView(Context context) {
         super(context);
         initAttrs(context, null);
         init(context);
+        initPaints(context);
     }
 
     public BasePlayAudioView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         initAttrs(context, attrs);
         init(context);
+        initPaints(context);
     }
 
     public BasePlayAudioView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initAttrs(context, attrs);
         init(context);
+        initPaints(context);
     }
 
     private void initAttrs(Context context, AttributeSet attrs) {
@@ -168,18 +186,32 @@ public abstract class BasePlayAudioView extends View {
         circleRadius = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_circleRadius, circleRadius);
         swipedColor = ContextCompat.getColor(context, android.R.color.holo_red_light);
         unSwipeColor = ContextCompat.getColor(context, android.R.color.darker_gray);
-        lineWidth = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_rectWidth, lineWidth);
+        lineWidth = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_lineWidth, lineWidth);
         rectGap = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_rectGap, rectGap);
+        canTouchScroll = typedArray.getBoolean(R.styleable.PlayAudio_p_canTouchScroll, false);
+        canGestureMoveCenterVerticalLine = typedArray.getBoolean(R.styleable.PlayAudio_p_canGestureMoveCenterVerticalLine, false);
 
         typedArray.recycle();
     }
 
-    long scrollDelayMillis;
+    private void initPaints(Context context) {
+        linePaint.setAntiAlias(true);
+        linePaint.setColor(unSwipeColor);
+        linePaint.setStrokeWidth(lineWidth);
+        linePaint.setStrokeCap(Paint.Cap.ROUND);
 
-    private void init(Context context) {
+        centerTargetPaint.setAntiAlias(true);
+        centerTargetPaint.setColor(Color.RED);
+        centerTargetPaint.setStrokeWidth(centerLineWidth);
 
-        scrollDelayMillis = 1000 * scrollDx / (audioSourceFrequency * (lineWidth + rectGap));
+        textPaint.setStyle(Paint.Style.FILL);
+        textPaint.setTextAlign(Paint.Align.CENTER);
+        textPaint.setColor(Color.BLACK);
+        textPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10, context.getResources().getDisplayMetrics()));
+    }
 
+
+    protected void init(Context context) {
         overScroller = new OverScroller(context);
         velocityTracker = VelocityTracker.obtain();
         maxVelocity = ViewConfiguration.get(context).getScaledMaximumFlingVelocity();
@@ -191,6 +223,49 @@ public abstract class BasePlayAudioView extends View {
         if (Build.VERSION.SDK_INT < Build.VERSION_CODES.JELLY_BEAN_MR2) {
             setLayerType(LAYER_TYPE_NONE, null);
         }
+    }
+
+    @Override
+    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
+        super.onSizeChanged(w, h, oldw, oldh);
+        addSampleLine(audioSourceList);
+    }
+
+    void setCanScrollX() {
+        maxScrollX = Math.round(lastSampleXWithRectGap - getWidth()) + 1;
+        maxScrollX = maxScrollX > 0 ? maxScrollX : 0;
+        minScrollX = 0;
+    }
+
+    private void addSampleLine(final List<Float> audioSourceList) {
+        sampleLineList.clear();
+        lineLocationX = circleRadius;
+        for (Float aFloat : audioSourceList) {
+            PlaySampleLineMode sampleLine = new PlaySampleLineMode();
+            sampleLine.startX = lineLocationX + lineWidth / 2;
+            sampleLine.stopX = sampleLine.startX;
+            sampleLine.startY = (getMeasuredHeight() - (getMeasuredHeight() - rectMarginTop) * aFloat) / 2 + circleMarginTop;
+            sampleLine.stopY = getMeasuredHeight() + circleMarginTop - sampleLine.startY;
+            lineLocationX = lineLocationX + lineWidth + rectGap;
+            sampleLineList.add(sampleLine);
+        }
+        lastSampleXWithRectGap = lineLocationX;
+        setCanScrollX();
+    }
+
+
+    /**
+     * 设置音频
+     *
+     * @param audioSourceList 0-1
+     */
+    public void setAudioSource(List<Float> audioSourceList) {
+        createAudioSample(audioSourceList);
+    }
+
+    private void createAudioSample(final List<Float> audioSourceList) {
+        this.audioSourceList = audioSourceList;
+        requestLayout();
     }
 
     @Override
@@ -275,97 +350,9 @@ public abstract class BasePlayAudioView extends View {
         super.scrollTo(x, y);
     }
 
-    long tempTime = 0;
-    boolean isPlaying;
-    boolean isAutoScroll;
+    protected boolean isPlaying;
+    protected boolean isAutoScroll;
 
-    ObjectAnimator animator;
-
-    private void startCenterLineAnimationFromStart() {
-        isAutoScroll = false;
-        final int animatorFromDX = getMeasuredWidth() / 2;
-        float dx = (animatorFromDX - centerLineX);
-        final long duration = (long) (1000 * dx / (audioSourceFrequency * (lineWidth + rectGap)));
-        animator = ObjectAnimator.ofFloat(this, "centerLineX", centerLineX, animatorFromDX);
-        animator.setInterpolator(new LinearInterpolator());
-        animator.setDuration(duration);
-        animator.start();
-        animator.addListener(new AnimatorListenerAdapter() {
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-                super.onAnimationCancel(animation);
-                animator.removeAllListeners();
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                if (isPlaying) {
-                    startTranslateCanvas();
-                }
-
-            }
-        });
-
-    }
-
-    private void startTranslateCanvas() {
-        isAutoScroll = true;
-        int dx = maxScrollX - getScrollX();
-        final long duration = (1000 * dx / (audioSourceFrequency * (lineWidth + rectGap)));
-        animator = ObjectAnimator.ofFloat(this, "translateX", getScrollX(), maxScrollX);
-        animator.setInterpolator(new LinearInterpolator());
-        animator.setDuration(duration);
-        animator.start();
-        animator.addListener(new AnimatorListenerAdapter() {
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-                super.onAnimationCancel(animation);
-                animator.removeAllListeners();
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                animator.removeAllListeners();
-                if (isPlaying) {
-                    startCenterLineAnimationFromEnd();
-                }
-            }
-        });
-    }
-
-    private void startCenterLineAnimationFromEnd() {
-        if (centerLineX >= lastSampleXWithRectGap - getMeasuredWidth()/2) {
-            return;
-        }
-        isAutoScroll = false;
-        final float animatorEndDX = lastSampleXWithRectGap - rectGap;
-        float dx = (animatorEndDX - centerLineX);
-        final long duration = (long) (1000 * dx / (audioSourceFrequency * (lineWidth + rectGap)));
-        animator = ObjectAnimator.ofFloat(this, "centerLineX", centerLineX, animatorEndDX);
-        animator.setInterpolator(new LinearInterpolator());
-        animator.setDuration(duration);
-        animator.start();
-        animator.addListener(new AnimatorListenerAdapter() {
-
-            @Override
-            public void onAnimationCancel(Animator animation) {
-                super.onAnimationCancel(animation);
-                stopPlay();
-                animator.removeAllListeners();
-            }
-
-            @Override
-            public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
-                stopPlay();
-                animator.removeAllListeners();
-            }
-        });
-    }
 
     public float getCenterLineX() {
         return centerLineX;
@@ -386,25 +373,22 @@ public abstract class BasePlayAudioView extends View {
         invalidate();
     }
 
-    public void startPlay(long timeInMillis) {
-        if (!isPlaying) {
-            isTouching = false;
-            tempTime = SystemClock.elapsedRealtime();
-            setPlayingTime(timeInMillis);
-            isPlaying = true;
-            int middle = getMeasuredWidth() / 2;
-            if (centerLineX < middle) {
-                startCenterLineAnimationFromStart();
-            } else if (centerLineX >= lastSampleXWithRectGap - middle) {
-                startCenterLineAnimationFromEnd();
-            } else {
-                startTranslateCanvas();
-            }
-            if (centerLineX >= lastSampleXWithRectGap - rectGap) {
-                stopPlay();
-            }
+    public long getCurrentPlayingTimeInMillis() {
+        long currentPlayingTimeInMillis;
+        if (centerLineX == circleRadius) {
+            currentPlayingTimeInMillis = 0;
+        } else {
+            currentPlayingTimeInMillis = (long) (centerLineX * 1000L / (audioSourceFrequency * (lineWidth + rectGap)));
         }
+        return currentPlayingTimeInMillis;
     }
+
+    /**
+     * 开始播放
+     *
+     * @param timeInMillis 开始时间
+     */
+    public abstract void startPlay(long timeInMillis);
 
     /**
      * 设置播放时间
@@ -432,14 +416,7 @@ public abstract class BasePlayAudioView extends View {
     /**
      * 暂停播放录音
      */
-    public void stopPlay() {
-        if (isPlaying) {
-            isTouching = false;
-            isPlaying = false;
-            isAutoScroll = false;
-            animator.cancel();
-        }
-    }
+    public abstract void stopPlay();
 
 
     public void setPlayAudioCallBack(PlayAudioCallBack playAudioCallBack) {

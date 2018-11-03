@@ -19,7 +19,6 @@ import java.io.FileOutputStream;
 import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
-import java.util.Arrays;
 import java.util.UUID;
 import java.util.concurrent.ExecutorService;
 import java.util.concurrent.LinkedBlockingQueue;
@@ -256,11 +255,7 @@ public class AudioRecordMp3 {
                         if (bytesEncoded > 0) {
                             dos.write(mp3buffer, 0, bytesEncoded);
                         }
-                    } else {
-                        Log.e(TAG, "run: lll readSize <= 0" );
                     }
-                    Log.e(TAG, "run: lll readSize = " + readSize );
-                    Log.e(TAG, "run: lll buffer = "+Arrays.toString(buffer));
                     publishRecordDecibel((float) getVolume(buffer, readSize));
                 }
                 int outputMp3buf = androidLame.flush(mp3buffer);
@@ -326,7 +321,6 @@ public class AudioRecordMp3 {
             handler.post(new Runnable() {
                 @Override
                 public void run() {
-                    Log.e(TAG, "publishRecordDecibel run: lll volume = "+ volume );
                     recordMp3Listener.onRecordDecibel(volume);
                 }
             });
@@ -340,9 +334,7 @@ public class AudioRecordMp3 {
         for (short aBuffer : buffer) {
             v += aBuffer * aBuffer;
         }
-        Log.e(TAG, "getVolume: lll v = " + v);
         float mean = v / readSize;
-        Log.e(TAG, "getVolume: lll mean = "+mean );
         return 10 * Math.log10(mean);
     }
 

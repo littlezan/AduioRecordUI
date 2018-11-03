@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="utf-8"?>
+<LinearLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent"
+    android:orientation="vertical">
+
+
+    <LinearLayout
+        android:layout_width="match_parent"
+        android:layout_height="wrap_content"
+        android:orientation="horizontal">
+
+        <Button
+            android:id="@+id/btnPlay"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="播放"
+            tools:ignore="ButtonStyle,HardcodedText" />
+
+        <Button
+            android:id="@+id/btnPause"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="暂停"
+            tools:ignore="ButtonStyle,HardcodedText" />
+
+    </LinearLayout>
+
+
+    <com.littlezan.recordui.playaudio.playviews.VerticalLineMoveByGesturePlayAudioView
+        android:id="@+id/verticalLineMoveByGesturePlayAudioView"
+        android:layout_width="match_parent"
+        android:layout_height="400dp"
+        app:p_audioSourceFrequency="5"
+        app:p_lineWidth="2dp"
+        app:p_rectGap="3dp"
+        app:p_rectMarginTop="1dp"
+        app:p_canTouchScroll="true"
+        app:p_canGestureMoveCenterVerticalLine="true"
+
+        />
+
+</LinearLayout>

@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
-import android.widget.Button;
 
 import com.example.administrator.aduiorecordui.R;
 import com.example.administrator.aduiorecordui.activity.BaseAudioRecordActivity;
@@ -88,41 +87,42 @@ public class SimpleRecordActivity extends BaseAudioRecordActivity {
     private void initView() {
         audioRecordView = findViewById(R.id.audio_record_view);
 
-        Button btnStartRecord = findViewById(R.id.btnStartRecord);
-        Button btnStopRecord = findViewById(R.id.btnStopRecord);
-        Button btnReset = findViewById(R.id.btnReset);
-        Button btnPlayRecord = findViewById(R.id.btnPlayRecord);
-        Button btnStopPlayRecord = findViewById(R.id.btnStopPlayRecord);
 
 
-        btnStartRecord.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnStartRecord).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 startRecord();
             }
         });
-        btnStopRecord.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnStopRecord).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 stopRecord();
             }
         });
-        btnReset.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnReset).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 onFinishRelease();
             }
         });
-        btnPlayRecord.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnPlayRecord).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 audioRecordView.startPlayRecord(0);
             }
         });
-        btnStopPlayRecord.setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnStopPlayRecord).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
                 audioRecordView.stopPlayRecord();
+            }
+        });
+        findViewById(R.id.btnPreview).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                SimpleRecordPreviewActivity.start(SimpleRecordActivity.this, audioRecordMp3.getFinalRecordFile().getAbsolutePath(), decibelList);
             }
         });
 

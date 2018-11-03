@@ -28,7 +28,7 @@ import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.FileDataSourceFactory;
 import com.littlezan.recordui.playaudio.PlayAudioCallBack;
-import com.littlezan.recordui.playaudio.PlayAudioView;
+import com.littlezan.recordui.playaudio.playviews.VerticalLineFixedInCenterPlayAudioView;
 
 import java.io.File;
 import java.util.ArrayList;
@@ -50,7 +50,7 @@ public class AudioRecordPreviewActivity extends AppCompatActivity {
     public static final String EXTRA_KEY_RECORD_TIME_IN_MILLIS = "extra_key_record_time_in_millis";
     private RelativeLayout rlContainer;
     private TextView tvPlay;
-    private PlayAudioView playView;
+    private VerticalLineFixedInCenterPlayAudioView playView;
     private TextView tvAuthPass;
     private TextView tvDuration;
 
@@ -130,6 +130,11 @@ public class AudioRecordPreviewActivity extends AppCompatActivity {
             @Override
             public void onPausePlay() {
                 stopPlay();
+            }
+
+            @Override
+            public void onResumePlay() {
+
             }
 
             @Override

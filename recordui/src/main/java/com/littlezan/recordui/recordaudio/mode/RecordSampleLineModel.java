@@ -1,4 +1,4 @@
-package com.littlezan.recordui.recordaudio;
+package com.littlezan.recordui.recordaudio.mode;
 
 /**
  * ClassName: SampleLineModel
@@ -8,7 +8,7 @@ package com.littlezan.recordui.recordaudio;
  * @version 1.0
  * @since 2017-12-12  17:22
  */
-public class SampleLineModel {
+public class RecordSampleLineModel {
 
     public  float startX;
     public float stopX;

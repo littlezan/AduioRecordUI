@@ -30,6 +30,11 @@ public interface PlayAudioCallBack {
     void onPausePlay();
 
     /**
+     * 继续播放
+     */
+    void onResumePlay();
+
+    /**
      * 动画播放结束
      */
     void onPlayingFinish();

@@ -21,6 +21,7 @@ import android.view.animation.LinearInterpolator;
 import android.widget.OverScroller;
 
 import com.littlezan.recordui.R;
+import com.littlezan.recordui.recordaudio.mode.RecordSampleLineModel;
 
 import java.util.ArrayList;
 import java.util.List;
@@ -238,7 +239,7 @@ public abstract class BaseAudioRecordView extends View {
      * 声波矩形 距离顶部垂直间距
      */
     protected int rectMarginTop = 50;
-    protected List<SampleLineModel> sampleLineList = new ArrayList<>();
+    protected List<RecordSampleLineModel> sampleLineList = new ArrayList<>();
     /**
      * 删除上一段的Index值
      */
@@ -621,7 +622,7 @@ public abstract class BaseAudioRecordView extends View {
             stopRecord();
             return;
         }
-        SampleLineModel sampleLineModel = new SampleLineModel();
+        RecordSampleLineModel sampleLineModel = new RecordSampleLineModel();
         int rectBottom = getMeasuredHeight() / 2;
         int lineTop = (int) (rectBottom - (rectBottom - ruleHorizontalLineHeight - rectMarginTop) * percent);
         sampleLineModel.startX = lineLocationX + lineWidth / 2;

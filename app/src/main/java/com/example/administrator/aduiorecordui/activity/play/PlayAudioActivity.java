@@ -12,7 +12,7 @@ import android.widget.EditText;
 import com.example.administrator.aduiorecordui.R;
 import com.google.android.exoplayer2.SimpleExoPlayer;
 import com.littlezan.recordui.playaudio.PlayAudioCallBack;
-import com.littlezan.recordui.playaudio.PlayAudioView;
+import com.littlezan.recordui.playaudio.playviews.VerticalLineFixedInCenterPlayAudioView;
 
 import java.util.ArrayList;
 import java.util.Random;
@@ -71,7 +71,7 @@ public class PlayAudioActivity extends AppCompatActivity {
 //    }
 
     private void initView() {
-        final PlayAudioView playAudioView = findViewById(R.id.play_audio_view);
+        final VerticalLineFixedInCenterPlayAudioView playAudioView = findViewById(R.id.play_audio_view);
         Button play = findViewById(R.id.play);
         Button stop = findViewById(R.id.stop);
         Button reset = findViewById(R.id.reset);
@@ -128,6 +128,11 @@ public class PlayAudioActivity extends AppCompatActivity {
 
             @Override
             public void onPausePlay() {
+
+            }
+
+            @Override
+            public void onResumePlay() {
 
             }
 

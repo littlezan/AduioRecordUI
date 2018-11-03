@@ -10,7 +10,7 @@ import android.util.AttributeSet;
 import android.view.animation.LinearInterpolator;
 
 import com.littlezan.recordui.recordaudio.BaseDrawAudioRecordView;
-import com.littlezan.recordui.recordaudio.SampleLineModel;
+import com.littlezan.recordui.recordaudio.mode.RecordSampleLineModel;
 
 import java.util.concurrent.TimeUnit;
 
@@ -114,7 +114,7 @@ public class VerticalLineFixedAudioRecordView extends BaseDrawAudioRecordView {
             setCanScrollX();
             if (sampleLineList.size() > 0 && !deleteIndexList.contains(sampleLineList.size())) {
                 deleteIndexList.add(sampleLineList.size());
-                SampleLineModel sampleLineModel = sampleLineList.get(sampleLineList.size() - 1);
+                RecordSampleLineModel sampleLineModel = sampleLineList.get(sampleLineList.size() - 1);
                 if (showStopFlag) {
                     sampleLineModel.stopFlag = true;
                 }

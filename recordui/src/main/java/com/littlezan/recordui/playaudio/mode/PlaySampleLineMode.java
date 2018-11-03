@@ -1,14 +1,14 @@
-package com.littlezan.recordui.playaudio;
+package com.littlezan.recordui.playaudio.mode;
 
 /**
- * ClassName: SampleLine
+ * ClassName: PlaySampleLineMode
  * Description:
  *
  * @author 彭赞
  * @version 1.0
  * @since 2017-12-14  14:26
  */
-public class SampleLine {
+public class PlaySampleLineMode {
 
     public float startX;
     public float startY;
