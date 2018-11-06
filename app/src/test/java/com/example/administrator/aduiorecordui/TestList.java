@@ -4,6 +4,7 @@ import org.junit.Test;
 
 import java.util.ArrayList;
 import java.util.Arrays;
+import java.util.List;
 
 /**
  * ClassName: TestList
@@ -27,5 +28,25 @@ public class TestList {
         }
         longArrayList.subList(longArrayList.indexOf(3L), longArrayList.size()).clear();
         System.out.println(Arrays.toString(longArrayList.toArray()));
+    }
+
+    @Test
+    public void test02() {
+        ArrayList<String> stringArrayList = new ArrayList<>();
+        String  index = "" ;
+        for (int i = 0; i < 10; i++) {
+            if (i == 5) {
+                index = "" + i;
+            }
+            stringArrayList.add("" + i);
+        }
+
+        List<String> result = stringArrayList.subList(0, stringArrayList.indexOf(index));
+
+        System.out.println("stringArrayList = "+ Arrays.toString(stringArrayList.toArray()));
+
+        System.out.println("result = "+ Arrays.toString(result.toArray()));
+
+
     }
 }

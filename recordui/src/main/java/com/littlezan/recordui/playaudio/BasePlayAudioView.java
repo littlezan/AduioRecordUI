@@ -9,7 +9,6 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -90,10 +89,7 @@ public abstract class BasePlayAudioView extends View {
      * 是否可以滑动View
      */
     protected boolean canTouchScroll = false;
-    /**
-     * 是否能用手势滑动垂直竖线
-     */
-    protected boolean canGestureMoveCenterVerticalLine = false;
+
 
     /**
      * 最小可滑动值
@@ -144,7 +140,7 @@ public abstract class BasePlayAudioView extends View {
     protected float lastSampleXWithRectGap;
 
     protected Paint linePaint = new Paint();
-    protected Paint centerTargetPaint = new Paint();
+    protected Paint centerLinePaint = new Paint();
     protected Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
     protected PlayAudioCallBack playAudioCallBack;
@@ -190,7 +186,6 @@ public abstract class BasePlayAudioView extends View {
         lineWidth = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_lineWidth, lineWidth);
         rectGap = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_rectGap, rectGap);
         canTouchScroll = typedArray.getBoolean(R.styleable.PlayAudio_p_canTouchScroll, false);
-        canGestureMoveCenterVerticalLine = typedArray.getBoolean(R.styleable.PlayAudio_p_canGestureMoveCenterVerticalLine, false);
 
         typedArray.recycle();
     }
@@ -201,9 +196,9 @@ public abstract class BasePlayAudioView extends View {
         linePaint.setStrokeWidth(lineWidth);
         linePaint.setStrokeCap(Paint.Cap.ROUND);
 
-        centerTargetPaint.setAntiAlias(true);
-        centerTargetPaint.setColor(Color.RED);
-        centerTargetPaint.setStrokeWidth(centerLineWidth);
+        centerLinePaint.setAntiAlias(true);
+        centerLinePaint.setColor(Color.RED);
+        centerLinePaint.setStrokeWidth(centerLineWidth);
 
         textPaint.setStyle(Paint.Style.FILL);
         textPaint.setTextAlign(Paint.Align.CENTER);
@@ -261,13 +256,9 @@ public abstract class BasePlayAudioView extends View {
      * @param audioSourceList 0-1
      */
     public void setAudioSource(List<Float> audioSourceList) {
-        createAudioSample(audioSourceList);
+        this.audioSourceList = audioSourceList;
     }
 
-    private void createAudioSample(final List<Float> audioSourceList) {
-        this.audioSourceList = audioSourceList;
-        requestLayout();
-    }
 
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -361,7 +352,6 @@ public abstract class BasePlayAudioView extends View {
 
     public void setCenterLineX(float centerLineX) {
         this.centerLineX = centerLineX;
-        Log.e(TAG, "setCenterLineX: lll centerLineX = " + centerLineX);
         invalidate();
     }
 
@@ -403,6 +393,7 @@ public abstract class BasePlayAudioView extends View {
             if (timeInMillis == 0) {
                 centerLineX = circleRadius;
             }
+            invalidate();
         }
     }
 
@@ -419,6 +410,8 @@ public abstract class BasePlayAudioView extends View {
     public void setAudioSourceFrequency(int audioSourceFrequency) {
         this.audioSourceFrequency = audioSourceFrequency;
     }
+
+
 
     public void reset() {
         stopPlay();

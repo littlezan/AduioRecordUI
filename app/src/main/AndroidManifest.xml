@@ -41,8 +41,10 @@
         <activity
             android:name=".activity.record.verticallinefixed.VerticalLineFixedAudioRecordActivity"
             android:screenOrientation="portrait" />
-        <activity android:name=".activity.record.simple.SimpleRecordActivity" />
+        <activity android:name=".activity.record.simple.SimpleRecordActivity"
+            android:launchMode="singleInstance"/>
         <activity android:name=".activity.record.simple.SimpleRecordPreviewActivity" />
+        <activity android:name=".activity.record.simple.SimpleRecordPreviewCropActivity" />
     </application>
 
 </manifest>

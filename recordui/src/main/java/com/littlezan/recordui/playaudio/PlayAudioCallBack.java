@@ -38,4 +38,12 @@ public interface PlayAudioCallBack {
      * 动画播放结束
      */
     void onPlayingFinish();
+
+    /**
+     * 裁剪
+     *
+     * @param cropIndex 裁剪点
+     * @param remainTimeInMillis 剩余时间
+     */
+    void onCrop(int cropIndex, long remainTimeInMillis);
 }

@@ -27,7 +27,7 @@
             tools:ignore="ButtonStyle,HardcodedText" />
 
         <Button
-            android:id="@+id/btnCut"
+            android:id="@+id/btnCrop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"
             android:text="裁剪"
@@ -37,14 +37,16 @@
     </LinearLayout>
 
 
-    <com.littlezan.recordui.playaudio.playviews.VerticalLineMoveByGesturePlayAudioView
-        android:id="@+id/verticalLineMoveByGesturePlayAudioView"
+    <com.littlezan.recordui.playaudio.playviews.VerticalLineMoveAndCropPlayAudioView
+        android:id="@+id/verticalLineMoveAndCropPlayAudioView"
         android:layout_width="match_parent"
         android:layout_height="400dp"
         app:p_audioSourceFrequency="5"
         app:p_canTouchScroll="true"
         app:p_lineWidth="2dp"
         app:p_rectGap="3dp"
-        app:p_rectMarginTop="1dp" />
+        app:p_rectMarginTop="1dp"
+
+        />
 
 </LinearLayout>

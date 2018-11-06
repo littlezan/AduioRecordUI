@@ -11,6 +11,7 @@ import android.view.View;
 import com.example.administrator.aduiorecordui.R;
 import com.example.administrator.aduiorecordui.activity.BaseAudioRecordActivity;
 import com.example.administrator.aduiorecordui.model.Decibel;
+import com.example.administrator.aduiorecordui.record2mp3.AudioRecordDataSource;
 import com.example.administrator.aduiorecordui.record2mp3.AudioRecordMp3;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
@@ -19,7 +20,6 @@ import com.littlezan.recordui.recordaudio.RecordCallBack;
 import com.littlezan.recordui.recordaudio.recordviews.SimpleAudioRecordView;
 
 import java.math.BigDecimal;
-import java.util.ArrayList;
 
 import io.reactivex.functions.Consumer;
 
@@ -42,8 +42,8 @@ public class SimpleRecordActivity extends BaseAudioRecordActivity {
 
     private AudioRecordMp3 audioRecordMp3;
     private float recordDecibel;
-    private ArrayList<Decibel> decibelList = new ArrayList<>();
-    private RecordCallBack recordCallBack;
+
+    private  RecordCallBack recordCallBack;
 
     public static void start(Context context) {
         context.startActivity(new Intent(context, SimpleRecordActivity.class));
@@ -79,6 +79,12 @@ public class SimpleRecordActivity extends BaseAudioRecordActivity {
             @Override
             public void onRecordDecibel(float decibel) {
                 recordDecibel = decibel;
+            }
+        });
+        AudioRecordDataSource.getInstance().setListener(new AudioRecordDataSource.Listener() {
+            @Override
+            public void onCrop(int cropIndex) {
+                audioRecordView.cropSampleLine(cropIndex);
             }
         });
     }
@@ -122,11 +128,13 @@ public class SimpleRecordActivity extends BaseAudioRecordActivity {
         findViewById(R.id.btnPreview).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SimpleRecordPreviewActivity.start(SimpleRecordActivity.this, audioRecordMp3.getFinalRecordFile().getAbsolutePath(), decibelList);
+                SimpleRecordPreviewActivity.start(SimpleRecordActivity.this, audioRecordMp3.getFinalRecordFile().getAbsolutePath());
             }
         });
 
     }
+
+
 
     private void initRecordViewCallback() {
         recordCallBack = new RecordCallBack() {
@@ -142,7 +150,7 @@ public class SimpleRecordActivity extends BaseAudioRecordActivity {
                     percent = (recordDecibel - MIN_RECORD_DECIBEL) / max;
                 }
                 BigDecimal bd = new BigDecimal(percent);
-                decibelList.add(new Decibel(bd.setScale(2, BigDecimal.ROUND_HALF_UP).floatValue()));
+                AudioRecordDataSource.getInstance().decibelList.add(new Decibel(bd.setScale(2, BigDecimal.ROUND_HALF_UP).floatValue()));
                 return (float) percent;
             }
 
@@ -240,18 +248,25 @@ public class SimpleRecordActivity extends BaseAudioRecordActivity {
     }
 
     @Override
+    protected void onNewIntent(Intent intent) {
+        super.onNewIntent(intent);
+
+    }
+
+    @Override
     protected void onDestroy() {
         super.onDestroy();
         if (simpleExoPlayer != null) {
             stopPlay();
             simpleExoPlayer.release();
         }
+        onFinishRelease();
     }
 
     public void onFinishRelease() {
         stopRecord();
         audioRecordView.reset();
-        decibelList.clear();
+        AudioRecordDataSource.getInstance().onRelease();
         audioRecordMp3.onRelease();
     }
 }

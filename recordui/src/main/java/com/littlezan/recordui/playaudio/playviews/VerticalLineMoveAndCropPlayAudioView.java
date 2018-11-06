@@ -7,6 +7,8 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
+import android.graphics.Color;
+import android.graphics.Paint;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.TypedValue;
@@ -14,6 +16,7 @@ import android.view.MotionEvent;
 import android.view.animation.LinearInterpolator;
 
 import com.littlezan.recordui.playaudio.BaseDrawPlayAudioView;
+import com.littlezan.recordui.playaudio.mode.PlaySampleLineMode;
 
 import java.text.SimpleDateFormat;
 import java.util.Date;
@@ -21,34 +24,39 @@ import java.util.Locale;
 
 /**
  * ClassName: VerticalLineMoveByGesturePlayAudioView
- * Description:
+ * Description:  在VerticalLineMoveByGesturePlayAudioView 的基础上支持裁剪
  *
  * @author 彭赞
  * @version 1.0
  * @since 2018-11-03  10:36
  */
-public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioView {
+public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView {
 
     private int verticalLineTouchHotSpot;
     private boolean isTouchViewMode = false;
 
 
-    public VerticalLineMoveByGesturePlayAudioView(Context context) {
+    Paint maskPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
+    float cropLineX = centerLineX;
+
+    public VerticalLineMoveAndCropPlayAudioView(Context context) {
         super(context);
     }
 
-    public VerticalLineMoveByGesturePlayAudioView(Context context, @Nullable AttributeSet attrs) {
+    public VerticalLineMoveAndCropPlayAudioView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
     }
 
-    public VerticalLineMoveByGesturePlayAudioView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
+    public VerticalLineMoveAndCropPlayAudioView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
     }
 
     {
         verticalLineTouchHotSpot = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, Resources.getSystem().getDisplayMetrics());
+        maskPaint.setStyle(Paint.Style.FILL);
+        maskPaint.setColor(Color.parseColor("#20FF0000"));
     }
-
 
 
     float touchActionX;
@@ -65,12 +73,14 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
                     playAudioCallBack.onPausePlay();
                 }
                 float resolveX = currentX + getScrollX();
-                isTouchViewMode = resolveX < centerLineX - verticalLineTouchHotSpot || resolveX > centerLineX + verticalLineTouchHotSpot;
+                isTouchViewMode = resolveX < cropLineX - verticalLineTouchHotSpot || resolveX > cropLineX + verticalLineTouchHotSpot;
                 if (isTouchViewMode) {
                     super.onTouchEvent(event);
                 } else {
                     touchActionX = currentX;
                 }
+                centerLineX = cropLineX;
+                invalidate();
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (isTouchViewMode) {
@@ -79,6 +89,10 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
                     float moveX = currentX - touchActionX;
                     touchActionX = currentX;
                     centerLineX += moveX;
+                    cropLineX += moveX;
+                    if (cropLineX >= lastSampleXWithRectGap) {
+                        cropLineX = lastSampleXWithRectGap;
+                    }
                     if (centerLineX >= lastSampleXWithRectGap) {
                         centerLineX = lastSampleXWithRectGap;
                     }
@@ -86,7 +100,7 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
                 }
                 break;
             case MotionEvent.ACTION_UP:
-                startPlay(getCurrentPlayingTimeInMillis());
+                startPlay(getCropTimeInMillis());
                 if (playAudioCallBack != null) {
                     playAudioCallBack.onResumePlay();
                 }
@@ -105,6 +119,34 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
         return true;
     }
 
+
+    @Override
+    protected void onDraw(Canvas canvas) {
+        super.onDraw(canvas);
+        drawCropLine(canvas);
+    }
+
+    private void drawCropLine(Canvas canvas) {
+
+        float startY = circleMarginTop;
+        canvas.drawCircle(cropLineX, startY, circleRadius, centerLinePaint);
+        canvas.drawLine(cropLineX, startY, cropLineX, getHeight(), centerLinePaint);
+        long currentPlayingTimeInMillis = getCropTimeInMillis();
+        canvas.drawText(formatTime(currentPlayingTimeInMillis), cropLineX, startY - textPaint.getFontSpacing() / 2, textPaint);
+        float right = lastSampleXWithRectGap > getWidth() ? getWidth() + getScrollX() : lastSampleXWithRectGap;
+        canvas.drawRect(cropLineX, startY, right, getHeight(), maskPaint);
+    }
+
+    private long getCropTimeInMillis() {
+        long currentPlayingTimeInMillis;
+        if (cropLineX == circleRadius) {
+            currentPlayingTimeInMillis = 0;
+        } else {
+            currentPlayingTimeInMillis = (long) (cropLineX * 1000L / (audioSourceFrequency * (lineWidth + rectGap)));
+        }
+        return currentPlayingTimeInMillis;
+    }
+
     /**
      * 用于在画布移动过程中固定垂直线
      */
@@ -117,17 +159,16 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
             //手指滑动
             int offset = currentScrollX - lastScrollX;
             centerLineX = centerLineX + offset;
+            cropLineX = cropLineX + offset;
             lastScrollX = currentScrollX;
         } else {
             //自动滚动
             lastScrollX = currentScrollX;
             centerLineX = isAutoScroll ? getScrollX() + getWidth() : centerLineX;
         }
-        float startY = circleMarginTop;
-        canvas.drawCircle(centerLineX, startY, circleRadius, centerLinePaint);
-        canvas.drawLine(centerLineX, startY, centerLineX, getMeasuredHeight(), centerLinePaint);
+
         long currentPlayingTimeInMillis = getCurrentPlayingTimeInMillis();
-        canvas.drawText(formatTime(currentPlayingTimeInMillis), centerLineX, startY - textPaint.getFontSpacing() / 2, textPaint);
+
 
         if (playAudioCallBack != null) {
             if (centerLineX >= lastSampleXWithRectGap - rectGap) {
@@ -152,7 +193,7 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
             isTouching = false;
             setPlayingTime(timeInMillis);
             isPlaying = true;
-            if (centerLineX < getWidth()+getScrollX()) {
+            if (centerLineX < getWidth() + getScrollX()) {
                 startCenterLineToEndAnimation();
             } else {
                 startTranslateView();
@@ -233,6 +274,25 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
         }
     }
 
+    public void crop() {
+        stopPlay();
+        if (playAudioCallBack != null) {
+            playAudioCallBack.onCrop(getCropIndex(), getCropTimeInMillis());
+        }
+    }
+
+    private int getCropIndex() {
+        int cropIndex = sampleLineList.size();
+        for (int i = sampleLineList.size() - 1; i >= 0; i--) {
+            PlaySampleLineMode playSampleLineMode = sampleLineList.get(i);
+            if (playSampleLineMode.startX > cropLineX) {
+                cropIndex = i;
+            } else {
+                break;
+            }
+        }
+        return cropIndex;
+    }
 
 
 }

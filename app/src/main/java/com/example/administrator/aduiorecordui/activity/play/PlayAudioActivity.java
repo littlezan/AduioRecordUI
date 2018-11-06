@@ -140,6 +140,11 @@ public class PlayAudioActivity extends AppCompatActivity {
             public void onPlayingFinish() {
 
             }
+
+            @Override
+            public void onCrop(int cropIndex, long remainTimeInMillis) {
+
+            }
         });
     }
 

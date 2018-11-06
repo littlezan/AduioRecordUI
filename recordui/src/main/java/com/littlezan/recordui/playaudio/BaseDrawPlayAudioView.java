@@ -21,7 +21,6 @@ import java.util.List;
 public abstract class BaseDrawPlayAudioView extends BasePlayAudioView {
 
 
-
     public BaseDrawPlayAudioView(Context context) {
         super(context);
     }
@@ -61,7 +60,7 @@ public abstract class BaseDrawPlayAudioView extends BasePlayAudioView {
         }
     }
 
-    private List<PlaySampleLineMode> getDrawAudioSample(Canvas canvas) {
+    protected List<PlaySampleLineMode> getDrawAudioSample(Canvas canvas) {
         if (sampleLineList.size() == 0) {
             return null;
         }
@@ -94,5 +93,6 @@ public abstract class BaseDrawPlayAudioView extends BasePlayAudioView {
      * @param canvas canvas
      */
     public abstract void drawVerticalTargetLine(Canvas canvas);
+
 
 }

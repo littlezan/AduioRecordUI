@@ -141,6 +141,11 @@ public class AudioRecordPreviewActivity extends AppCompatActivity {
             public void onPlayingFinish() {
                 stopPlay();
             }
+
+            @Override
+            public void onCrop(int cropIndex, long remainTimeInMillis) {
+
+            }
         });
 
         tvPlay.setOnClickListener(new View.OnClickListener() {

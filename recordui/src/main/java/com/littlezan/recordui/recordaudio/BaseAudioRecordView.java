@@ -633,6 +633,18 @@ public abstract class BaseAudioRecordView extends View {
         sampleLineList.add(sampleLineModel);
     }
 
+    public void cropSampleLine(int cropIndex) {
+        sampleLineList = sampleLineList.subList(0, cropIndex);
+        if (sampleLineList.size() > 0) {
+            lineLocationX = (int) sampleLineList.get(sampleLineList.size() - 1).startX;
+        } else {
+            lineLocationX = 0;
+        }
+        setCanScrollX();
+        scrollTo(maxScrollX, 0);
+        invalidate();
+    }
+
 
     /**
      * 获取采样点个数

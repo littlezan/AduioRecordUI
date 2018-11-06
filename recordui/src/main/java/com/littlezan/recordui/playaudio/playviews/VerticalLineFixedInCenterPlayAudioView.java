@@ -37,8 +37,8 @@ public class VerticalLineFixedInCenterPlayAudioView extends BaseDrawPlayAudioVie
     public void drawVerticalTargetLine(Canvas canvas) {
             centerLineX = isAutoScroll ? getScrollX() + canvas.getWidth() / 2 : centerLineX;
             float startY = circleMarginTop;
-            canvas.drawCircle(centerLineX, startY, circleRadius, centerTargetPaint);
-            canvas.drawLine(centerLineX, startY, centerLineX, getMeasuredHeight(), centerTargetPaint);
+            canvas.drawCircle(centerLineX, startY, circleRadius, centerLinePaint);
+            canvas.drawLine(centerLineX, startY, centerLineX, getMeasuredHeight(), centerLinePaint);
             if (playAudioCallBack != null) {
                 if (centerLineX >= lastSampleXWithRectGap - rectGap) {
                     playAudioCallBack.onPlayingFinish();

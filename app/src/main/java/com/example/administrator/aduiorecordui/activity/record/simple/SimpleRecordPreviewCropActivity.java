@@ -11,28 +11,28 @@ import com.example.administrator.aduiorecordui.R;
 import com.example.administrator.aduiorecordui.model.Decibel;
 import com.example.administrator.aduiorecordui.record2mp3.AudioRecordDataSource;
 import com.littlezan.recordui.playaudio.PlayAudioCallBack;
-import com.littlezan.recordui.playaudio.playviews.VerticalLineMoveByGesturePlayAudioView;
+import com.littlezan.recordui.playaudio.playviews.VerticalLineMoveAndCropPlayAudioView;
 
 import java.util.ArrayList;
 import java.util.List;
 
 /**
  * ClassName: SimpleRecordPreviewActivity
- * Description:
+ * Description: 裁剪
  *
  * @author 彭赞
  * @version 1.0
  * @since 2018-11-03  11:21
  */
-public class SimpleRecordPreviewActivity extends AppCompatActivity {
+public class SimpleRecordPreviewCropActivity extends AppCompatActivity {
 
     private static final String INTENT_KEY_RECORD_FILE_PATH = "intent_key_record_file_path";
     private static final String INTENT_KEY_DECIBEL_LIST = "intent_key_decibel_list";
-    private VerticalLineMoveByGesturePlayAudioView verticalLineMoveByGesturePlayAudioView;
+    private VerticalLineMoveAndCropPlayAudioView verticalLineMoveAndCropPlayAudioView;
     private String recordFilePath;
 
     public static void start(Context context, String recordFilePath) {
-        Intent intent = new Intent(context, SimpleRecordPreviewActivity.class);
+        Intent intent = new Intent(context, SimpleRecordPreviewCropActivity.class);
         intent.putExtra(INTENT_KEY_RECORD_FILE_PATH, recordFilePath);
         context.startActivity(intent);
     }
@@ -40,7 +40,7 @@ public class SimpleRecordPreviewActivity extends AppCompatActivity {
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        setContentView(R.layout.activity_simple_record_preview);
+        setContentView(R.layout.activity_simple_record_preview_crop);
         parseIntent();
         initView();
     }
@@ -50,8 +50,8 @@ public class SimpleRecordPreviewActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        verticalLineMoveByGesturePlayAudioView = findViewById(R.id.verticalLineMoveByGesturePlayAudioView);
-        verticalLineMoveByGesturePlayAudioView.setPlayAudioCallBack(new PlayAudioCallBack() {
+        verticalLineMoveAndCropPlayAudioView = findViewById(R.id.verticalLineMoveAndCropPlayAudioView);
+        verticalLineMoveAndCropPlayAudioView.setPlayAudioCallBack(new PlayAudioCallBack() {
             @Override
             public void onPlaying(long timeInMillis) {
 
@@ -79,27 +79,28 @@ public class SimpleRecordPreviewActivity extends AppCompatActivity {
 
             @Override
             public void onCrop(int cropIndex, long remainTimeInMillis) {
-
+                AudioRecordDataSource.getInstance().cropDecibelList(cropIndex);
+                SimpleRecordActivity.start(SimpleRecordPreviewCropActivity.this);
             }
         });
 
         findViewById(R.id.btnPlay).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                verticalLineMoveByGesturePlayAudioView.startPlay(0);
+                verticalLineMoveAndCropPlayAudioView.startPlay(0);
             }
         });
         findViewById(R.id.btnPause).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                verticalLineMoveByGesturePlayAudioView.stopPlay();
+                verticalLineMoveAndCropPlayAudioView.stopPlay();
             }
         });
 
-        findViewById(R.id.btnCut).setOnClickListener(new View.OnClickListener() {
+        findViewById(R.id.btnCrop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SimpleRecordPreviewCropActivity.start(SimpleRecordPreviewActivity.this, recordFilePath);
+                verticalLineMoveAndCropPlayAudioView.crop();
             }
         });
 
@@ -113,6 +114,6 @@ public class SimpleRecordPreviewActivity extends AppCompatActivity {
         for (Decibel decibel : AudioRecordDataSource.getInstance().decibelList) {
             audioSourceList.add(decibel.percent);
         }
-        verticalLineMoveByGesturePlayAudioView.setAudioSource(audioSourceList);
+        verticalLineMoveAndCropPlayAudioView.setAudioSource(audioSourceList);
     }
 }
