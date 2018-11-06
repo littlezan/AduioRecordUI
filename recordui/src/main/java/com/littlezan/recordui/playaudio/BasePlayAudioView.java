@@ -9,6 +9,7 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -232,8 +233,8 @@ public abstract class BasePlayAudioView extends View {
     }
 
     void setCanScrollX() {
-        maxScrollX = Math.round(lastSampleXWithRectGap - getWidth()) + 1;
-        maxScrollX = maxScrollX > 0 ? maxScrollX : 0;
+       float length =  lastSampleXWithRectGap - getWidth();
+        maxScrollX = length <0 ?0 : Math.round(length);
         minScrollX = 0;
     }
 
@@ -277,7 +278,7 @@ public abstract class BasePlayAudioView extends View {
         float currentX = event.getX();
         //开始速度检测
         startVelocityTracker(event);
-        switch (event.getAction()) {
+        switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 if (!overScroller.isFinished()) {
                     overScroller.abortAnimation();
@@ -360,6 +361,7 @@ public abstract class BasePlayAudioView extends View {
 
     public void setCenterLineX(float centerLineX) {
         this.centerLineX = centerLineX;
+        Log.e(TAG, "setCenterLineX: lll centerLineX = " + centerLineX);
         invalidate();
     }
 
@@ -400,15 +402,6 @@ public abstract class BasePlayAudioView extends View {
             centerLineX = timeInMillis * audioSourceFrequency * (lineWidth + rectGap) / 1000;
             if (timeInMillis == 0) {
                 centerLineX = circleRadius;
-            }
-            int middle = getMeasuredWidth() / 2;
-            if (centerLineX <= middle) {
-                scrollTo(minScrollX, 0);
-                invalidate();
-            } else {
-                int x = (int) (centerLineX - middle);
-                scrollTo(x, 0);
-                invalidate();
             }
         }
     }

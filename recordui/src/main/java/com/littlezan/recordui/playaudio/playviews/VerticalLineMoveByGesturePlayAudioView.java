@@ -60,17 +60,14 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
     public boolean onTouchEvent(MotionEvent event) {
 
         float currentX = event.getX();
-        switch (event.getAction()) {
+        switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 stopPlay();
                 if (playAudioCallBack != null) {
                     playAudioCallBack.onPausePlay();
                 }
-                if (currentX < centerLineX - verticalLineTouchHotSpot || currentX > centerLineX + verticalLineTouchHotSpot) {
-                    isTouchViewMode = true;
-                } else {
-                    isTouchViewMode = false;
-                }
+                float resolveX = currentX + getScrollX();
+                isTouchViewMode = resolveX < centerLineX - verticalLineTouchHotSpot || resolveX > centerLineX + verticalLineTouchHotSpot;
                 if (isTouchViewMode) {
                     super.onTouchEvent(event);
                 } else {
@@ -118,10 +115,12 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
     public void drawVerticalTargetLine(Canvas canvas) {
         int currentScrollX = getScrollX();
         if (isTouching && isTouchViewMode) {
+            //手指滑动
             int offset = currentScrollX - lastScrollX;
             centerLineX = centerLineX + offset;
             lastScrollX = currentScrollX;
         } else {
+            //自动滚动
             lastScrollX = currentScrollX;
             centerLineX = isAutoScroll ? getScrollX() + getWidth() : centerLineX;
         }
@@ -153,8 +152,8 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
             isTouching = false;
             setPlayingTime(timeInMillis);
             isPlaying = true;
-            if (centerLineX < getWidth()) {
-                startCenterLineAnimationFromStart();
+            if (centerLineX < getWidth()+getScrollX()) {
+                startCenterLineToEndAnimation();
             } else {
                 startTranslateView();
             }
@@ -166,9 +165,9 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
 
     ObjectAnimator animator;
 
-    private void startCenterLineAnimationFromStart() {
+    private void startCenterLineToEndAnimation() {
         isAutoScroll = false;
-        final int animatorFromDX = getWidth();
+        final int animatorFromDX = getWidth()+getScrollX();
         float dx = (animatorFromDX - centerLineX);
         final long duration = (long) (1000 * dx / (audioSourceFrequency * (lineWidth + rectGap)));
         animator = ObjectAnimator.ofFloat(this, "centerLineX", centerLineX, animatorFromDX);
@@ -217,6 +216,7 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
             }
         });
     }
+
 
     @Override
     public void stopPlay() {

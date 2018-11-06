@@ -449,7 +449,7 @@ public abstract class BaseAudioRecordView extends View {
         float currentX = event.getX();
         //开始速度检测
         startVelocityTracker(event);
-        switch (event.getAction()) {
+        switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 if (!overScroller.isFinished()) {
                     overScroller.abortAnimation();
