@@ -11,6 +11,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.animation.LinearInterpolator;
@@ -32,13 +33,19 @@ import java.util.Locale;
  */
 public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView {
 
+    private static final String TAG = "VerticalLineMoveAndCrop";
+
     private int verticalLineTouchHotSpot;
     private boolean isTouchViewMode = false;
 
 
     Paint maskPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
 
-    float cropLineX = centerLineX;
+    float cropLineX = circleRadius;
+
+    int jumpCropLine = 0;
+
+
 
     public VerticalLineMoveAndCropPlayAudioView(Context context) {
         super(context);
@@ -69,11 +76,13 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 stopPlay();
+//                scrollTo(jumpCropLine, 0);
                 if (playAudioCallBack != null) {
                     playAudioCallBack.onPausePlay();
                 }
                 float resolveX = currentX + getScrollX();
                 isTouchViewMode = resolveX < cropLineX - verticalLineTouchHotSpot || resolveX > cropLineX + verticalLineTouchHotSpot;
+                Log.e(TAG, "onTouchEvent: lll isTouchViewMode = "+ isTouchViewMode );
                 if (isTouchViewMode) {
                     super.onTouchEvent(event);
                 } else {
@@ -90,6 +99,7 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
                     touchActionX = currentX;
                     centerLineX += moveX;
                     cropLineX += moveX;
+                    Log.e(TAG, "onTouchEvent: lll cropLineX = "+ cropLineX );
                     if (cropLineX >= lastSampleXWithRectGap) {
                         cropLineX = lastSampleXWithRectGap;
                     }
@@ -100,10 +110,10 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
                 }
                 break;
             case MotionEvent.ACTION_UP:
-                startPlay(getCropTimeInMillis());
-                if (playAudioCallBack != null) {
-                    playAudioCallBack.onResumePlay();
-                }
+//                startPlay(getCropTimeInMillis());
+//                if (playAudioCallBack != null) {
+//                    playAudioCallBack.onResumePlay();
+//                }
                 if (isTouchViewMode) {
                     super.onTouchEvent(event);
                 }
@@ -128,29 +138,25 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
 
     private void drawCropLine(Canvas canvas) {
 
+        Log.e(TAG, "drawCropLine: lll cropLineX = " +cropLineX );
         float startY = circleMarginTop;
         canvas.drawCircle(cropLineX, startY, circleRadius, centerLinePaint);
         canvas.drawLine(cropLineX, startY, cropLineX, getHeight(), centerLinePaint);
-        long currentPlayingTimeInMillis = getCropTimeInMillis();
-        canvas.drawText(formatTime(currentPlayingTimeInMillis), cropLineX, startY - textPaint.getFontSpacing() / 2, textPaint);
+        long cropTimeInMillis = getCropTimeInMillis();
+        canvas.drawText(formatTime(cropTimeInMillis), cropLineX, startY - textPaint.getFontSpacing() / 2, textPaint);
         float right = lastSampleXWithRectGap > getWidth() ? getWidth() + getScrollX() : lastSampleXWithRectGap;
-        canvas.drawRect(cropLineX, startY, right, getHeight(), maskPaint);
+        canvas.drawRect(cropLineX, startY+circleRadius, right, getHeight(), maskPaint);
     }
 
     private long getCropTimeInMillis() {
-        long currentPlayingTimeInMillis;
-        if (cropLineX == circleRadius) {
-            currentPlayingTimeInMillis = 0;
-        } else {
-            currentPlayingTimeInMillis = (long) (cropLineX * 1000L / (audioSourceFrequency * (lineWidth + rectGap)));
-        }
-        return currentPlayingTimeInMillis;
+        return getTimeInMillis(cropLineX);
     }
 
     /**
      * 用于在画布移动过程中固定垂直线
      */
     int lastScrollX = 0;
+
 
     @Override
     public void drawVerticalTargetLine(Canvas canvas) {
@@ -159,25 +165,30 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
             //手指滑动
             int offset = currentScrollX - lastScrollX;
             centerLineX = centerLineX + offset;
-            cropLineX = cropLineX + offset;
+            if (cropLineInVisible()) {
+                cropLineX = cropLineX + offset;
+                Log.e(TAG, "drawVerticalTargetLine: lll cropLineX = "+cropLineX );
+            }
             lastScrollX = currentScrollX;
+
         } else {
             //自动滚动
             lastScrollX = currentScrollX;
             centerLineX = isAutoScroll ? getScrollX() + getWidth() : centerLineX;
         }
 
-        long currentPlayingTimeInMillis = getCurrentPlayingTimeInMillis();
-
-
         if (playAudioCallBack != null) {
             if (centerLineX >= lastSampleXWithRectGap - rectGap) {
                 playAudioCallBack.onPlayingFinish();
             } else {
-                playAudioCallBack.onPlaying(currentPlayingTimeInMillis);
+                playAudioCallBack.onPlaying(getCurrentPlayingTimeInMillis());
             }
         }
 
+    }
+
+    private boolean cropLineInVisible() {
+        return cropLineX <= getWidth() + getScrollX() && cropLineX >=getScrollX();
     }
 
     private String formatTime(long timeMillis) {
@@ -238,6 +249,7 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         if (lastSampleXWithRectGap <= getWidth()) {
             return;
         }
+        jumpCropLine = getScrollX();
         isAutoScroll = true;
         int dx = maxScrollX - getScrollX();
         final long duration = (1000 * dx / (audioSourceFrequency * (lineWidth + rectGap)));

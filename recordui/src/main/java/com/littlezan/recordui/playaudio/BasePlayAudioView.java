@@ -282,6 +282,7 @@ public abstract class BasePlayAudioView extends View {
                 scrollBy((int) (moveX), 0);
                 break;
             case MotionEvent.ACTION_UP:
+                isTouching = false;
                 //手指离开屏幕，开始处理惯性滑动Fling
                 velocityTracker.computeCurrentVelocity(500, maxVelocity);
                 float velocityX = velocityTracker.getXVelocity();
@@ -289,8 +290,10 @@ public abstract class BasePlayAudioView extends View {
                     fling(-velocityX);
                 }
                 finishVelocityTracker();
+
                 break;
             case MotionEvent.ACTION_CANCEL:
+                isTouching = false;
                 if (!overScroller.isFinished()) {
                     overScroller.abortAnimation();
                 }
@@ -366,13 +369,17 @@ public abstract class BasePlayAudioView extends View {
     }
 
     public long getCurrentPlayingTimeInMillis() {
-        long currentPlayingTimeInMillis;
-        if (centerLineX == circleRadius) {
-            currentPlayingTimeInMillis = 0;
+        return getTimeInMillis(centerLineX);
+    }
+
+    public long getTimeInMillis(float x) {
+        long timeInMillis;
+        if (x <= circleRadius) {
+            timeInMillis = 0;
         } else {
-            currentPlayingTimeInMillis = (long) (centerLineX * 1000L / (audioSourceFrequency * (lineWidth + rectGap)));
+            timeInMillis = (long) (x * 1000L / (audioSourceFrequency * (lineWidth + rectGap)));
         }
-        return currentPlayingTimeInMillis;
+        return timeInMillis;
     }
 
     /**

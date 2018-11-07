@@ -462,6 +462,7 @@ public abstract class BaseAudioRecordView extends View {
                 scrollBy((int) (moveX), 0);
                 break;
             case MotionEvent.ACTION_UP:
+                isTouching = false;
                 //手指离开屏幕，开始处理惯性滑动Fling
                 velocityTracker.computeCurrentVelocity(500, maxVelocity);
                 float velocityX = velocityTracker.getXVelocity();
@@ -471,6 +472,7 @@ public abstract class BaseAudioRecordView extends View {
                 finishVelocityTracker();
                 break;
             case MotionEvent.ACTION_CANCEL:
+                isTouching = false;
                 if (!overScroller.isFinished()) {
                     overScroller.abortAnimation();
                 }
