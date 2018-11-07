@@ -10,7 +10,6 @@ import android.graphics.Paint;
 import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.text.TextPaint;
 import android.util.AttributeSet;
 import android.view.MotionEvent;
@@ -335,31 +334,31 @@ public abstract class BaseAudioRecordView extends View {
         bigScaleStrokeWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecordView_bigScaleStrokeWidth, bigScaleStrokeWidth);
 
 
-        ruleVerticalLineColor = typedArray.getColor(R.styleable.AudioRecordView_ruleVerticalLineColor, ContextCompat.getColor(getContext(), android.R.color.darker_gray));
+        ruleVerticalLineColor = typedArray.getColor(R.styleable.AudioRecordView_ruleVerticalLineColor, Color.DKGRAY);
 
-        ruleHorizontalLineColor = typedArray.getColor(R.styleable.AudioRecordView_ruleHorizontalLineColor, ContextCompat.getColor(getContext(), android.R.color.holo_red_light));
+        ruleHorizontalLineColor = typedArray.getColor(R.styleable.AudioRecordView_ruleHorizontalLineColor, Color.RED);
         ruleHorizontalLineStrokeWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecordView_ruleHorizontalLineStrokeWidth, ruleHorizontalLineStrokeWidth);
         ruleHorizontalLineHeight = typedArray.getDimensionPixelSize(R.styleable.AudioRecordView_ruleHorizontalLineHeight, ruleHorizontalLineHeight);
 
-        ruleTextColor = typedArray.getColor(R.styleable.AudioRecordView_ruleTextColor, ContextCompat.getColor(getContext(), android.R.color.darker_gray));
+        ruleTextColor = typedArray.getColor(R.styleable.AudioRecordView_ruleTextColor, Color.DKGRAY);
         ruleTextSize = typedArray.getDimensionPixelSize(R.styleable.AudioRecordView_ruleTextSize, ruleTextSize);
 
-        middleHorizontalLineColor = typedArray.getColor(R.styleable.AudioRecordView_middleHorizontalLineColor, ContextCompat.getColor(getContext(), android.R.color.holo_red_light));
+        middleHorizontalLineColor = typedArray.getColor(R.styleable.AudioRecordView_middleHorizontalLineColor, Color.RED);
         middleHorizontalLineStrokeWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecordView_middleHorizontalLineStrokeWidth, middleHorizontalLineStrokeWidth);
-        middleVerticalLineColor = typedArray.getColor(R.styleable.AudioRecordView_middleVerticalLineColor, ContextCompat.getColor(getContext(), android.R.color.holo_red_light));
+        middleVerticalLineColor = typedArray.getColor(R.styleable.AudioRecordView_middleVerticalLineColor, Color.RED);
         middleVerticalLineStrokeWidth = typedArray.getDimensionPixelSize(R.styleable.AudioRecordView_middleVerticalLineStrokeWidth, middleVerticalLineStrokeWidth);
         middleCircleRadius = typedArray.getDimensionPixelSize(R.styleable.AudioRecordView_middleCircleRadius, middleCircleRadius);
 
 
-        rectColor = typedArray.getColor(R.styleable.AudioRecordView_rectColor, ContextCompat.getColor(getContext(), android.R.color.holo_red_light));
-        rectInvertColor = typedArray.getColor(R.styleable.AudioRecordView_rectInvertColor, ContextCompat.getColor(getContext(), android.R.color.darker_gray));
+        rectColor = typedArray.getColor(R.styleable.AudioRecordView_rectColor, Color.RED);
+        rectInvertColor = typedArray.getColor(R.styleable.AudioRecordView_rectInvertColor, Color.DKGRAY);
         rectGap = typedArray.getDimensionPixelSize(R.styleable.AudioRecordView_rectGap, rectGap);
         rectMarginTop = typedArray.getDimensionPixelSize(R.styleable.AudioRecordView_rectMarginTop, rectMarginTop);
 
-        bottomTextColor = typedArray.getColor(R.styleable.AudioRecordView_bottomTextColor, ContextCompat.getColor(getContext(), android.R.color.white));
+        bottomTextColor = typedArray.getColor(R.styleable.AudioRecordView_bottomTextColor, Color.WHITE);
         bottomTextSize = typedArray.getDimensionPixelSize(R.styleable.AudioRecordView_bottomTextSize, bottomTextSize);
 
-        bottomRectColor = typedArray.getColor(R.styleable.AudioRecordView_bottomRectColor, ContextCompat.getColor(getContext(), android.R.color.holo_orange_light));
+        bottomRectColor = typedArray.getColor(R.styleable.AudioRecordView_bottomRectColor, Color.YELLOW);
         showStopFlag = typedArray.getBoolean(R.styleable.AudioRecordView_showStopFlag, showStopFlag);
         canTouch = typedArray.getBoolean(R.styleable.AudioRecordView_canTouch, true);
         showVerticalLine = typedArray.getBoolean(R.styleable.AudioRecordView_showVerticalLine, true);

@@ -7,7 +7,6 @@ import android.graphics.Paint;
 import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
-import android.support.v4.content.ContextCompat;
 import android.util.AttributeSet;
 import android.util.TypedValue;
 import android.view.MotionEvent;
@@ -181,8 +180,8 @@ public abstract class BasePlayAudioView extends View {
         rectMarginTop = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_rectMarginTop, rectMarginTop);
         centerLineWidth = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_centerLineWidth, centerLineWidth);
         circleRadius = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_circleRadius, circleRadius);
-        swipedColor = ContextCompat.getColor(context, android.R.color.holo_red_light);
-        unSwipeColor = ContextCompat.getColor(context, android.R.color.darker_gray);
+        swipedColor = Color.RED;
+        unSwipeColor = Color.DKGRAY;
         lineWidth = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_lineWidth, lineWidth);
         rectGap = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_rectGap, rectGap);
         canTouchScroll = typedArray.getBoolean(R.styleable.PlayAudio_p_canTouchScroll, false);
