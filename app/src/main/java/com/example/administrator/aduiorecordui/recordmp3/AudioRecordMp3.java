@@ -1,4 +1,4 @@
-package com.example.administrator.aduiorecordui.record2mp3;
+package com.example.administrator.aduiorecordui.recordmp3;
 
 import android.media.AudioFormat;
 import android.media.AudioRecord;
@@ -20,10 +20,6 @@ import java.io.IOException;
 import java.io.RandomAccessFile;
 import java.util.ArrayList;
 import java.util.UUID;
-import java.util.concurrent.ExecutorService;
-import java.util.concurrent.LinkedBlockingQueue;
-import java.util.concurrent.ThreadPoolExecutor;
-import java.util.concurrent.TimeUnit;
 
 /**
  * ClassName: AudioRecordManager
@@ -59,7 +55,6 @@ public class AudioRecordMp3 {
     private AudioRecord audioRecord;
     private AndroidLame androidLame;
 
-    private ExecutorService executorService;
     private int minBufferSize;
 
     public AudioRecordMp3(File audioFile, RecordMp3Listener recordMp3Listener) {
@@ -88,13 +83,8 @@ public class AudioRecordMp3 {
             return;
         }
         isRecording = true;
-        if (executorService != null && !executorService.isShutdown()) {
-            executorService.shutdown();
-        }
         initAudioRecord();
-        executorService = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new ThreadPoolExecutor.AbortPolicy());
-        executorService.execute(new RecordThread());
-
+        ExecutorManager.getInstance().getExecutorService().execute(new RecordThread());
     }
 
     private void initAudioRecord() {
@@ -102,9 +92,8 @@ public class AudioRecordMp3 {
             audioRecord = new AudioRecord(MediaRecorder.AudioSource.MIC, SAMPLE_RATE_IN_HZ, CHANNEL_CONFIG, AudioFormat.ENCODING_PCM_16BIT, minBufferSize * 2);
             androidLame = new LameBuilder()
                     .setInSampleRate(SAMPLE_RATE_IN_HZ)
-                    .setOutChannels(CHANNEL_CONFIG)
+                    .setOutChannels(1)
                     .setOutBitrate(64)
-                    .setOutSampleRate(SAMPLE_RATE_IN_HZ)
                     .build();
         }
     }
@@ -116,8 +105,7 @@ public class AudioRecordMp3 {
 
     public void deleteLastRecord() {
 
-        executorService = new ThreadPoolExecutor(1, 1, 0, TimeUnit.MILLISECONDS, new LinkedBlockingQueue<Runnable>(), new ThreadPoolExecutor.AbortPolicy());
-        executorService.execute(new Runnable() {
+        ExecutorManager.getInstance().getExecutorService().execute(new Runnable() {
             @Override
             public void run() {
                 try {
@@ -209,10 +197,6 @@ public class AudioRecordMp3 {
     public void onRelease() {
         isRecording = false;
         handler.removeCallbacksAndMessages(null);
-        if (executorService != null && !executorService.isShutdown()) {
-            executorService.shutdown();
-            executorService = null;
-        }
         if (audioRecord != null) {
             audioRecord.release();
             audioRecord = null;
@@ -291,6 +275,7 @@ public class AudioRecordMp3 {
     public File getFinalRecordFile() {
         initRecordFile();
         Log.e(TAG, "getFinalRecordFile: lll getFinalRecordFile = " + currentRecordFile.getAbsolutePath());
+        AudioRecordDataSource.getInstance().setFinalRecordFile(currentRecordFile);
         return currentRecordFile;
     }
 

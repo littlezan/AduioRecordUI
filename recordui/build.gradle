@@ -1,4 +1,5 @@
 apply plugin: 'com.android.library'
+apply plugin: 'com.novoda.bintray-release'
 
 android {
     compileSdkVersion 27
@@ -22,6 +23,9 @@ android {
         }
     }
 
+    lintOptions {
+        abortOnError false
+    }
 }
 
 dependencies {
@@ -31,3 +35,28 @@ dependencies {
     androidTestImplementation 'com.android.support.test.espresso:espresso-core:3.0.2'
     implementation 'com.android.support:support-annotations:28.0.0'
 }
+
+allprojects {
+    repositories {
+        jcenter()
+    }
+    //加上这些
+    tasks.withType(Javadoc) {
+        options{ encoding "UTF-8"
+            charSet 'UTF-8'
+            links "http://docs.oracle.com/javase/7/docs/api"
+        }
+    }
+}
+
+
+publish {
+    repoName="Android-Lib"//仓库名
+    userOrg = 'littlezan'      //bintray注册的用户名
+    groupId = 'com.littlezan'         //compile引用时的第1部分groupId，一般为包名
+    artifactId = 'AudioRecordUI'     //compile引用时的第2部分项目名，这个需要与我们之前创建的package的Name一样，要不会上传失败
+    publishVersion = '0.0.1'    //compile引用时的第3部分版本号
+    desc = 'This is a library '  //描述  随便写
+    website = 'https://github.com/littlezan/AduioRecordUI'   //项目的网页，可以写源码的GitHub地址
+}
+

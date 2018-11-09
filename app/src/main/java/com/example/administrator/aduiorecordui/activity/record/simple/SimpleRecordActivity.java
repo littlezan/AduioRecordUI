@@ -1,21 +1,17 @@
 package com.example.administrator.aduiorecordui.activity.record.simple;
 
+import android.Manifest;
 import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
-import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.view.View;
 
 import com.example.administrator.aduiorecordui.R;
 import com.example.administrator.aduiorecordui.activity.BaseAudioRecordActivity;
-import com.example.administrator.aduiorecordui.model.Decibel;
-import com.example.administrator.aduiorecordui.record2mp3.AudioRecordDataSource;
-import com.example.administrator.aduiorecordui.record2mp3.AudioRecordMp3;
-import com.google.android.exoplayer2.source.ExtractorMediaSource;
-import com.google.android.exoplayer2.source.MediaSource;
-import com.google.android.exoplayer2.upstream.FileDataSourceFactory;
+import com.example.administrator.aduiorecordui.recordmp3.AudioRecordDataSource;
+import com.example.administrator.aduiorecordui.recordmp3.AudioRecordMp3;
 import com.littlezan.recordui.recordaudio.RecordCallBack;
 import com.littlezan.recordui.recordaudio.recordviews.SimpleAudioRecordView;
 
@@ -60,7 +56,7 @@ public class SimpleRecordActivity extends BaseAudioRecordActivity {
     }
 
     private void initAudioRecorder() {
-        audioRecordMp3 = new AudioRecordMp3(recordFile, new AudioRecordMp3.RecordMp3Listener() {
+        audioRecordMp3 = new AudioRecordMp3(AudioRecordDataSource.getInstance().getRecordFile(), new AudioRecordMp3.RecordMp3Listener() {
             @Override
             public void onStartRecord() {
                 audioRecordView.startRecord();
@@ -113,22 +109,10 @@ public class SimpleRecordActivity extends BaseAudioRecordActivity {
                 onFinishRelease();
             }
         });
-        findViewById(R.id.btnPlayRecord).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                audioRecordView.startPlayRecord(0);
-            }
-        });
-        findViewById(R.id.btnStopPlayRecord).setOnClickListener(new View.OnClickListener() {
-            @Override
-            public void onClick(View v) {
-                audioRecordView.stopPlayRecord();
-            }
-        });
         findViewById(R.id.btnPreview).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                SimpleRecordPreviewActivity.start(SimpleRecordActivity.this, audioRecordMp3.getFinalRecordFile().getAbsolutePath());
+                SimpleRecordPreviewActivity.start(SimpleRecordActivity.this);
             }
         });
 
@@ -150,7 +134,7 @@ public class SimpleRecordActivity extends BaseAudioRecordActivity {
                     percent = (recordDecibel - MIN_RECORD_DECIBEL) / max;
                 }
                 BigDecimal bd = new BigDecimal(percent);
-                AudioRecordDataSource.getInstance().decibelList.add(new Decibel(bd.setScale(2, BigDecimal.ROUND_HALF_UP).floatValue()));
+                AudioRecordDataSource.getInstance().decibelList.add(bd.setScale(2, BigDecimal.ROUND_HALF_UP).floatValue());
                 return (float) percent;
             }
 
@@ -186,12 +170,10 @@ public class SimpleRecordActivity extends BaseAudioRecordActivity {
 
             @Override
             public void onStartPlayRecord(long timeMillis) {
-                play(timeMillis);
             }
 
             @Override
             public void onStopPlayRecode() {
-                stopPlay();
             }
 
             @Override
@@ -207,7 +189,7 @@ public class SimpleRecordActivity extends BaseAudioRecordActivity {
     private void startRecord() {
         if (!isPermissionsGranted) {
             permissions
-                    .request(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.RECORD_AUDIO)
+                    .request(android.Manifest.permission.WRITE_EXTERNAL_STORAGE, android.Manifest.permission.RECORD_AUDIO, Manifest.permission.READ_EXTERNAL_STORAGE)
                     .subscribe(new Consumer<Boolean>() {
                         @Override
                         public void accept(Boolean aBoolean) {
@@ -224,21 +206,7 @@ public class SimpleRecordActivity extends BaseAudioRecordActivity {
         audioRecordMp3.stopRecord();
     }
 
-    private void play(long timeMillis) {
-        if (timeMillis < 0) {
-            timeMillis = 0;
-        }
-        // MediaSource代表要播放的媒体。
-        MediaSource mediaSource = new ExtractorMediaSource.Factory(new FileDataSourceFactory()).createMediaSource(Uri.fromFile(recordFile));
-        //Prepare the player with the source.
-        simpleExoPlayer.prepare(mediaSource);
-        simpleExoPlayer.seekTo(timeMillis);
-        simpleExoPlayer.setPlayWhenReady(true);
-    }
 
-    private void stopPlay() {
-        simpleExoPlayer.stop();
-    }
 
     @Override
     protected void onPause() {
@@ -256,10 +224,6 @@ public class SimpleRecordActivity extends BaseAudioRecordActivity {
     @Override
     protected void onDestroy() {
         super.onDestroy();
-        if (simpleExoPlayer != null) {
-            stopPlay();
-            simpleExoPlayer.release();
-        }
         onFinishRelease();
     }
 

@@ -18,13 +18,6 @@ public interface PlayAudioCallBack {
     void onPlaying(long timeInMillis);
 
     /**
-     * 开始播放
-     *
-     * @param timeInMillis 时间  毫秒
-     */
-    void onStartPlay(long timeInMillis);
-
-    /**
      * 暂停播放
      */
     void onPausePlay();

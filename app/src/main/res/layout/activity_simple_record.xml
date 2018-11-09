@@ -38,6 +38,7 @@
         android:layout_height="wrap_content"
         android:text="play record"
         android:textAllCaps="false"
+        android:visibility="gone"
         app:layout_constraintTop_toBottomOf="@+id/btnStartRecord"
         tools:ignore="HardcodedText" />
 
@@ -47,6 +48,7 @@
         android:layout_height="wrap_content"
         android:text="stop play record"
         android:textAllCaps="false"
+        android:visibility="gone"
         app:layout_constraintStart_toEndOf="@+id/btnPlayRecord"
         app:layout_constraintTop_toTopOf="@+id/btnPlayRecord"
         tools:ignore="HardcodedText" />

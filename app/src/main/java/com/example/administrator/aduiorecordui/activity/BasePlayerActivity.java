@@ -1,25 +1,27 @@
 package com.example.administrator.aduiorecordui.activity;
 
-import android.Manifest;
-import android.content.Context;
-import android.media.AudioManager;
+import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 
-import com.example.administrator.aduiorecordui.recordmp3.AudioRecordDataSource;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.SimpleExoPlayer;
+import com.google.android.exoplayer2.source.ExtractorMediaSource;
+import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
 import com.google.android.exoplayer2.trackselection.DefaultTrackSelector;
 import com.google.android.exoplayer2.trackselection.TrackSelection;
 import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
-import com.tbruyelle.rxpermissions2.RxPermissions;
+import com.google.android.exoplayer2.upstream.FileDataSourceFactory;
+
+import java.io.File;
 
 /**
  * ClassName: BaseAudioRecordActivity
@@ -29,54 +31,22 @@ import com.tbruyelle.rxpermissions2.RxPermissions;
  * @version 1.0
  * @since 2018-08-22  14:31
  */
-public abstract class BaseAudioRecordActivity extends AppCompatActivity {
+public abstract class BasePlayerActivity extends AppCompatActivity {
 
     private static final String TAG = "BaseAudioRecordActivity";
 
 
     public SimpleExoPlayer simpleExoPlayer;
 
-    public enum RecordStatus {
-        /**
-         * 默认状态
-         */
-        None,
-        Recording,
-        PauseRecording,
-        FinishRecording,
-        Playing,
-        PausePlaying,;
-    }
-
-    public RxPermissions permissions;
-    public RecordStatus recordStatus;
-    public boolean isPermissionsGranted;
 
 
     @Override
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        permissions = new RxPermissions(this);
-        recordStatus = RecordStatus.None;
-        isPermissionsGranted = permissions.isGranted(android.Manifest.permission.WRITE_EXTERNAL_STORAGE)
-                && permissions.isGranted(Manifest.permission.READ_EXTERNAL_STORAGE)
-                && permissions.isGranted(android.Manifest.permission.RECORD_AUDIO);
-
-        //获取音频服务
-        AudioManager audioManager = (AudioManager) getSystemService(Context.AUDIO_SERVICE);
-        if (audioManager != null) {
-            //打开麦克风
-            audioManager.setMicrophoneMute(false);
-        }
-        initRecordFile();
         initPlayer();
     }
 
 
-    private void initRecordFile() {
-        AudioRecordDataSource.getInstance().initRecordFile(this);
-        AudioRecordDataSource.getInstance().initCropOutputFile(this);
-    }
 
 
     private void initPlayer() {
@@ -99,6 +69,27 @@ public abstract class BaseAudioRecordActivity extends AppCompatActivity {
             simpleExoPlayer.release();
             simpleExoPlayer = null;
         }
+    }
+
+    protected void preparePlay(File file) {
+        if (file == null) {
+            return;
+        }
+        // MediaSource代表要播放的媒体。
+        Log.e(TAG, "startPlay: lll file path = "+ file.getAbsolutePath() );
+        MediaSource mediaSource = new ExtractorMediaSource.Factory(new FileDataSourceFactory()).createMediaSource(Uri.fromFile(file));
+        //Prepare the player with the source.
+        simpleExoPlayer.prepare(mediaSource);
+    }
+
+
+    protected void seekToPlay(long timeInMillis) {
+        simpleExoPlayer.seekTo(timeInMillis);
+        simpleExoPlayer.setPlayWhenReady(true);
+    }
+
+    protected void pausePlay() {
+        simpleExoPlayer.setPlayWhenReady(false);
     }
 
 

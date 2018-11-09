@@ -122,10 +122,6 @@ public class AudioRecordPreviewActivity extends AppCompatActivity {
                 tvDuration.setText(DateUtils.formatElapsedTime(timeInMillis));
             }
 
-            @Override
-            public void onStartPlay(long timeInMillis) {
-                play(timeInMillis);
-            }
 
             @Override
             public void onPausePlay() {

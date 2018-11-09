@@ -4,17 +4,21 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.v7.app.AppCompatActivity;
+import android.util.Log;
 import android.view.View;
 
 import com.example.administrator.aduiorecordui.R;
-import com.example.administrator.aduiorecordui.model.Decibel;
-import com.example.administrator.aduiorecordui.record2mp3.AudioRecordDataSource;
+import com.example.administrator.aduiorecordui.activity.BasePlayerActivity;
+import com.example.administrator.aduiorecordui.recordmp3.AudioRecordDataSource;
+import com.example.administrator.aduiorecordui.recordmp3.CropMp3;
+import com.google.android.exoplayer2.ExoPlaybackException;
+import com.google.android.exoplayer2.PlaybackParameters;
+import com.google.android.exoplayer2.Player;
+import com.google.android.exoplayer2.Timeline;
+import com.google.android.exoplayer2.source.TrackGroupArray;
+import com.google.android.exoplayer2.trackselection.TrackSelectionArray;
 import com.littlezan.recordui.playaudio.PlayAudioCallBack;
 import com.littlezan.recordui.playaudio.playviews.VerticalLineMoveAndCropPlayAudioView;
-
-import java.util.ArrayList;
-import java.util.List;
 
 /**
  * ClassName: SimpleRecordPreviewActivity
@@ -24,16 +28,16 @@ import java.util.List;
  * @version 1.0
  * @since 2018-11-03  11:21
  */
-public class SimpleRecordPreviewCropActivity extends AppCompatActivity {
+public class SimpleRecordPreviewCropActivity extends BasePlayerActivity {
 
-    private static final String INTENT_KEY_RECORD_FILE_PATH = "intent_key_record_file_path";
-    private static final String INTENT_KEY_DECIBEL_LIST = "intent_key_decibel_list";
+    private static final String TAG = "SimpleRecordPreviewCrop";
+
     private VerticalLineMoveAndCropPlayAudioView verticalLineMoveAndCropPlayAudioView;
-    private String recordFilePath;
+    private long currentPlayingTimeInMillis;
+    private CropMp3 cropMp3;
 
-    public static void start(Context context, String recordFilePath) {
+    public static void start(Context context) {
         Intent intent = new Intent(context, SimpleRecordPreviewCropActivity.class);
-        intent.putExtra(INTENT_KEY_RECORD_FILE_PATH, recordFilePath);
         context.startActivity(intent);
     }
 
@@ -46,7 +50,6 @@ public class SimpleRecordPreviewCropActivity extends AppCompatActivity {
     }
 
     private void parseIntent() {
-        recordFilePath = getIntent().getStringExtra(INTENT_KEY_RECORD_FILE_PATH);
     }
 
     private void initView() {
@@ -57,10 +60,6 @@ public class SimpleRecordPreviewCropActivity extends AppCompatActivity {
 
             }
 
-            @Override
-            public void onStartPlay(long timeInMillis) {
-
-            }
 
             @Override
             public void onPausePlay() {
@@ -87,33 +86,136 @@ public class SimpleRecordPreviewCropActivity extends AppCompatActivity {
         findViewById(R.id.btnPlay).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                verticalLineMoveAndCropPlayAudioView.startPlay(0);
+                preparePlay(AudioRecordDataSource.getInstance().getFinalRecordFile());
+                seekToPlay(0);
             }
         });
         findViewById(R.id.btnPause).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                verticalLineMoveAndCropPlayAudioView.stopPlay();
+                pausePlay();
+            }
+        });
+        findViewById(R.id.btnResume).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                seekToPlay(currentPlayingTimeInMillis);
             }
         });
 
         findViewById(R.id.btnCrop).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
+                simpleExoPlayer.stop();
                 verticalLineMoveAndCropPlayAudioView.crop();
             }
         });
 
+        initListener();
+    }
+
+    private void initListener() {
+        verticalLineMoveAndCropPlayAudioView.setPlayAudioCallBack(new PlayAudioCallBack() {
+            @Override
+            public void onPlaying(long timeInMillis) {
+                currentPlayingTimeInMillis = timeInMillis;
+            }
+
+
+            @Override
+            public void onPausePlay() {
+                pausePlay();
+            }
+
+            @Override
+            public void onResumePlay() {
+                seekToPlay(currentPlayingTimeInMillis);
+            }
+
+            @Override
+            public void onPlayingFinish() {
+
+            }
+
+            @Override
+            public void onCrop(int cropIndex, long remainTimeInMillis) {
+                AudioRecordDataSource.getInstance().cropDecibelList(cropIndex);
+                cropMp3.startCrop(remainTimeInMillis);
+            }
+        });
+
+
+        simpleExoPlayer.addListener(new Player.EventListener() {
+            @Override
+            public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
+                Log.e(TAG, "onTimelineChanged: lll ");
+            }
+
+            @Override
+            public void onTracksChanged(TrackGroupArray trackGroups, TrackSelectionArray trackSelections) {
+
+            }
+
+            @Override
+            public void onLoadingChanged(boolean isLoading) {
+
+            }
+
+            @Override
+            public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
+                if (playWhenReady) {
+                    if (playbackState == Player.STATE_READY) {
+                        verticalLineMoveAndCropPlayAudioView.startPlay(currentPlayingTimeInMillis);
+                    }
+                } else {
+                    verticalLineMoveAndCropPlayAudioView.stopPlay();
+                }
+            }
+
+            @Override
+            public void onRepeatModeChanged(int repeatMode) {
+
+            }
+
+            @Override
+            public void onShuffleModeEnabledChanged(boolean shuffleModeEnabled) {
+
+            }
+
+            @Override
+            public void onPlayerError(ExoPlaybackException error) {
+            }
+
+            @Override
+            public void onPositionDiscontinuity(int reason) {
+
+            }
+
+            @Override
+            public void onPlaybackParametersChanged(PlaybackParameters playbackParameters) {
+
+            }
+
+            @Override
+            public void onSeekProcessed() {
+
+            }
+        });
+
+        cropMp3 = new CropMp3();
+        cropMp3.setCropCallback(new CropMp3.CropCallback() {
+            @Override
+            public void onCropFinish() {
+                AudioRecordDataSource.getInstance().setFinalRecordFile(AudioRecordDataSource.getInstance().getCropOutFile());
+            }
+        });
     }
 
 
     @Override
     protected void onResume() {
         super.onResume();
-        List<Float> audioSourceList = new ArrayList<>();
-        for (Decibel decibel : AudioRecordDataSource.getInstance().decibelList) {
-            audioSourceList.add(decibel.percent);
-        }
-        verticalLineMoveAndCropPlayAudioView.setAudioSource(audioSourceList);
+        preparePlay(AudioRecordDataSource.getInstance().getFinalRecordFile());
+        verticalLineMoveAndCropPlayAudioView.setAudioSource(AudioRecordDataSource.getInstance().decibelList);
     }
 }

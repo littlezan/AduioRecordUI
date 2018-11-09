@@ -27,6 +27,13 @@
             tools:ignore="ButtonStyle,HardcodedText" />
 
         <Button
+            android:id="@+id/btnResume"
+            android:layout_width="wrap_content"
+            android:layout_height="wrap_content"
+            android:text="继续"
+            tools:ignore="ButtonStyle,HardcodedText" />
+
+        <Button
             android:id="@+id/btnCrop"
             android:layout_width="wrap_content"
             android:layout_height="wrap_content"

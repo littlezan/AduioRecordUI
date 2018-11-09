@@ -15,7 +15,7 @@ import android.widget.TextView;
 
 import com.example.administrator.aduiorecordui.R;
 import com.example.administrator.aduiorecordui.model.Decibel;
-import com.example.administrator.aduiorecordui.record2mp3.AudioRecordMp3;
+import com.example.administrator.aduiorecordui.recordmp3.AudioRecordMp3;
 import com.example.administrator.aduiorecordui.util.FastClickLimitUtil;
 import com.example.administrator.aduiorecordui.util.FileUtils;
 import com.google.android.exoplayer2.DefaultLoadControl;
@@ -23,9 +23,6 @@ import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayerFactory;
 import com.google.android.exoplayer2.LoadControl;
 import com.google.android.exoplayer2.SimpleExoPlayer;
-import com.google.android.exoplayer2.analytics.AnalyticsCollector;
-import com.google.android.exoplayer2.audio.AudioAttributes;
-import com.google.android.exoplayer2.audio.MediaCodecAudioRenderer;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.trackselection.AdaptiveTrackSelection;
@@ -482,11 +479,6 @@ public class RecordAudioFragment extends Fragment implements View.OnClickListene
         simpleExoPlayer.prepare(mediaSource);
         simpleExoPlayer.seekTo(timeMillis);
         simpleExoPlayer.setPlayWhenReady(true);
-
-        MediaCodecAudioRenderer audioRenderer = new MediaCodecAudioRenderer(getContext(), null);
-//        simpleExoPlayer.addAnalyticsListener();
-        AudioAttributes audioAttributes = simpleExoPlayer.getAudioAttributes();
-        AnalyticsCollector analyticsCollector = simpleExoPlayer.getAnalyticsCollector();
 
     }
 

@@ -1,5 +1,6 @@
 package com.littlezan.recordui.playaudio;
 
+import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
@@ -146,7 +147,7 @@ public abstract class BasePlayAudioView extends View {
 
     protected boolean isTouching;
 
-    private List<Float> audioSourceList;
+    protected List<Float> audioSourceList = new ArrayList<>();
 
 
     public BasePlayAudioView(Context context) {
@@ -174,14 +175,14 @@ public abstract class BasePlayAudioView extends View {
         if (attrs == null) {
             return;
         }
-        TypedArray typedArray = context.getTheme().obtainStyledAttributes(attrs, R.styleable.PlayAudio, 0, 0);
+        @SuppressLint("CustomViewStyleable") TypedArray typedArray = context.obtainStyledAttributes(attrs, R.styleable.PlayAudio);
         audioSourceFrequency = typedArray.getInt(R.styleable.PlayAudio_p_audioSourceFrequency, audioSourceFrequency);
         circleMarginTop = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_circleMarginTop, circleMarginTop);
         rectMarginTop = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_rectMarginTop, rectMarginTop);
         centerLineWidth = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_centerLineWidth, centerLineWidth);
         circleRadius = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_circleRadius, circleRadius);
-        swipedColor = Color.RED;
-        unSwipeColor = Color.DKGRAY;
+        swipedColor = typedArray.getColor(R.styleable.PlayAudio_p_swipedColor, Color.RED);
+        unSwipeColor = typedArray.getColor(R.styleable.PlayAudio_p_unSwipeColor, Color.DKGRAY);
         lineWidth = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_lineWidth, lineWidth);
         rectGap = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_rectGap, rectGap);
         canTouchScroll = typedArray.getBoolean(R.styleable.PlayAudio_p_canTouchScroll, false);
@@ -221,8 +222,8 @@ public abstract class BasePlayAudioView extends View {
     }
 
     @Override
-    protected void onSizeChanged(int w, int h, int oldw, int oldh) {
-        super.onSizeChanged(w, h, oldw, oldh);
+    protected void onMeasure(int widthMeasureSpec, int heightMeasureSpec) {
+        super.onMeasure(widthMeasureSpec, heightMeasureSpec);
         addSampleLine(audioSourceList);
     }
 
@@ -246,6 +247,7 @@ public abstract class BasePlayAudioView extends View {
         }
         lastSampleXWithRectGap = lineLocationX;
         setCanScrollX();
+        invalidate();
     }
 
 
@@ -256,7 +258,9 @@ public abstract class BasePlayAudioView extends View {
      */
     public void setAudioSource(List<Float> audioSourceList) {
         this.audioSourceList = audioSourceList;
+        requestLayout();
     }
+
 
 
     @Override

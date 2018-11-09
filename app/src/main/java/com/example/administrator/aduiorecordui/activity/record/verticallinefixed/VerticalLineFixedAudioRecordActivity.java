@@ -12,7 +12,8 @@ import android.widget.Button;
 import com.example.administrator.aduiorecordui.R;
 import com.example.administrator.aduiorecordui.activity.BaseAudioRecordActivity;
 import com.example.administrator.aduiorecordui.model.Decibel;
-import com.example.administrator.aduiorecordui.record2mp3.AudioRecordMp3;
+import com.example.administrator.aduiorecordui.recordmp3.AudioRecordDataSource;
+import com.example.administrator.aduiorecordui.recordmp3.AudioRecordMp3;
 import com.google.android.exoplayer2.source.ExtractorMediaSource;
 import com.google.android.exoplayer2.source.MediaSource;
 import com.google.android.exoplayer2.upstream.FileDataSourceFactory;
@@ -61,7 +62,7 @@ public class VerticalLineFixedAudioRecordActivity extends BaseAudioRecordActivit
     }
 
     private void initAudioRecorder() {
-        audioRecordMp3 = new AudioRecordMp3(recordFile, new AudioRecordMp3.RecordMp3Listener() {
+        audioRecordMp3 = new AudioRecordMp3(AudioRecordDataSource.getInstance().getRecordFile(), new AudioRecordMp3.RecordMp3Listener() {
             @Override
             public void onStartRecord() {
                 audioRecordView.startRecord();
@@ -221,7 +222,7 @@ public class VerticalLineFixedAudioRecordActivity extends BaseAudioRecordActivit
             timeMillis = 0;
         }
         // MediaSource代表要播放的媒体。
-        MediaSource mediaSource = new ExtractorMediaSource.Factory(new FileDataSourceFactory()).createMediaSource(Uri.fromFile(recordFile));
+        MediaSource mediaSource = new ExtractorMediaSource.Factory(new FileDataSourceFactory()).createMediaSource(Uri.fromFile(AudioRecordDataSource.getInstance().getFinalRecordFile()));
         //Prepare the player with the source.
         simpleExoPlayer.prepare(mediaSource);
         simpleExoPlayer.seekTo(timeMillis);

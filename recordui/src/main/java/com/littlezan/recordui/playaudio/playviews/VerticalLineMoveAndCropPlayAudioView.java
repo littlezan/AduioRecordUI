@@ -284,8 +284,11 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
 
     public void crop() {
         stopPlay();
+        int cropIndex = getCropIndex();
+        audioSourceList = audioSourceList.subList(0, cropIndex);
+        requestLayout();
         if (playAudioCallBack != null) {
-            playAudioCallBack.onCrop(getCropIndex(), getCropTimeInMillis());
+            playAudioCallBack.onCrop(cropIndex, getCropTimeInMillis());
         }
     }
 

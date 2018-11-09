@@ -16,7 +16,7 @@ import android.widget.TextView;
 
 import com.example.administrator.aduiorecordui.R;
 import com.example.administrator.aduiorecordui.model.Decibel;
-import com.example.administrator.aduiorecordui.record2mp3.AudioRecordMp3;
+import com.example.administrator.aduiorecordui.recordmp3.AudioRecordMp3;
 import com.example.administrator.aduiorecordui.util.FastClickLimitUtil;
 import com.example.administrator.aduiorecordui.util.FileUtils;
 import com.google.android.exoplayer2.DefaultLoadControl;
