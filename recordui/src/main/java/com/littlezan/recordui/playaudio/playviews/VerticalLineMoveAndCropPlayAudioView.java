@@ -140,7 +140,7 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         canvas.drawRect(cropLineX, startY + circleRadius, right, getHeight(), maskPaint);
     }
 
-    private long getCropTimeInMillis() {
+    public long getCropTimeInMillis() {
         return getTimeInMillis(cropLineX);
     }
 
