@@ -1,14 +1,10 @@
 package com.example.administrator.aduiorecordui.fragment;
 
 import android.annotation.SuppressLint;
-import android.content.Context;
-import android.media.AudioManager;
 import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
-import android.util.Log;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -16,9 +12,9 @@ import android.widget.TextView;
 
 import com.example.administrator.aduiorecordui.R;
 import com.example.administrator.aduiorecordui.model.Decibel;
+import com.example.administrator.aduiorecordui.recordmp3.AudioRecordDataSource;
 import com.example.administrator.aduiorecordui.recordmp3.AudioRecordMp3;
 import com.example.administrator.aduiorecordui.util.FastClickLimitUtil;
-import com.example.administrator.aduiorecordui.util.FileUtils;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -33,12 +29,11 @@ import com.google.android.exoplayer2.trackselection.TrackSelector;
 import com.google.android.exoplayer2.upstream.BandwidthMeter;
 import com.google.android.exoplayer2.upstream.DefaultBandwidthMeter;
 import com.google.android.exoplayer2.upstream.FileDataSourceFactory;
-import com.littlezan.recordui.recordaudio.recordviews.VerticalLineMoveAudioRecordView;
 import com.littlezan.recordui.recordaudio.RecordCallBack;
+import com.littlezan.recordui.recordaudio.recordviews.VerticalLineMoveAudioRecordView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
 import java.io.File;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -55,7 +50,7 @@ import io.reactivex.functions.Consumer;
  * @version 1.0
  * @since 2018-05-10  15:23
  */
-public class RecordAudioWithDeleteFragment extends Fragment implements View.OnClickListener {
+public class RecordAudioWithDeleteFragment extends BaseAudioRecordFragment implements View.OnClickListener {
 
 
     public static final String RECORD_FILE_NAME = "record.mp3";
@@ -70,24 +65,16 @@ public class RecordAudioWithDeleteFragment extends Fragment implements View.OnCl
      * 最短录制时长 3秒
      */
     public static final int MIN_RECORD_SECOND = 3;
-    private RecordStatus recordStatus;
+
     private RecordCallBack recordCallBack;
     private long recordTimeInMillis;
-    private boolean isPermissionsGranted;
+
     private AudioRecordMp3 audioRecordMp3;
     //    VoiceRecord voiceRecord;
     private double recordDecibel;
     private File recordFile;
 
 
-    enum RecordStatus {
-        None,
-        Recording,
-        PauseRecording,
-        FinishRecording,
-        Playing,
-        PausePlaying,;
-    }
 
     VerticalLineMoveAudioRecordView audioRecordView;
     TextView tvHint;
@@ -112,15 +99,7 @@ public class RecordAudioWithDeleteFragment extends Fragment implements View.OnCl
     @Override
     public void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
-        permissions = new RxPermissions(getActivity());
-        recordStatus = RecordStatus.None;
-        isPermissionsGranted = permissions.isGranted(android.Manifest.permission.WRITE_EXTERNAL_STORAGE) && permissions.isGranted(android.Manifest.permission.RECORD_AUDIO);
-        //获取音频服务
-        AudioManager audioManager = (AudioManager) getActivity().getSystemService(Context.AUDIO_SERVICE);
-        if (audioManager != null) {
-            //打开麦克风
-            audioManager.setMicrophoneMute(false);
-        }
+
     }
 
 
@@ -178,7 +157,6 @@ public class RecordAudioWithDeleteFragment extends Fragment implements View.OnCl
     }
 
     protected void initView() {
-        initRecordFile();
         initAudioRecorder();
         initPlayer();
         initListener();
@@ -348,20 +326,7 @@ public class RecordAudioWithDeleteFragment extends Fragment implements View.OnCl
 //        });
     }
 
-    private static final String TAG = "RecordAudioWithDeleteFr";
 
-    private void initRecordFile() {
-        try {
-            recordFile = new File(FileUtils.getRootFilePath(getContext()) + RECORD_FILE_NAME);
-            Log.e(TAG, "initRecordFile: lll recordFile = "+recordFile.getAbsolutePath() );
-            if (recordFile.exists()) {
-                recordFile.delete();
-            }
-            recordFile.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
 
     private void initPlayer() {
@@ -501,7 +466,7 @@ public class RecordAudioWithDeleteFragment extends Fragment implements View.OnCl
             timeMillis = 0;
         }
         // MediaSource代表要播放的媒体。
-        MediaSource mediaSource = new ExtractorMediaSource.Factory(new FileDataSourceFactory()).createMediaSource(Uri.fromFile(audioRecordMp3.getFinalRecordFile()));
+        MediaSource mediaSource = new ExtractorMediaSource.Factory(new FileDataSourceFactory()).createMediaSource(Uri.fromFile(AudioRecordDataSource.getInstance().getRecordFile()));
         //Prepare the player with the source.
         simpleExoPlayer.prepare(mediaSource);
         simpleExoPlayer.seekTo(timeMillis);

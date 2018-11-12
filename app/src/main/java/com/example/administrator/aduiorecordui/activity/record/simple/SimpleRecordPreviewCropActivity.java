@@ -45,12 +45,9 @@ public class SimpleRecordPreviewCropActivity extends BasePlayerActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_simple_record_preview_crop);
-        parseIntent();
         initView();
     }
 
-    private void parseIntent() {
-    }
 
     private void initView() {
         verticalLineMoveAndCropPlayAudioView = findViewById(R.id.verticalLineMoveAndCropPlayAudioView);
@@ -86,7 +83,7 @@ public class SimpleRecordPreviewCropActivity extends BasePlayerActivity {
         findViewById(R.id.btnPlay).setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                preparePlay(AudioRecordDataSource.getInstance().getFinalRecordFile());
+                preparePlay(AudioRecordDataSource.getInstance().getRecordFile());
                 seekToPlay(0);
             }
         });
@@ -139,6 +136,7 @@ public class SimpleRecordPreviewCropActivity extends BasePlayerActivity {
 
             @Override
             public void onCrop(int cropIndex, long remainTimeInMillis) {
+                Log.e(TAG, "onCrop: lll crop --- remainTimeInMillis = "+remainTimeInMillis);
                 AudioRecordDataSource.getInstance().cropDecibelList(cropIndex);
                 cropMp3.startCrop(remainTimeInMillis);
             }
@@ -165,6 +163,7 @@ public class SimpleRecordPreviewCropActivity extends BasePlayerActivity {
             public void onPlayerStateChanged(boolean playWhenReady, int playbackState) {
                 if (playWhenReady) {
                     if (playbackState == Player.STATE_READY) {
+                        Log.e(TAG, "onPlayerStateChanged: lll crop --- duration = "+ simpleExoPlayer.getDuration() );
                         verticalLineMoveAndCropPlayAudioView.startPlay(currentPlayingTimeInMillis);
                     }
                 } else {
@@ -206,7 +205,8 @@ public class SimpleRecordPreviewCropActivity extends BasePlayerActivity {
         cropMp3.setCropCallback(new CropMp3.CropCallback() {
             @Override
             public void onCropFinish() {
-                AudioRecordDataSource.getInstance().setFinalRecordFile(AudioRecordDataSource.getInstance().getCropOutFile());
+                pausePlay();
+                preparePlay(AudioRecordDataSource.getInstance().getRecordFile());
             }
         });
     }
@@ -215,7 +215,8 @@ public class SimpleRecordPreviewCropActivity extends BasePlayerActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        preparePlay(AudioRecordDataSource.getInstance().getFinalRecordFile());
+        preparePlay(AudioRecordDataSource.getInstance().getRecordFile());
         verticalLineMoveAndCropPlayAudioView.setAudioSource(AudioRecordDataSource.getInstance().decibelList);
+        verticalLineMoveAndCropPlayAudioView.setInitCropLineOffset(1000);
     }
 }

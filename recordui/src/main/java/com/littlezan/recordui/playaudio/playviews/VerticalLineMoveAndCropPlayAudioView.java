@@ -194,6 +194,18 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         return dateFormat.format(date);
     }
 
+
+    public void setInitCropLineOffset(long timeMillis) {
+        long offset = getLength(timeMillis);
+        cropLineX = offset;
+        centerLineX = offset;
+        if (cropLineX > getWidth() / 2) {
+            scrollTo((int) cropLineX-getWidth()/2, 0);
+        }
+        invalidate();
+    }
+
+
     @Override
     public void startPlay(long timeInMillis) {
         if (!isPlaying) {
@@ -286,6 +298,7 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         stopPlay();
         int cropIndex = getCropIndex();
         audioSourceList = audioSourceList.subList(0, cropIndex);
+        centerLineX = cropLineX;
         requestLayout();
         if (playAudioCallBack != null) {
             playAudioCallBack.onCrop(cropIndex, getCropTimeInMillis());

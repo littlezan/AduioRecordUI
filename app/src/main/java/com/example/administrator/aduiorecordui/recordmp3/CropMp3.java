@@ -4,7 +4,6 @@ import android.media.MediaExtractor;
 import android.media.MediaFormat;
 import android.os.Handler;
 import android.os.Looper;
-import android.util.Log;
 
 import java.io.BufferedOutputStream;
 import java.io.FileOutputStream;
@@ -48,7 +47,9 @@ public class CropMp3 {
 
         @Override
         public void run() {
-            clip(AudioRecordDataSource.getInstance().getFinalRecordFile().getAbsolutePath(), AudioRecordDataSource.getInstance().getCropOutFile().getAbsolutePath(), endTimeInMillis * 1000);
+            //1. 将源文件裁剪成 新文件
+            clip(AudioRecordDataSource.getInstance().getRecordFile().getAbsolutePath(), AudioRecordDataSource.getInstance().getCropOutFile().getAbsolutePath(), endTimeInMillis * 1000);
+            AudioRecordDataSource.getInstance().doAfterCropRecordFile();
             if (cropCallback != null) {
                 handler.post(new Runnable() {
                     @Override
@@ -60,7 +61,6 @@ public class CropMp3 {
         }
 
         void clip(String inputPath, String outputPath, long endTimeInUs) {
-            Log.e(TAG, "clip: lll inputPath = " + inputPath);
             MediaExtractor extractor = null;
             BufferedOutputStream outputStream = null;
             try {
@@ -83,7 +83,7 @@ public class CropMp3 {
                     // >= 1000000是要裁剪停止和指定的裁剪结尾不小于1秒，否则可能产生需要9秒音频
                     //裁剪到只有8.6秒，大多数音乐播放器是向下取整，这样对于播放器变成了8秒，
                     // 所以要裁剪比9秒多一秒的边界
-                    if (timeStamp > endTimeInUs && timeStamp - endTimeInUs >= 1000000) {
+                    if (timeStamp >=endTimeInUs ) {
                         break;
                     }
                     if (sampleSize <= 0) {

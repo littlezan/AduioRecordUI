@@ -222,7 +222,7 @@ public class VerticalLineFixedAudioRecordActivity extends BaseAudioRecordActivit
             timeMillis = 0;
         }
         // MediaSource代表要播放的媒体。
-        MediaSource mediaSource = new ExtractorMediaSource.Factory(new FileDataSourceFactory()).createMediaSource(Uri.fromFile(AudioRecordDataSource.getInstance().getFinalRecordFile()));
+        MediaSource mediaSource = new ExtractorMediaSource.Factory(new FileDataSourceFactory()).createMediaSource(Uri.fromFile(AudioRecordDataSource.getInstance().getRecordFile()));
         //Prepare the player with the source.
         simpleExoPlayer.prepare(mediaSource);
         simpleExoPlayer.seekTo(timeMillis);

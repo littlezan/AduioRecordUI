@@ -4,17 +4,16 @@ import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
-import android.support.design.widget.AppBarLayout;
 import android.support.v4.app.FragmentManager;
 import android.support.v4.app.FragmentTransaction;
 import android.support.v4.content.ContextCompat;
-import android.support.v7.app.AppCompatActivity;
-import android.support.v7.widget.Toolbar;
 import android.view.View;
 import android.widget.TextView;
 
 import com.example.administrator.aduiorecordui.R;
+import com.example.administrator.aduiorecordui.activity.BaseAudioRecordActivity;
 import com.example.administrator.aduiorecordui.fragment.RecordAudioFragment;
+import com.example.administrator.aduiorecordui.recordmp3.AudioRecordDataSource;
 
 /**
  * ClassName: AudioRecordActivity
@@ -24,11 +23,8 @@ import com.example.administrator.aduiorecordui.fragment.RecordAudioFragment;
  * @version 1.0
  * @since 2018-05-29  11:14
  */
-public class AudioRecordActivity extends AppCompatActivity {
+public class AudioRecordActivity extends BaseAudioRecordActivity {
 
-
-    private AppBarLayout appBarLayout;
-    private Toolbar toolbar;
     private TextView tvNavCenter;
     private TextView tvNavRight;
 
@@ -66,8 +62,6 @@ public class AudioRecordActivity extends AppCompatActivity {
     }
 
     private void initView() {
-        appBarLayout = findViewById(R.id.app_bar_layout);
-        toolbar = findViewById(R.id.toolbar);
         tvNavCenter = findViewById(R.id.tv_nav_center);
         tvNavRight = findViewById(R.id.tv_nav_right);
 
@@ -77,7 +71,7 @@ public class AudioRecordActivity extends AppCompatActivity {
         tvNavRight.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                AudioRecordPreviewActivity.start(context, recordAudioFragment.getActiveRecordFilePath(), recordAudioFragment.getDecibelList(),
+                AudioRecordPreviewActivity.start(context, AudioRecordDataSource.getInstance().getRecordFile().getAbsolutePath(), recordAudioFragment.getDecibelList(),
                         recordAudioFragment.getRecordSamplingFrequency(), recordAudioFragment.getRecordTimeInMillis());
             }
         });

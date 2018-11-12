@@ -313,5 +313,18 @@ public class SimpleAudioRecordView extends BaseDrawAudioRecordView {
 
     }
 
+    public void cropSampleLine(int cropIndex) {
+        sampleLineList = sampleLineList.subList(0, cropIndex);
+        if (sampleLineList.size() > 0) {
+            lineLocationX = (int) sampleLineList.get(sampleLineList.size() - 1).startX+rectGap;
+        } else {
+            lineLocationX = 0;
+        }
+        translateVerticalLineX = lineLocationX;
+        setCanScrollX();
+        scrollTo(maxScrollX, 0);
+        invalidate();
+    }
+
 
 }

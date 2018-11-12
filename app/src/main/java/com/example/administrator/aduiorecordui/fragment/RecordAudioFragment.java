@@ -7,7 +7,6 @@ import android.net.Uri;
 import android.os.Bundle;
 import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
-import android.support.v4.app.Fragment;
 import android.view.LayoutInflater;
 import android.view.View;
 import android.view.ViewGroup;
@@ -15,9 +14,9 @@ import android.widget.TextView;
 
 import com.example.administrator.aduiorecordui.R;
 import com.example.administrator.aduiorecordui.model.Decibel;
+import com.example.administrator.aduiorecordui.recordmp3.AudioRecordDataSource;
 import com.example.administrator.aduiorecordui.recordmp3.AudioRecordMp3;
 import com.example.administrator.aduiorecordui.util.FastClickLimitUtil;
-import com.example.administrator.aduiorecordui.util.FileUtils;
 import com.google.android.exoplayer2.DefaultLoadControl;
 import com.google.android.exoplayer2.DefaultRenderersFactory;
 import com.google.android.exoplayer2.ExoPlayerFactory;
@@ -36,8 +35,6 @@ import com.littlezan.recordui.recordaudio.RecordCallBack;
 import com.littlezan.recordui.recordaudio.recordviews.VerticalLineMoveAudioRecordView;
 import com.tbruyelle.rxpermissions2.RxPermissions;
 
-import java.io.File;
-import java.io.IOException;
 import java.math.BigDecimal;
 import java.util.ArrayList;
 import java.util.Locale;
@@ -54,11 +51,8 @@ import io.reactivex.functions.Consumer;
  * @version 1.0
  * @since 2018-05-10  15:23
  */
-public class RecordAudioFragment extends Fragment implements View.OnClickListener {
+public class RecordAudioFragment extends BaseAudioRecordFragment implements View.OnClickListener {
 
-    private static final String TAG = "RecordAudioFragment";
-
-    public static final String RECORD_FILE_NAME = "record.mp3";
     /**
      * 最长录音时间 分钟
      */
@@ -76,17 +70,8 @@ public class RecordAudioFragment extends Fragment implements View.OnClickListene
     private boolean isPermissionsGranted;
     private AudioRecordMp3 audioRecordMp3;
     private float recordDecibel;
-    private File recordFile;
 
 
-    enum RecordStatus {
-        None,
-        Recording,
-        PauseRecording,
-        FinishRecording,
-        Playing,
-        PausePlaying,;
-    }
 
     VerticalLineMoveAudioRecordView audioRecordView;
     TextView tvHint;
@@ -178,7 +163,6 @@ public class RecordAudioFragment extends Fragment implements View.OnClickListene
     }
 
     protected void initView() {
-        initRecordFile();
         initAudioRecorder();
         initPlayer();
         initListener();
@@ -193,7 +177,7 @@ public class RecordAudioFragment extends Fragment implements View.OnClickListene
         int viewId = view.getId();
         if (viewId == R.id.tv_delete) {
             //删除
-            initRecordFile();
+            AudioRecordDataSource.getInstance().deleteRecordFile();
             recordStatus = RecordStatus.None;
             audioRecordMp3.onRelease();
             audioRecordView.reset();
@@ -210,6 +194,8 @@ public class RecordAudioFragment extends Fragment implements View.OnClickListene
                     stopRecord();
                     break;
                 case Playing:
+                    break;
+                default:
                     break;
             }
         } else if (viewId == R.id.tv_play) {
@@ -295,7 +281,7 @@ public class RecordAudioFragment extends Fragment implements View.OnClickListene
 
     private void initAudioRecorder() {
 
-        audioRecordMp3 = new AudioRecordMp3(recordFile, new AudioRecordMp3.RecordMp3Listener() {
+        audioRecordMp3 = new AudioRecordMp3(AudioRecordDataSource.getInstance().getRecordFile(), new AudioRecordMp3.RecordMp3Listener() {
             @Override
             public void onStartRecord() {
                 audioRecordView.startRecord();
@@ -327,17 +313,6 @@ public class RecordAudioFragment extends Fragment implements View.OnClickListene
         });
     }
 
-    private void initRecordFile() {
-        try {
-            recordFile = new File(FileUtils.getDiskCacheDir(getContext())+File.separator+RECORD_FILE_NAME);
-            if (recordFile.exists()) {
-                recordFile.delete();
-            }
-            recordFile.createNewFile();
-        } catch (IOException e) {
-            e.printStackTrace();
-        }
-    }
 
 
     private void initPlayer() {
@@ -474,7 +449,7 @@ public class RecordAudioFragment extends Fragment implements View.OnClickListene
             timeMillis = 0;
         }
         // MediaSource代表要播放的媒体。
-        MediaSource mediaSource = new ExtractorMediaSource.Factory(new FileDataSourceFactory()).createMediaSource(Uri.fromFile(recordFile));
+        MediaSource mediaSource = new ExtractorMediaSource.Factory(new FileDataSourceFactory()).createMediaSource(Uri.fromFile(AudioRecordDataSource.getInstance().getRecordFile()));
         //Prepare the player with the source.
         simpleExoPlayer.prepare(mediaSource);
         simpleExoPlayer.seekTo(timeMillis);
@@ -487,18 +462,6 @@ public class RecordAudioFragment extends Fragment implements View.OnClickListene
     }
 
 
-    /**
-     * 音频文件
-     *
-     * @return 音频文件
-     */
-    public String getActiveRecordFilePath() {
-        String filePath = null;
-        if (recordFile != null && recordFile.exists()) {
-            filePath = recordFile.getAbsolutePath();
-        }
-        return filePath;
-    }
 
     /**
      * 录音采样频率
@@ -536,9 +499,7 @@ public class RecordAudioFragment extends Fragment implements View.OnClickListene
         audioRecordView.reset();
         audioRecordMp3.onRelease();
         //删除
-        if (recordFile != null && recordFile.exists()) {
-            recordFile.delete();
-        }
+        AudioRecordDataSource.getInstance().onRelease();
     }
 
     public boolean hasRecorded() {

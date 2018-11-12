@@ -50,7 +50,7 @@ public abstract class BaseDrawPlayAudioView extends BasePlayAudioView {
         List<PlaySampleLineMode> resultList = getDrawAudioSample(canvas);
         if (resultList != null && resultList.size() > 0) {
             for (PlaySampleLineMode sampleLine : resultList) {
-                if (sampleLine.startX + lineWidth / 2 <= centerLineX) {
+                if (centerLineX>=sampleLine.startX ) {
                     linePaint.setColor(swipedColor);
                 } else {
                     linePaint.setColor(unSwipeColor);

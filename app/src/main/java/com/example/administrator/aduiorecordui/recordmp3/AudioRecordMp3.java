@@ -5,7 +5,6 @@ import android.media.AudioRecord;
 import android.media.MediaRecorder;
 import android.os.Handler;
 import android.os.Looper;
-import android.support.annotation.NonNull;
 import android.util.Log;
 
 import com.naman14.androidlame.AndroidLame;
@@ -121,7 +120,7 @@ public class AudioRecordMp3 {
                     if (lastElement != null && lastElement > 0) {
                         splitFile(lastElement);
                         fileLengthList.subList(fileLengthList.indexOf(lastElement) + 1, fileLengthList.size()).clear();
-                        currentRecordFileLength = getFinalRecordFile().length();
+                        currentRecordFileLength = AudioRecordDataSource.getInstance().getRecordFile().length();
                     } else {
                         deleteAllRecordFile();
                         fileLengthList.clear();
@@ -229,7 +228,7 @@ public class AudioRecordMp3 {
                 publishStartRecord();
             }
             try {
-                File finalRecordFile = getFinalRecordFile();
+                File finalRecordFile = AudioRecordDataSource.getInstance().getRecordFile();
                 DataOutputStream dos = new DataOutputStream(new BufferedOutputStream(new FileOutputStream(finalRecordFile, true)));
                 int readSize;
                 while (isRecording) {
@@ -271,13 +270,6 @@ public class AudioRecordMp3 {
     }
 
 
-    @NonNull
-    public File getFinalRecordFile() {
-        initRecordFile();
-        Log.e(TAG, "getFinalRecordFile: lll getFinalRecordFile = " + currentRecordFile.getAbsolutePath());
-        AudioRecordDataSource.getInstance().setFinalRecordFile(currentRecordFile);
-        return currentRecordFile;
-    }
 
     private void publishStopRecord() {
         handler.post(new Runnable() {

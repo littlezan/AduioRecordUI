@@ -19,16 +19,19 @@ import java.util.List;
  */
 public class AudioRecordDataSource {
 
-    public static final String RECORD_FILE_NAME = "record.mp3";
-    public static final String CROP_OUT_RECORD_FILE_NAME = "cropOutRecord.mp3";
+    private static final String RECORD_DIR_NAME = "record";
+    private static final String RECORD_FILE_NAME = "record.mp3";
+    private static final String CROP_OUT_RECORD_FILE_NAME = "_cropOutRecord.mp3";
+    private static final String CROP_OUT_RECORD_FILE_PREFIX = "v";
 
+    private File audioFileDir;
     private File recordFile;
     private File cropOutFile;
-    private File finalRecordFile;
+    private int cropFileVersion;
+
     public List<Float> decibelList = new ArrayList<>();
     private int cropAudioIndex;
     private Listener listener;
-
 
 
     private AudioRecordDataSource() {
@@ -39,16 +42,25 @@ public class AudioRecordDataSource {
     }
 
 
-
-
     private static class SingletonHolder {
         private static final AudioRecordDataSource INSTANCE = new AudioRecordDataSource();
     }
 
 
-    public void initRecordFile(Context context) {
+    public void init(Context context) {
+        audioFileDir = new File(FileUtils.getDiskCacheDir(context) + File.separator + RECORD_DIR_NAME);
         try {
-            recordFile = new File(FileUtils.getDiskCacheDir(context) + File.separator + RECORD_FILE_NAME);
+            FileUtils.createDir(audioFileDir.getAbsolutePath());
+            FileUtils.cleanDirectory(audioFileDir);
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
+    }
+
+    public void initRecordFile() {
+        try {
+            recordFile = new File(audioFileDir, RECORD_FILE_NAME);
             if (recordFile.exists()) {
                 recordFile.delete();
             }
@@ -58,9 +70,10 @@ public class AudioRecordDataSource {
         }
     }
 
-    public void initCropOutputFile(Context context) {
+    public void initNewVersionCropOutputFile() {
         try {
-            cropOutFile = new File(FileUtils.getDiskCacheDir(context) + File.separator + CROP_OUT_RECORD_FILE_NAME);
+            cropFileVersion++;
+            cropOutFile = new File(audioFileDir, CROP_OUT_RECORD_FILE_PREFIX + cropFileVersion + CROP_OUT_RECORD_FILE_NAME);
             if (cropOutFile.exists()) {
                 cropOutFile.delete();
             }
@@ -70,20 +83,23 @@ public class AudioRecordDataSource {
         }
     }
 
-    public File getRecordFile() {
-        return recordFile;
-    }
 
     public File getCropOutFile() {
+        if (cropOutFile == null) {
+            initNewVersionCropOutputFile();
+        }
         return cropOutFile;
     }
 
-    public File getFinalRecordFile() {
-        return finalRecordFile;
+    public File getRecordFile() {
+        if (recordFile == null) {
+            initRecordFile();
+        }
+        return recordFile;
     }
 
     public void setFinalRecordFile(File finalRecordFile) {
-        this.finalRecordFile = finalRecordFile;
+        this.recordFile = finalRecordFile;
     }
 
     public void cropDecibelList(int cropIndex) {
@@ -102,6 +118,20 @@ public class AudioRecordDataSource {
         this.cropAudioIndex = cropAudioIndex;
     }
 
+    public void doAfterCropRecordFile() {
+        //1. 删除源文件finalRecordFile
+        deleteRecordFile();
+        //2. 将录音文件设置为裁剪后的文件
+        AudioRecordDataSource.getInstance().setFinalRecordFile(AudioRecordDataSource.getInstance().getCropOutFile());
+        //3. 创建新的裁剪文件，等待第二次裁剪
+        AudioRecordDataSource.getInstance().initNewVersionCropOutputFile();
+
+    }
+
+    public void deleteRecordFile() {
+        FileUtils.deleteFile(recordFile);
+    }
+
 
     public Listener getListener() {
         return listener;
@@ -111,11 +141,23 @@ public class AudioRecordDataSource {
         this.listener = listener;
     }
 
-    public void  onRelease() {
-       decibelList.clear();
+    public void onRelease() {
+        try {
+            decibelList.clear();
+            cropAudioIndex = 0;
+            FileUtils.cleanDirectory(audioFileDir);
+            cropFileVersion = 0;
+            audioFileDir = null;
+            recordFile = null;
+            cropOutFile = null;
+            listener = null;
+        } catch (IOException e) {
+            e.printStackTrace();
+        }
+
     }
 
-    public interface Listener{
+    public interface Listener {
         void onCrop(int cropIndex);
     }
 

@@ -43,14 +43,10 @@ public class SimpleRecordPreviewActivity extends BasePlayerActivity {
     protected void onCreate(@Nullable Bundle savedInstanceState) {
         super.onCreate(savedInstanceState);
         setContentView(R.layout.activity_simple_record_preview);
-        parseIntent();
         initView();
 
     }
 
-
-    private void parseIntent() {
-    }
 
     private void initView() {
         verticalLineMoveByGesturePlayAudioView = findViewById(R.id.verticalLineMoveByGesturePlayAudioView);
@@ -179,8 +175,15 @@ public class SimpleRecordPreviewActivity extends BasePlayerActivity {
     @Override
     protected void onResume() {
         super.onResume();
-        preparePlay(AudioRecordDataSource.getInstance().getFinalRecordFile());
+        preparePlay(AudioRecordDataSource.getInstance().getRecordFile());
         verticalLineMoveByGesturePlayAudioView.setAudioSource(AudioRecordDataSource.getInstance().decibelList);
+        currentPlayingTimeInMillis = 0;
         seekToPlay(0);
+    }
+
+    @Override
+    protected void onPause() {
+        super.onPause();
+        pausePlay();
     }
 }

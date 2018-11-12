@@ -5,7 +5,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.Intent;
 import android.os.Bundle;
-import android.support.annotation.Nullable;
 import android.view.View;
 
 import com.example.administrator.aduiorecordui.R;
@@ -17,6 +16,7 @@ import com.littlezan.recordui.recordaudio.recordviews.SimpleAudioRecordView;
 
 import java.math.BigDecimal;
 
+import io.reactivex.annotations.Nullable;
 import io.reactivex.functions.Consumer;
 
 /**
@@ -29,6 +29,7 @@ import io.reactivex.functions.Consumer;
  */
 public class SimpleRecordActivity extends BaseAudioRecordActivity {
 
+    private static final String TAG = "SimpleRecordActivity";
 
     public static final int MAX_RECORD_DECIBEL = 80;
     public static final int MIN_RECORD_DECIBEL = 35;
@@ -145,7 +146,6 @@ public class SimpleRecordActivity extends BaseAudioRecordActivity {
 
             @Override
             public void onRecordCurrent(long centerStartTimeMillis, long recordTimeInMillis) {
-
             }
 
             @Override
@@ -212,6 +212,7 @@ public class SimpleRecordActivity extends BaseAudioRecordActivity {
     protected void onPause() {
         super.onPause();
         audioRecordMp3.stopRecord();
+        audioRecordView.stopRecord();
         audioRecordView.stopPlayRecord();
     }
 

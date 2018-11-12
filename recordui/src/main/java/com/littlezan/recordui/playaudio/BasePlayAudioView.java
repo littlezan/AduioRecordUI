@@ -9,6 +9,7 @@ import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
@@ -227,12 +228,6 @@ public abstract class BasePlayAudioView extends View {
         addSampleLine(audioSourceList);
     }
 
-    void setCanScrollX() {
-       float length =  lastSampleXWithRectGap - getWidth();
-        maxScrollX = length <0 ?0 : Math.round(length);
-        minScrollX = 0;
-    }
-
     private void addSampleLine(final List<Float> audioSourceList) {
         sampleLineList.clear();
         lineLocationX = circleRadius;
@@ -250,6 +245,13 @@ public abstract class BasePlayAudioView extends View {
         invalidate();
     }
 
+    void setCanScrollX() {
+        Log.e(TAG, "setCanScrollX: lll ");
+        float length = lastSampleXWithRectGap - getWidth();
+        maxScrollX = length < 0 ? 0 : Math.round(length);
+        minScrollX = 0;
+    }
+
 
     /**
      * 设置音频
@@ -260,7 +262,6 @@ public abstract class BasePlayAudioView extends View {
         this.audioSourceList = audioSourceList;
         requestLayout();
     }
-
 
 
     @Override
@@ -385,6 +386,10 @@ public abstract class BasePlayAudioView extends View {
         return timeInMillis;
     }
 
+    protected long getLength(long timeInMillis) {
+        return timeInMillis * audioSourceFrequency * (lineWidth + rectGap) / 1000;
+    }
+
     /**
      * 开始播放
      *
@@ -420,7 +425,6 @@ public abstract class BasePlayAudioView extends View {
     public void setAudioSourceFrequency(int audioSourceFrequency) {
         this.audioSourceFrequency = audioSourceFrequency;
     }
-
 
 
     public void reset() {
