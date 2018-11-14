@@ -109,7 +109,7 @@ public abstract class BasePlayAudioView extends View {
     /**
      * 裁剪线顶部文字距离 圆心的距离
      */
-    protected int cropTimeTextMargin = 0;
+    protected int timeTextMargin = 0;
 
 
     /**
@@ -211,7 +211,7 @@ public abstract class BasePlayAudioView extends View {
         cropMashColor = typedArray.getColor(R.styleable.PlayAudio_p_cropMashColor, Color.RED);
         cropTimeTextSize = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_cropTimeTextSize, 0);
         cropTimeTextColor = typedArray.getColor(R.styleable.PlayAudio_p_cropTimeTextColor, Color.RED);
-        cropTimeTextMargin = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_cropTimeTextMargin, 0);
+        timeTextMargin = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_timeTextMargin, 0);
 
         typedArray.recycle();
     }

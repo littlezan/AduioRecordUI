@@ -59,7 +59,7 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         initValues();
     }
 
-   void initValues() {
+    void initValues() {
         verticalLineTouchHotSpot = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, Resources.getSystem().getDisplayMetrics());
         maskPaint.setStyle(Paint.Style.FILL);
         maskPaint.setColor(cropMashColor);
@@ -142,7 +142,7 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         canvas.drawCircle(cropLineX, startY, circleRadius, centerLinePaint);
         canvas.drawLine(cropLineX, startY, cropLineX, getHeight(), centerLinePaint);
         long cropTimeInMillis = getCropTimeInMillis();
-        canvas.drawText(formatTime(cropTimeInMillis), cropLineX, startY -cropTimeTextMargin, textPaint);
+        canvas.drawText(formatTime(cropTimeInMillis), cropLineX, startY - timeTextMargin, textPaint);
         float right = lastSampleXWithRectGap > getWidth() ? getWidth() + getScrollX() : lastSampleXWithRectGap;
         canvas.drawRect(cropLineX, startY + circleRadius, right, getHeight(), maskPaint);
         if (playAudioCallBack != null) {

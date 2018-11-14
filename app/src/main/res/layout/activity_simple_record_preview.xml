@@ -52,6 +52,9 @@
         app:p_canTouchScroll="true"
         app:p_lineWidth="2dp"
         app:p_rectGap="3dp"
+        app:p_cropTimeTextSize="13sp"
+        app:p_cropTimeTextColor="#000000"
+        app:p_timeTextMargin="5dp"
         app:p_rectMarginTop="1dp" />
 
 </LinearLayout>

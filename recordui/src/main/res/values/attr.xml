@@ -100,7 +100,7 @@
         <!--裁剪线顶部文字颜色-->
         <attr name="p_cropTimeTextColor" format="color" />
         <!--裁剪线顶部文字距离 圆心的距离-->
-        <attr name="p_cropTimeTextMargin" format="dimension" />
+        <attr name="p_timeTextMargin" format="dimension" />
 
     </declare-styleable>
 

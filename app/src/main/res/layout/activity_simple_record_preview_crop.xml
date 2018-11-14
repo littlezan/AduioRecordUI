@@ -56,7 +56,7 @@
         app:p_cropMashColor="#31aaff00"
         app:p_cropTimeTextSize="13sp"
         app:p_cropTimeTextColor="#000000"
-        app:p_cropTimeTextMargin="5dp"
+        app:p_timeTextMargin="5dp"
         />
 
 </LinearLayout>
