@@ -106,7 +106,6 @@ public class SimpleRecordPreviewActivity extends BasePlayerActivity {
             @Override
             public void onPlayingFinish() {
                 currentPlayingTimeInMillis = 0;
-                Log.e(TAG, "onPlayingFinish: restart play finish");
                 verticalLineMoveByGesturePlayAudioView.setInitPlayingTime(0);
             }
 

@@ -76,7 +76,7 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 stopPlay();
-                jumpToCropLinePostion();
+                jumpToCropLinePosition();
                 if (playAudioCallBack != null) {
                     playAudioCallBack.onPausePlay();
                 }
@@ -122,9 +122,10 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         return true;
     }
 
-    private void jumpToCropLinePostion() {
+    private void jumpToCropLinePosition() {
         if (!cropLineInVisible()) {
             scrollTo(jumpCropLine, 0);
+            invalidate();
             lastScrollX = getScrollX();
         }
     }
@@ -222,7 +223,8 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         postOnAnimation(new Runnable() {
             @Override
             public void run() {
-                jumpToCropLinePostion();
+                jumpToCropLinePosition();
+                invalidate();
             }
         });
     }
