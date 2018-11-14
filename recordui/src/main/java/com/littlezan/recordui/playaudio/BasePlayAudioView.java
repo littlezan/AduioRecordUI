@@ -9,7 +9,6 @@ import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -273,7 +272,6 @@ public abstract class BasePlayAudioView extends View {
     }
 
     void setCanScrollX() {
-        Log.e(TAG, "setCanScrollX: lll ");
         float length = lastSampleXWithRectGap - getWidth();
         maxScrollX = length < 0 ? 0 : Math.round(length);
         minScrollX = 0;
@@ -311,6 +309,7 @@ public abstract class BasePlayAudioView extends View {
                 float moveX = mLastX - currentX;
                 mLastX = currentX;
                 scrollBy((int) (moveX), 0);
+                invalidate();
                 break;
             case MotionEvent.ACTION_UP:
                 isTouching = false;
