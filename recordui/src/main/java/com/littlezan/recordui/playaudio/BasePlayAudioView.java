@@ -10,7 +10,6 @@ import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
 import android.util.Log;
-import android.util.TypedValue;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -91,6 +90,28 @@ public abstract class BasePlayAudioView extends View {
      */
     protected boolean canTouchScroll = false;
 
+    /**
+     * 裁剪区域颜色
+     */
+    protected @ColorInt
+    int cropMashColor = Color.RED;
+
+    /**
+     * 裁剪线顶部文字大小
+     */
+    protected int cropTimeTextSize = 0;
+
+    /**
+     * 裁剪区域颜色
+     */
+    protected @ColorInt
+    int cropTimeTextColor = Color.BLACK;
+
+    /**
+     * 裁剪线顶部文字距离 圆心的距离
+     */
+    protected int cropTimeTextMargin = 0;
+
 
     /**
      * 最小可滑动值
@@ -140,9 +161,10 @@ public abstract class BasePlayAudioView extends View {
      */
     protected float lastSampleXWithRectGap;
 
-    protected Paint linePaint = new Paint();
-    protected Paint centerLinePaint = new Paint();
+    protected Paint linePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    protected Paint centerLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     protected Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+
 
     protected PlayAudioCallBack playAudioCallBack;
 
@@ -187,6 +209,10 @@ public abstract class BasePlayAudioView extends View {
         lineWidth = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_lineWidth, lineWidth);
         rectGap = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_rectGap, rectGap);
         canTouchScroll = typedArray.getBoolean(R.styleable.PlayAudio_p_canTouchScroll, false);
+        cropMashColor = typedArray.getColor(R.styleable.PlayAudio_p_cropMashColor, Color.RED);
+        cropTimeTextSize = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_cropTimeTextSize, 0);
+        cropTimeTextColor = typedArray.getColor(R.styleable.PlayAudio_p_cropTimeTextColor, Color.RED);
+        cropTimeTextMargin = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_cropTimeTextMargin, 0);
 
         typedArray.recycle();
     }
@@ -203,8 +229,9 @@ public abstract class BasePlayAudioView extends View {
 
         textPaint.setStyle(Paint.Style.FILL);
         textPaint.setTextAlign(Paint.Align.CENTER);
-        textPaint.setColor(Color.BLACK);
-        textPaint.setTextSize(TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_SP, 10, context.getResources().getDisplayMetrics()));
+        textPaint.setColor(cropTimeTextColor);
+        textPaint.setTextSize(cropTimeTextSize);
+
     }
 
 

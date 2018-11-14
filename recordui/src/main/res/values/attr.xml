@@ -93,6 +93,14 @@
         <attr name="p_rectGap" format="dimension" />
         <!--是否可以滑动View-->
         <attr name="p_canTouchScroll" format="boolean" />
+        <!--裁剪区域颜色-->
+        <attr name="p_cropMashColor" format="color" />
+        <!--裁剪线顶部文字大小-->
+        <attr name="p_cropTimeTextSize" format="dimension" />
+        <!--裁剪线顶部文字颜色-->
+        <attr name="p_cropTimeTextColor" format="color" />
+        <!--裁剪线顶部文字距离 圆心的距离-->
+        <attr name="p_cropTimeTextMargin" format="dimension" />
 
     </declare-styleable>
 

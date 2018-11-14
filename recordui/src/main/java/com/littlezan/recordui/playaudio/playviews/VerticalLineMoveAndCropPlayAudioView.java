@@ -7,7 +7,6 @@ import android.annotation.SuppressLint;
 import android.content.Context;
 import android.content.res.Resources;
 import android.graphics.Canvas;
-import android.graphics.Color;
 import android.graphics.Paint;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
@@ -47,20 +46,23 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
 
     public VerticalLineMoveAndCropPlayAudioView(Context context) {
         super(context);
+        initValues();
     }
 
     public VerticalLineMoveAndCropPlayAudioView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
+        initValues();
     }
 
     public VerticalLineMoveAndCropPlayAudioView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+        initValues();
     }
 
-    {
+   void initValues() {
         verticalLineTouchHotSpot = (int) TypedValue.applyDimension(TypedValue.COMPLEX_UNIT_DIP, 20, Resources.getSystem().getDisplayMetrics());
         maskPaint.setStyle(Paint.Style.FILL);
-        maskPaint.setColor(Color.parseColor("#20FF0000"));
+        maskPaint.setColor(cropMashColor);
     }
 
 
@@ -139,7 +141,7 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         canvas.drawCircle(cropLineX, startY, circleRadius, centerLinePaint);
         canvas.drawLine(cropLineX, startY, cropLineX, getHeight(), centerLinePaint);
         long cropTimeInMillis = getCropTimeInMillis();
-        canvas.drawText(formatTime(cropTimeInMillis), cropLineX, startY - textPaint.getFontSpacing() / 2, textPaint);
+        canvas.drawText(formatTime(cropTimeInMillis), cropLineX, startY -cropTimeTextMargin, textPaint);
         float right = lastSampleXWithRectGap > getWidth() ? getWidth() + getScrollX() : lastSampleXWithRectGap;
         canvas.drawRect(cropLineX, startY + circleRadius, right, getHeight(), maskPaint);
         if (playAudioCallBack != null) {
