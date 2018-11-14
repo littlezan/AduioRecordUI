@@ -69,15 +69,12 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
+        isTouching = true;
         float currentX = event.getX();
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
                 stopPlay();
-                if (!cropLineInVisible()) {
-                    scrollTo(jumpCropLine, 0);
-                    lastScrollX = getScrollX();
-                }
+                jumpToCropLinePostion();
                 if (playAudioCallBack != null) {
                     playAudioCallBack.onPausePlay();
                 }
@@ -123,6 +120,13 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         return true;
     }
 
+    private void jumpToCropLinePostion() {
+        if (!cropLineInVisible()) {
+            scrollTo(jumpCropLine, 0);
+            lastScrollX = getScrollX();
+        }
+    }
+
 
     @Override
     protected void onDraw(Canvas canvas) {
@@ -138,6 +142,9 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         canvas.drawText(formatTime(cropTimeInMillis), cropLineX, startY - textPaint.getFontSpacing() / 2, textPaint);
         float right = lastSampleXWithRectGap > getWidth() ? getWidth() + getScrollX() : lastSampleXWithRectGap;
         canvas.drawRect(cropLineX, startY + circleRadius, right, getHeight(), maskPaint);
+        if (playAudioCallBack != null) {
+            playAudioCallBack.onCurrentCropLineTime(cropTimeInMillis);
+        }
     }
 
     public long getCropTimeInMillis() {
@@ -167,7 +174,9 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         }
 
         if (playAudioCallBack != null) {
-            if (centerLineX >= lastSampleXWithRectGap - rectGap) {
+            if (centerLineX >= lastSampleXWithRectGap) {
+                isPlaying = false;
+                isAutoScroll = false;
                 playAudioCallBack.onPlayingFinish();
             } else {
                 playAudioCallBack.onPlaying(getCurrentPlayingTimeInMillis());
@@ -200,9 +209,20 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         cropLineX = offset;
         centerLineX = offset;
         if (cropLineX > getWidth() / 2) {
-            scrollTo((int) cropLineX-getWidth()/2, 0);
+            scrollTo((int) cropLineX - getWidth() / 2, 0);
         }
         invalidate();
+    }
+
+    public void setInitPlayingTime(final long timeInMillis) {
+        stopPlay();
+        setCenterLineXByTime(timeInMillis);
+        postOnAnimation(new Runnable() {
+            @Override
+            public void run() {
+                jumpToCropLinePostion();
+            }
+        });
     }
 
 
@@ -210,7 +230,7 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
     public void startPlay(long timeInMillis) {
         if (!isPlaying) {
             isTouching = false;
-            setPlayingTime(timeInMillis);
+            setCenterLineXByTime(timeInMillis);
             isPlaying = true;
             if (centerLineX < getWidth() + getScrollX()) {
                 startCenterLineToEndAnimation();

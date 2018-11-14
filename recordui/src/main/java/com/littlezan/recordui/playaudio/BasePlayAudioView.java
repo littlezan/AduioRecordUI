@@ -402,13 +402,12 @@ public abstract class BasePlayAudioView extends View {
      *
      * @param timeInMillis 播放时间 毫秒
      */
-    public void setPlayingTime(long timeInMillis) {
+    protected void setCenterLineXByTime(long timeInMillis) {
         if (!isPlaying) {
             centerLineX = timeInMillis * audioSourceFrequency * (lineWidth + rectGap) / 1000;
             if (timeInMillis == 0) {
                 centerLineX = circleRadius;
             }
-            invalidate();
         }
     }
 

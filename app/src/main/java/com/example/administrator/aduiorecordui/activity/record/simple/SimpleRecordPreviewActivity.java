@@ -89,6 +89,11 @@ public class SimpleRecordPreviewActivity extends BasePlayerActivity {
             }
 
             @Override
+            public void onCurrentCropLineTime(long cropLineTimeInMillis) {
+
+            }
+
+            @Override
             public void onPausePlay() {
                 pausePlay();
             }
@@ -102,7 +107,7 @@ public class SimpleRecordPreviewActivity extends BasePlayerActivity {
             public void onPlayingFinish() {
                 currentPlayingTimeInMillis = 0;
                 Log.e(TAG, "onPlayingFinish: restart play finish");
-//                verticalLineMoveByGesturePlayAudioView.setInitPlayTime(0);
+                verticalLineMoveByGesturePlayAudioView.setInitPlayingTime(0);
             }
 
             @Override

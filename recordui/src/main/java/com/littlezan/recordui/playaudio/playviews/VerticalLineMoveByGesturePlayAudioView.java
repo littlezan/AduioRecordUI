@@ -50,13 +50,12 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
     }
 
 
-
     float touchActionX;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
-
+        isTouching = true;
         float currentX = event.getX();
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
@@ -130,7 +129,9 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
         canvas.drawText(formatTime(currentPlayingTimeInMillis), centerLineX, startY - textPaint.getFontSpacing() / 2, textPaint);
 
         if (playAudioCallBack != null) {
-            if (centerLineX >= lastSampleXWithRectGap - rectGap) {
+            if (centerLineX >= lastSampleXWithRectGap) {
+                isPlaying = false;
+                isAutoScroll = false;
                 playAudioCallBack.onPlayingFinish();
             } else {
                 playAudioCallBack.onPlaying(currentPlayingTimeInMillis);
@@ -146,13 +147,25 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
         return dateFormat.format(date);
     }
 
+    public void setInitPlayingTime(final long timeInMillis) {
+        stopPlay();
+        setCenterLineXByTime(timeInMillis);
+        postOnAnimation(new Runnable() {
+            @Override
+            public void run() {
+                scrollTo((int) centerLineX - getWidth(), 0);
+                invalidate();
+            }
+        });
+    }
+
     @Override
     public void startPlay(long timeInMillis) {
         if (!isPlaying) {
             isTouching = false;
-            setPlayingTime(timeInMillis);
+            setCenterLineXByTime(timeInMillis);
             isPlaying = true;
-            if (centerLineX < getWidth()+getScrollX()) {
+            if (centerLineX < getWidth() + getScrollX()) {
                 startCenterLineToEndAnimation();
             } else {
                 startTranslateView();
@@ -232,7 +245,6 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
             }
         }
     }
-
 
 
 }

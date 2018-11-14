@@ -122,6 +122,11 @@ public class AudioRecordPreviewActivity extends AppCompatActivity {
                 tvDuration.setText(DateUtils.formatElapsedTime(timeInMillis));
             }
 
+            @Override
+            public void onCurrentCropLineTime(long cropLineTimeInMillis) {
+
+            }
+
 
             @Override
             public void onPausePlay() {

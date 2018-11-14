@@ -35,24 +35,26 @@ public class VerticalLineFixedInCenterPlayAudioView extends BaseDrawPlayAudioVie
 
     @Override
     public void drawVerticalTargetLine(Canvas canvas) {
-            centerLineX = isAutoScroll ? getScrollX() + canvas.getWidth() / 2 : centerLineX;
-            float startY = circleMarginTop;
-            canvas.drawCircle(centerLineX, startY, circleRadius, centerLinePaint);
-            canvas.drawLine(centerLineX, startY, centerLineX, getMeasuredHeight(), centerLinePaint);
-            if (playAudioCallBack != null) {
-                if (centerLineX >= lastSampleXWithRectGap - rectGap) {
-                    playAudioCallBack.onPlayingFinish();
-                } else {
-                    playAudioCallBack.onPlaying(getCurrentPlayingTimeInMillis());
-                }
+        centerLineX = isAutoScroll ? getScrollX() + canvas.getWidth() / 2 : centerLineX;
+        float startY = circleMarginTop;
+        canvas.drawCircle(centerLineX, startY, circleRadius, centerLinePaint);
+        canvas.drawLine(centerLineX, startY, centerLineX, getMeasuredHeight(), centerLinePaint);
+        if (playAudioCallBack != null) {
+            if (centerLineX >= lastSampleXWithRectGap) {
+                isPlaying = false;
+                isAutoScroll = false;
+                playAudioCallBack.onPlayingFinish();
+            } else {
+                playAudioCallBack.onPlaying(getCurrentPlayingTimeInMillis());
             }
+        }
     }
 
     @Override
     public void startPlay(long timeInMillis) {
         if (!isPlaying) {
             isTouching = false;
-            setPlayingTime(timeInMillis);
+            setCenterLineXByTime(timeInMillis);
             isPlaying = true;
             int middle = getMeasuredWidth() / 2;
             if (centerLineX < middle) {

@@ -116,6 +116,11 @@ public class PlayAudioActivity extends AppCompatActivity {
 //                Log.d(TAG, "onPlaying: lll = " + mSimpleExoPlayer.getVolume());
             }
 
+            @Override
+            public void onCurrentCropLineTime(long cropLineTimeInMillis) {
+
+            }
+
 
             @Override
             public void onPausePlay() {

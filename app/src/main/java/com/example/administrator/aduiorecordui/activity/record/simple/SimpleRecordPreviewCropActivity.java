@@ -57,6 +57,11 @@ public class SimpleRecordPreviewCropActivity extends BasePlayerActivity {
 
             }
 
+            @Override
+            public void onCurrentCropLineTime(long cropLineTimeInMillis) {
+
+            }
+
 
             @Override
             public void onPausePlay() {
@@ -120,6 +125,11 @@ public class SimpleRecordPreviewCropActivity extends BasePlayerActivity {
                 currentPlayingTimeInMillis = timeInMillis;
             }
 
+            @Override
+            public void onCurrentCropLineTime(long cropLineTimeInMillis) {
+                cropLineTime = cropLineTimeInMillis;
+            }
+
 
             @Override
             public void onPausePlay() {
@@ -133,12 +143,12 @@ public class SimpleRecordPreviewCropActivity extends BasePlayerActivity {
 
             @Override
             public void onPlayingFinish() {
-//                verticalLineMoveAndCropPlayAudioView.setInitPlayTime(cropLineTime);
+                verticalLineMoveAndCropPlayAudioView.setInitPlayingTime(cropLineTime);
             }
 
             @Override
             public void onCrop(int cropIndex, long remainTimeInMillis) {
-                cropLineTime = remainTimeInMillis;
+
                 AudioRecordDataSource.getInstance().cropDecibelList(cropIndex);
                 cropMp3.startCrop(remainTimeInMillis);
             }

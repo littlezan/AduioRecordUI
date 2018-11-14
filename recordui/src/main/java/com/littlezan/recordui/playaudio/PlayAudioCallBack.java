@@ -18,6 +18,12 @@ public interface PlayAudioCallBack {
     void onPlaying(long timeInMillis);
 
     /**
+     * 裁剪线的位置所表示的时间
+     * @param cropLineTimeInMillis 时间
+     */
+    void onCurrentCropLineTime(long cropLineTimeInMillis);
+
+    /**
      * 暂停播放
      */
     void onPausePlay();
