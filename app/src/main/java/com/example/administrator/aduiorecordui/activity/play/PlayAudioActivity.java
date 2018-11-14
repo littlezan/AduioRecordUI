@@ -3,7 +3,6 @@ package com.example.administrator.aduiorecordui.activity.play;
 import android.os.Bundle;
 import android.support.annotation.Nullable;
 import android.support.v7.app.AppCompatActivity;
-import android.text.TextUtils;
 import android.util.Log;
 import android.view.View;
 import android.widget.Button;
@@ -106,10 +105,6 @@ public class PlayAudioActivity extends AppCompatActivity {
         playMiddle.setOnClickListener(new View.OnClickListener() {
             @Override
             public void onClick(View v) {
-                if (!TextUtils.isEmpty(editText.getText().toString())) {
-                    millis = Integer.parseInt(editText.getText().toString())*1000;
-                    playAudioView.setPlayingTime(millis);
-                }
             }
         });
 

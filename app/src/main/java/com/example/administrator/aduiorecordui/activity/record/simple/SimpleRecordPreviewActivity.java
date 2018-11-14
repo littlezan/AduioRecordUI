@@ -100,7 +100,9 @@ public class SimpleRecordPreviewActivity extends BasePlayerActivity {
 
             @Override
             public void onPlayingFinish() {
-
+                currentPlayingTimeInMillis = 0;
+                Log.e(TAG, "onPlayingFinish: restart play finish");
+//                verticalLineMoveByGesturePlayAudioView.setInitPlayTime(0);
             }
 
             @Override
@@ -178,7 +180,14 @@ public class SimpleRecordPreviewActivity extends BasePlayerActivity {
         preparePlay(AudioRecordDataSource.getInstance().getRecordFile());
         verticalLineMoveByGesturePlayAudioView.setAudioSource(AudioRecordDataSource.getInstance().decibelList);
         currentPlayingTimeInMillis = 0;
-        seekToPlay(0);
+        verticalLineMoveByGesturePlayAudioView.postDelayed(new Runnable() {
+            @Override
+            public void run() {
+                seekToPlay(0);
+            }
+        },300);
+
+
     }
 
     @Override

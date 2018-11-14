@@ -55,7 +55,8 @@ public class AudioRecordDataSource {
         } catch (IOException e) {
             e.printStackTrace();
         }
-
+        initRecordFile();
+        initNewVersionCropOutputFile();
     }
 
     public void initRecordFile() {

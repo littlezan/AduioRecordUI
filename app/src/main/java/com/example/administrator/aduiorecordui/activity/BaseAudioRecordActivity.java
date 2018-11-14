@@ -75,8 +75,6 @@ public abstract class BaseAudioRecordActivity extends AppCompatActivity {
 
     private void initRecordFile() {
         AudioRecordDataSource.getInstance().init(this);
-        AudioRecordDataSource.getInstance().initRecordFile();
-        AudioRecordDataSource.getInstance().initNewVersionCropOutputFile();
     }
 
 

@@ -111,6 +111,8 @@ public class SimpleRecordPreviewCropActivity extends BasePlayerActivity {
         initListener();
     }
 
+    long cropLineTime;
+
     private void initListener() {
         verticalLineMoveAndCropPlayAudioView.setPlayAudioCallBack(new PlayAudioCallBack() {
             @Override
@@ -131,12 +133,12 @@ public class SimpleRecordPreviewCropActivity extends BasePlayerActivity {
 
             @Override
             public void onPlayingFinish() {
-
+//                verticalLineMoveAndCropPlayAudioView.setInitPlayTime(cropLineTime);
             }
 
             @Override
             public void onCrop(int cropIndex, long remainTimeInMillis) {
-                Log.e(TAG, "onCrop: lll crop --- remainTimeInMillis = "+remainTimeInMillis);
+                cropLineTime = remainTimeInMillis;
                 AudioRecordDataSource.getInstance().cropDecibelList(cropIndex);
                 cropMp3.startCrop(remainTimeInMillis);
             }
@@ -146,7 +148,6 @@ public class SimpleRecordPreviewCropActivity extends BasePlayerActivity {
         simpleExoPlayer.addListener(new Player.EventListener() {
             @Override
             public void onTimelineChanged(Timeline timeline, Object manifest, int reason) {
-                Log.e(TAG, "onTimelineChanged: lll ");
             }
 
             @Override

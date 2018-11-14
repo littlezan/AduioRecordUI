@@ -362,7 +362,7 @@ public abstract class BaseAudioRecordView extends View {
         showStopFlag = typedArray.getBoolean(R.styleable.AudioRecordView_showStopFlag, showStopFlag);
         canTouch = typedArray.getBoolean(R.styleable.AudioRecordView_canTouch, true);
         showVerticalLine = typedArray.getBoolean(R.styleable.AudioRecordView_showVerticalLine, true);
-        showHorizontalLine = typedArray.getBoolean(R.styleable.AudioRecordView_showVerticalLine, true);
+        showHorizontalLine = typedArray.getBoolean(R.styleable.AudioRecordView_showHorizontalLine, true);
 
         typedArray.recycle();
     }
