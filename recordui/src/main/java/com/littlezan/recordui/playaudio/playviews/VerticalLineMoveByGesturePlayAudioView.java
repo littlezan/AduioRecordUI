@@ -51,37 +51,55 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
 
 
     float touchActionX;
+    int trackingCenterLinePointerId;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         isTouching = true;
-        float currentX = event.getX();
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_POINTER_DOWN:
                 stopPlay();
                 if (playAudioCallBack != null) {
                     playAudioCallBack.onPausePlay();
                 }
-                float resolveX = currentX + getScrollX();
+                trackingCenterLinePointerId = event.getPointerId(event.getActionIndex());
+                float  resolveX = event.getX(event.findPointerIndex(trackingCenterLinePointerId)) + getScrollX();
                 isTouchViewMode = resolveX < centerLineX - verticalLineTouchHotSpot || resolveX > centerLineX + verticalLineTouchHotSpot;
                 if (isTouchViewMode) {
                     super.onTouchEvent(event);
                 } else {
-                    touchActionX = currentX;
+                    touchActionX = event.getX(event.getActionIndex());
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
                 if (isTouchViewMode) {
                     super.onTouchEvent(event);
                 } else {
-                    float moveX = currentX - touchActionX;
-                    touchActionX = currentX;
+                    int index = event.findPointerIndex(trackingCenterLinePointerId);
+                    float moveX = event.getX(index) - touchActionX;
+                    touchActionX = event.getX(index);
                     centerLineX += moveX;
                     if (centerLineX >= lastSampleXWithRectGap) {
                         centerLineX = lastSampleXWithRectGap;
                     }
                     invalidate();
+                }
+                break;
+
+            case MotionEvent.ACTION_POINTER_UP:
+                if (isTouchViewMode) {
+                    super.onTouchEvent(event);
+                } else {
+                    int newIndex;
+                    if (event.getActionIndex() == event.getPointerCount() - 1) {
+                        newIndex = event.getPointerCount() - 2;
+                    } else {
+                        newIndex = event.getPointerCount() - 1;
+                    }
+                    trackingCenterLinePointerId = event.getPointerId(newIndex);
+                    touchActionX = event.getX(newIndex);
                 }
                 break;
             case MotionEvent.ACTION_UP:

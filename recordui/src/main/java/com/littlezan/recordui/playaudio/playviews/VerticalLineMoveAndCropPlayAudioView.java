@@ -67,25 +67,27 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
 
 
     float touchActionX;
+    int trackingCropLinePointerId;
 
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
         isTouching = true;
-        float currentX = event.getX();
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_POINTER_DOWN:
                 stopPlay();
                 jumpToCropLinePosition();
                 if (playAudioCallBack != null) {
                     playAudioCallBack.onPausePlay();
                 }
-                float resolveX = currentX + getScrollX();
+                trackingCropLinePointerId = event.getPointerId(event.getActionIndex());
+                float resolveX = event.getX(event.getActionIndex()) + getScrollX();
                 isTouchViewMode = resolveX < cropLineX - verticalLineTouchHotSpot || resolveX > cropLineX + verticalLineTouchHotSpot;
                 if (isTouchViewMode) {
                     super.onTouchEvent(event);
                 } else {
-                    touchActionX = currentX;
+                    touchActionX = event.getX(event.getActionIndex());
                 }
                 centerLineX = cropLineX;
                 invalidate();
@@ -94,12 +96,26 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
                 if (isTouchViewMode) {
                     super.onTouchEvent(event);
                 } else {
-                    float moveX = currentX - touchActionX;
-                    touchActionX = currentX;
+                    float moveX = event.getX(event.findPointerIndex(trackingCropLinePointerId)) - touchActionX;
+                    touchActionX = event.getX(event.findPointerIndex(trackingCropLinePointerId));
                     centerLineX += moveX;
                     cropLineX += moveX;
                     checkValid();
                     invalidate();
+                }
+                break;
+            case MotionEvent.ACTION_POINTER_UP:
+                if (isTouchViewMode) {
+                    super.onTouchEvent(event);
+                } else {
+                    int newIndex;
+                    if (event.getActionIndex() == event.getPointerCount() - 1) {
+                        newIndex = event.getPointerCount() - 2;
+                    } else {
+                        newIndex = event.getPointerCount() - 1;
+                    }
+                    trackingCropLinePointerId = event.getPointerId(newIndex);
+                    touchActionX = event.getX(newIndex);
                 }
                 break;
             case MotionEvent.ACTION_UP:

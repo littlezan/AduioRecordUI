@@ -137,7 +137,8 @@ public abstract class BasePlayAudioView extends View {
      */
     protected int minVelocity;
 
-    protected float mLastX = 0;
+    protected float downX = 0;
+    private int trackingPointerId;
 
     protected List<PlaySampleLineMode> sampleLineList = new ArrayList<>();
 
@@ -295,7 +296,6 @@ public abstract class BasePlayAudioView extends View {
             return false;
         }
         isTouching = true;
-        float currentX = event.getX();
         //开始速度检测
         startVelocityTracker(event);
         switch (event.getActionMasked()) {
@@ -303,24 +303,40 @@ public abstract class BasePlayAudioView extends View {
                 if (!overScroller.isFinished()) {
                     overScroller.abortAnimation();
                 }
-                mLastX = currentX;
+                downX = event.getX();
+                trackingPointerId = event.getPointerId(0);
                 break;
             case MotionEvent.ACTION_MOVE:
-                float moveX = mLastX - currentX;
-                mLastX = currentX;
+                int index = event.findPointerIndex(trackingPointerId);
+                float moveX = downX - event.getX(index);
+                downX = event.getX(index);
                 scrollBy((int) (moveX), 0);
                 invalidate();
+                break;
+            case MotionEvent.ACTION_POINTER_DOWN:
+                trackingPointerId = event.getPointerId(event.getActionIndex());
+                downX = event.getX(event.getActionIndex());
+                break;
+
+            case MotionEvent.ACTION_POINTER_UP:
+                int newIndex;
+                if (event.getActionIndex() == event.getPointerCount() - 1) {
+                    newIndex = event.getPointerCount() - 2;
+                } else {
+                    newIndex = event.getPointerCount() - 1;
+                }
+                trackingPointerId = event.getPointerId(newIndex);
+                downX = event.getX(newIndex);
                 break;
             case MotionEvent.ACTION_UP:
                 isTouching = false;
                 //手指离开屏幕，开始处理惯性滑动Fling
-                velocityTracker.computeCurrentVelocity(500, maxVelocity);
+                velocityTracker.computeCurrentVelocity(1000, maxVelocity);
                 float velocityX = velocityTracker.getXVelocity();
                 if (Math.abs(velocityX) > minVelocity) {
                     fling(-velocityX);
                 }
                 finishVelocityTracker();
-
                 break;
             case MotionEvent.ACTION_CANCEL:
                 isTouching = false;

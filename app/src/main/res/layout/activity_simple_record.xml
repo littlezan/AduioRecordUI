@@ -82,7 +82,7 @@
         app:rectColor="#000000"
         app:rectGap="3dp"
         app:rectInvertColor="#000000"
-        app:rectMarginTop="25dp"
+        app:rectMarginTop="0dp"
         app:ruleHorizontalLineHeight="40dp"
         app:scaleIntervalLength="5dp"
         app:showHorizontalLine="false"
