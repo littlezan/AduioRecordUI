@@ -9,7 +9,6 @@ import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
-import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -32,7 +31,6 @@ import java.util.List;
  */
 public abstract class BasePlayAudioView extends View {
 
-    private static final String TAG = "BasePlayAudioView";
 
     /**
      * 圆点距离上边距
@@ -302,10 +300,8 @@ public abstract class BasePlayAudioView extends View {
         startVelocityTracker(event);
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
-                Log.e(TAG, "onTouchEvent: ACTION_DOWN ============" );
                 if (!overScroller.isFinished()) {
                     overScroller.abortAnimation();
-                    Log.e(TAG, "onTouchEvent: overScroller abortAnimation ------------- " );
                 }
                 downX = event.getX();
                 trackingPointerId = event.getPointerId(0);
@@ -415,7 +411,6 @@ public abstract class BasePlayAudioView extends View {
         }
         //滑动处理
         if (overScroller.computeScrollOffset()) {
-            Log.e(TAG, "onTouchEvent: overScroller abortAnimation computeScrollOffset+++++++++++++++++++++++++ " );
             startFling = true;
             scrollTo(overScroller.getCurrX(), overScroller.getCurrY());
             fixXAfterScrollXOnFling();
@@ -450,7 +445,6 @@ public abstract class BasePlayAudioView extends View {
 
     public void setCenterLineX(float centerLineX) {
         this.centerLineX = centerLineX;
-        Log.e(TAG, "setCenterLineX: write centerLineX = "+ centerLineX );
         invalidate();
     }
 

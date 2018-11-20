@@ -31,7 +31,6 @@ import java.util.Locale;
  */
 public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView {
 
-    private static final String TAG = "VerticalLineMoveAndCrop";
 
     private int verticalLineTouchHotSpot;
     private boolean isTouchViewMode = false;
