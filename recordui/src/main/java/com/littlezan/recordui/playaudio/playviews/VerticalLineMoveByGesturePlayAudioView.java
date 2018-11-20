@@ -60,12 +60,9 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
-                stopPlay();
-                if (playAudioCallBack != null) {
-                    playAudioCallBack.onPausePlay();
-                }
+                touchEventStopPlay();
                 trackingCenterLinePointerId = event.getPointerId(event.getActionIndex());
-                float  resolveX = event.getX(event.findPointerIndex(trackingCenterLinePointerId)) + getScrollX();
+                float resolveX = event.getX(event.findPointerIndex(trackingCenterLinePointerId)) + getScrollX();
                 isTouchViewMode = resolveX < centerLineX - verticalLineTouchHotSpot || resolveX > centerLineX + verticalLineTouchHotSpot;
                 if (isTouchViewMode) {
                     super.onTouchEvent(event);
@@ -74,6 +71,7 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
                 }
                 break;
             case MotionEvent.ACTION_MOVE:
+                touchEventStopPlay();
                 if (isTouchViewMode) {
                     super.onTouchEvent(event);
                 } else {
@@ -87,7 +85,6 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
                     invalidate();
                 }
                 break;
-
             case MotionEvent.ACTION_POINTER_UP:
                 if (isTouchViewMode) {
                     super.onTouchEvent(event);
@@ -103,18 +100,22 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
                 }
                 break;
             case MotionEvent.ACTION_UP:
-                startPlay(getCurrentPlayingTimeInMillis());
-                if (playAudioCallBack != null) {
-                    playAudioCallBack.onResumePlay();
-                }
+                isTouching = false;
                 if (isTouchViewMode) {
                     super.onTouchEvent(event);
+                } else {
+                    startPlay(getCurrentPlayingTimeInMillis());
+                    if (playAudioCallBack != null) {
+                        playAudioCallBack.onResumePlay();
+                    }
                 }
+                isTouchViewMode = false;
                 break;
             case MotionEvent.ACTION_CANCEL:
                 if (isTouchViewMode) {
                     super.onTouchEvent(event);
                 }
+                isTouchViewMode = false;
                 break;
             default:
                 break;
@@ -122,24 +123,18 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
         return true;
     }
 
-    /**
-     * 用于在画布移动过程中固定垂直线
-     */
-    int lastScrollX = 0;
+    private void touchEventStopPlay() {
+        if (isTouching && isPlaying) {
+            stopPlay();
+            if (playAudioCallBack != null) {
+                playAudioCallBack.onPausePlay();
+            }
+        }
+    }
+
 
     @Override
     public void drawVerticalTargetLine(Canvas canvas) {
-        int currentScrollX = getScrollX();
-        if (isTouching && isTouchViewMode) {
-            //手指滑动
-            int offset = currentScrollX - lastScrollX;
-            centerLineX = centerLineX + offset;
-            lastScrollX = currentScrollX;
-        } else {
-            //自动滚动
-            lastScrollX = currentScrollX;
-            centerLineX = isAutoScroll ? getScrollX() + getWidth() : centerLineX;
-        }
         float startY = circleMarginTop;
         canvas.drawCircle(centerLineX, startY, circleRadius, centerLinePaint);
         canvas.drawLine(centerLineX, startY, centerLineX, getMeasuredHeight(), centerLinePaint);
@@ -158,6 +153,52 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
 
     }
 
+
+    /**
+     * 用于在画布移动过程中固定垂直线
+     */
+    int lastScrollX = 0;
+
+    @Override
+    protected void sendTouchEvent(MotionEvent event) {
+        switch (event.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_POINTER_UP:
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                lastScrollX = getScrollX();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                int offset = getScrollX() - lastScrollX;
+                centerLineX += offset;
+                lastScrollX = getScrollX();
+                break;
+            default:
+                break;
+        }
+    }
+
+
+    @Override
+    protected void fixXAfterScrollXOnFling() {
+        int offset = getScrollX() - lastScrollX;
+        centerLineX += offset;
+        lastScrollX = getScrollX();
+    }
+
+
+    @Override
+    protected void fixXAfterScrollXOnAnimatorTranslateX(boolean animatorRunning) {
+        if (animatorRunning) {
+            int offset = getScrollX() - lastScrollX;
+            centerLineX += offset;
+            lastScrollX = getScrollX();
+        } else {
+            lastScrollX = getScrollX();
+        }
+
+    }
+
     private String formatTime(long timeMillis) {
         SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
         Date date = new Date();
@@ -172,7 +213,7 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
             @Override
             public void run() {
                 scrollTo((int) centerLineX - getWidth(), 0);
-                invalidate();
+                postInvalidateOnAnimation();
             }
         });
     }
@@ -180,9 +221,8 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
     @Override
     public void startPlay(long timeInMillis) {
         if (!isPlaying) {
-            isTouching = false;
-            setCenterLineXByTime(timeInMillis);
             isPlaying = true;
+            setCenterLineXByTime(timeInMillis);
             if (centerLineX < getWidth() + getScrollX()) {
                 startCenterLineToEndAnimation();
             } else {
@@ -238,14 +278,17 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
         animator.addListener(new AnimatorListenerAdapter() {
 
             @Override
+            public void onAnimationStart(Animator animation) {
+                fixXAfterScrollXOnAnimatorTranslateX(false);
+            }
+
+            @Override
             public void onAnimationCancel(Animator animation) {
-                super.onAnimationCancel(animation);
                 animator.removeAllListeners();
             }
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
                 animator.removeAllListeners();
             }
         });
@@ -255,10 +298,10 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
     @Override
     public void stopPlay() {
         if (isPlaying) {
-            isTouching = false;
             isPlaying = false;
             isAutoScroll = false;
             if (animator != null) {
+                animator.removeAllListeners();
                 animator.cancel();
             }
         }

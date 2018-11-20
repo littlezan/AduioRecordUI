@@ -7,6 +7,7 @@ import android.content.Context;
 import android.graphics.Canvas;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.view.MotionEvent;
 import android.view.animation.LinearInterpolator;
 
 import com.littlezan.recordui.playaudio.BaseDrawPlayAudioView;
@@ -31,6 +32,21 @@ public class VerticalLineFixedInCenterPlayAudioView extends BaseDrawPlayAudioVie
 
     public VerticalLineFixedInCenterPlayAudioView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
+    }
+
+    @Override
+    protected void sendTouchEvent(MotionEvent event) {
+
+    }
+
+    @Override
+    protected void fixXAfterScrollXOnFling() {
+
+    }
+
+    @Override
+    protected void fixXAfterScrollXOnAnimatorTranslateX(boolean animatorRunning) {
+
     }
 
     @Override

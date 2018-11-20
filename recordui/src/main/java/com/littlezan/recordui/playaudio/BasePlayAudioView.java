@@ -9,6 +9,7 @@ import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
 import android.util.AttributeSet;
+import android.util.Log;
 import android.view.MotionEvent;
 import android.view.VelocityTracker;
 import android.view.View;
@@ -272,8 +273,9 @@ public abstract class BasePlayAudioView extends View {
         invalidate();
     }
 
+
     void setCanScrollX() {
-        float length = lastSampleXWithRectGap - getWidth();
+        float length = lastSampleXWithRectGap - getMeasuredWidth();
         maxScrollX = length < 0 ? 0 : Math.round(length);
         minScrollX = 0;
     }
@@ -300,24 +302,27 @@ public abstract class BasePlayAudioView extends View {
         startVelocityTracker(event);
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
+                Log.e(TAG, "onTouchEvent: ACTION_DOWN ============" );
                 if (!overScroller.isFinished()) {
                     overScroller.abortAnimation();
+                    Log.e(TAG, "onTouchEvent: overScroller abortAnimation ------------- " );
                 }
                 downX = event.getX();
                 trackingPointerId = event.getPointerId(0);
+                sendTouchEvent(event);
                 break;
             case MotionEvent.ACTION_MOVE:
                 int index = event.findPointerIndex(trackingPointerId);
                 float moveX = downX - event.getX(index);
                 downX = event.getX(index);
                 scrollBy((int) (moveX), 0);
-                invalidate();
+                sendTouchEvent(event);
+                postInvalidateOnAnimation();
                 break;
             case MotionEvent.ACTION_POINTER_DOWN:
                 trackingPointerId = event.getPointerId(event.getActionIndex());
                 downX = event.getX(event.getActionIndex());
                 break;
-
             case MotionEvent.ACTION_POINTER_UP:
                 int newIndex;
                 if (event.getActionIndex() == event.getPointerCount() - 1) {
@@ -327,14 +332,18 @@ public abstract class BasePlayAudioView extends View {
                 }
                 trackingPointerId = event.getPointerId(newIndex);
                 downX = event.getX(newIndex);
+                sendTouchEvent(event);
                 break;
             case MotionEvent.ACTION_UP:
                 isTouching = false;
+                sendTouchEvent(event);
                 //手指离开屏幕，开始处理惯性滑动Fling
-                velocityTracker.computeCurrentVelocity(1000, maxVelocity);
+                velocityTracker.computeCurrentVelocity(500, maxVelocity);
                 float velocityX = velocityTracker.getXVelocity();
                 if (Math.abs(velocityX) > minVelocity) {
                     fling(-velocityX);
+                } else {
+                    onResumePlay();
                 }
                 finishVelocityTracker();
                 break;
@@ -344,11 +353,37 @@ public abstract class BasePlayAudioView extends View {
                     overScroller.abortAnimation();
                 }
                 finishVelocityTracker();
+                sendTouchEvent(event);
                 break;
             default:
                 break;
         }
         return true;
+    }
+
+    /**
+     * 滑动之后修复位置
+     *
+     * @param event 点击事件
+     */
+    protected abstract void sendTouchEvent(MotionEvent event);
+    /**
+     * 滑动之后修复位置
+     *
+     */
+    protected abstract void fixXAfterScrollXOnFling();
+    /**
+     * 滑动之后修复位置
+     *
+     * @param animatorRunning starting
+     */
+    protected abstract void fixXAfterScrollXOnAnimatorTranslateX(boolean animatorRunning);
+
+    private void onResumePlay() {
+        startPlay(getCurrentPlayingTimeInMillis());
+        if (playAudioCallBack != null) {
+            playAudioCallBack.onResumePlay();
+        }
     }
 
     private void startVelocityTracker(MotionEvent event) {
@@ -365,8 +400,12 @@ public abstract class BasePlayAudioView extends View {
         }
     }
 
+    boolean startFling;
+
     private void fling(float velocity) {
         overScroller.fling(getScrollX(), 0, (int) velocity, 0, minScrollX, maxScrollX, 0, 0);
+        startFling = true;
+        postInvalidateOnAnimation();
     }
 
     @Override
@@ -375,10 +414,20 @@ public abstract class BasePlayAudioView extends View {
             return;
         }
         //滑动处理
-        if (isTouching && overScroller.computeScrollOffset()) {
+        if (overScroller.computeScrollOffset()) {
+            Log.e(TAG, "onTouchEvent: overScroller abortAnimation computeScrollOffset+++++++++++++++++++++++++ " );
+            startFling = true;
             scrollTo(overScroller.getCurrX(), overScroller.getCurrY());
-            invalidate();
+            fixXAfterScrollXOnFling();
+            postInvalidateOnAnimation();
         }
+        if (startFling) {
+            if (overScroller.isFinished()) {
+                onResumePlay();
+                startFling = false;
+            }
+        }
+
     }
 
     @Override
@@ -401,6 +450,7 @@ public abstract class BasePlayAudioView extends View {
 
     public void setCenterLineX(float centerLineX) {
         this.centerLineX = centerLineX;
+        Log.e(TAG, "setCenterLineX: write centerLineX = "+ centerLineX );
         invalidate();
     }
 
@@ -411,7 +461,8 @@ public abstract class BasePlayAudioView extends View {
     public void setTranslateX(float translateX) {
         this.translateX = translateX;
         scrollTo((int) translateX, 0);
-        invalidate();
+        fixXAfterScrollXOnAnimatorTranslateX(true);
+        postInvalidateOnAnimation();
     }
 
     public long getCurrentPlayingTimeInMillis() {
@@ -474,7 +525,7 @@ public abstract class BasePlayAudioView extends View {
         isAutoScroll = false;
         isTouching = false;
         scrollTo(minScrollX, 0);
-        invalidate();
+        postInvalidateOnAnimation();
     }
 
 

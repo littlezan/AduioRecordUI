@@ -453,6 +453,7 @@ public abstract class BaseAudioRecordView extends View {
                 if (!overScroller.isFinished()) {
                     overScroller.abortAnimation();
                 }
+                velocityTracker.clear();
                 mLastX = currentX;
                 break;
             case MotionEvent.ACTION_MOVE:
@@ -483,6 +484,7 @@ public abstract class BaseAudioRecordView extends View {
         return true;
     }
 
+
     private void startVelocityTracker(MotionEvent event) {
         if (velocityTracker == null) {
             velocityTracker = VelocityTracker.obtain();
@@ -507,7 +509,7 @@ public abstract class BaseAudioRecordView extends View {
         if (isPlayingRecord || isRecording) {
             return;
         }
-        if (isTouching && overScroller.computeScrollOffset()) {
+        if (overScroller.computeScrollOffset()) {
             scrollTo(overScroller.getCurrX(), overScroller.getCurrY());
         }
     }

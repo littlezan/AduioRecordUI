@@ -76,11 +76,8 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         switch (event.getActionMasked()) {
             case MotionEvent.ACTION_DOWN:
             case MotionEvent.ACTION_POINTER_DOWN:
-                stopPlay();
+                touchEventStopPlay();
                 jumpToCropLinePosition();
-                if (playAudioCallBack != null) {
-                    playAudioCallBack.onPausePlay();
-                }
                 trackingCropLinePointerId = event.getPointerId(event.getActionIndex());
                 float resolveX = event.getX(event.getActionIndex()) + getScrollX();
                 isTouchViewMode = resolveX < cropLineX - verticalLineTouchHotSpot || resolveX > cropLineX + verticalLineTouchHotSpot;
@@ -93,13 +90,14 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
                 invalidate();
                 break;
             case MotionEvent.ACTION_MOVE:
+                touchEventStopPlay();
                 if (isTouchViewMode) {
                     super.onTouchEvent(event);
                 } else {
                     float moveX = event.getX(event.findPointerIndex(trackingCropLinePointerId)) - touchActionX;
                     touchActionX = event.getX(event.findPointerIndex(trackingCropLinePointerId));
-                    centerLineX += moveX;
                     cropLineX += moveX;
+                    centerLineX = cropLineX;
                     checkValid();
                     invalidate();
                 }
@@ -119,18 +117,22 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
                 }
                 break;
             case MotionEvent.ACTION_UP:
-                startPlay(getCropTimeInMillis());
-                if (playAudioCallBack != null) {
-                    playAudioCallBack.onResumePlay();
-                }
+                isTouching = false;
                 if (isTouchViewMode) {
                     super.onTouchEvent(event);
+                } else {
+                    startPlay(getCropTimeInMillis());
+                    if (playAudioCallBack != null) {
+                        playAudioCallBack.onResumePlay();
+                    }
                 }
+                isTouchViewMode = false;
                 break;
             case MotionEvent.ACTION_CANCEL:
                 if (isTouchViewMode) {
                     super.onTouchEvent(event);
                 }
+                isTouchViewMode = false;
                 break;
             default:
                 break;
@@ -138,11 +140,67 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         return true;
     }
 
+    private void touchEventStopPlay() {
+        if (isTouching && isPlaying) {
+            stopPlay();
+            if (playAudioCallBack != null) {
+                playAudioCallBack.onPausePlay();
+            }
+        }
+    }
+
+    /**
+     * 用于在画布移动过程中固定垂直线
+     */
+    int lastScrollX = 0;
+
+    @Override
+    protected void sendTouchEvent(MotionEvent event) {
+        switch (event.getActionMasked()) {
+            case MotionEvent.ACTION_DOWN:
+            case MotionEvent.ACTION_POINTER_UP:
+            case MotionEvent.ACTION_UP:
+            case MotionEvent.ACTION_CANCEL:
+                lastScrollX = getScrollX();
+                break;
+            case MotionEvent.ACTION_MOVE:
+                //手指滑动
+                int offset = getScrollX() - lastScrollX;
+                cropLineX += offset;
+                centerLineX = cropLineX;
+                checkValid();
+                lastScrollX = getScrollX();
+                break;
+            default:
+                break;
+        }
+    }
+
+    @Override
+    protected void fixXAfterScrollXOnFling() {
+        int offset = getScrollX() - lastScrollX;
+        cropLineX += offset;
+        centerLineX = cropLineX;
+        lastScrollX = getScrollX();
+    }
+
+    @Override
+    protected void fixXAfterScrollXOnAnimatorTranslateX(boolean animatorRunning) {
+        if (animatorRunning) {
+            int offset = getScrollX() - lastScrollX;
+            cropLineX += offset;
+            centerLineX = cropLineX;
+            lastScrollX = getScrollX();
+        } else {
+            lastScrollX = getScrollX();
+        }
+    }
+
     private void jumpToCropLinePosition() {
         if (!cropLineInVisible()) {
             scrollTo(jumpCropLine, 0);
-            invalidate();
             lastScrollX = getScrollX();
+            invalidate();
         }
     }
 
@@ -170,28 +228,9 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         return getTimeInMillis(cropLineX);
     }
 
-    /**
-     * 用于在画布移动过程中固定垂直线
-     */
-    int lastScrollX = 0;
-
 
     @Override
     public void drawVerticalTargetLine(Canvas canvas) {
-        int currentScrollX = getScrollX();
-        if (isTouching && isTouchViewMode) {
-            //手指滑动
-            int offset = currentScrollX - lastScrollX;
-            centerLineX = centerLineX + offset;
-            cropLineX = cropLineX + offset;
-            checkValid();
-            lastScrollX = currentScrollX;
-        } else {
-            //自动滚动
-            lastScrollX = currentScrollX;
-            centerLineX = isAutoScroll ? getScrollX() + getWidth() : centerLineX;
-        }
-
         if (playAudioCallBack != null) {
             if (centerLineX >= lastSampleXWithRectGap) {
                 isPlaying = false;
@@ -249,9 +288,8 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
     @Override
     public void startPlay(long timeInMillis) {
         if (!isPlaying) {
-            isTouching = false;
-            setCenterLineXByTime(timeInMillis);
             isPlaying = true;
+            setCenterLineXByTime(timeInMillis);
             if (centerLineX < getWidth() + getScrollX()) {
                 startCenterLineToEndAnimation();
             } else {
@@ -308,14 +346,17 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         animator.addListener(new AnimatorListenerAdapter() {
 
             @Override
+            public void onAnimationStart(Animator animation) {
+                fixXAfterScrollXOnAnimatorTranslateX(false);
+            }
+
+            @Override
             public void onAnimationCancel(Animator animation) {
-                super.onAnimationCancel(animation);
                 animator.removeAllListeners();
             }
 
             @Override
             public void onAnimationEnd(Animator animation) {
-                super.onAnimationEnd(animation);
                 animator.removeAllListeners();
             }
         });
@@ -325,10 +366,10 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
     @Override
     public void stopPlay() {
         if (isPlaying) {
-            isTouching = false;
             isPlaying = false;
             isAutoScroll = false;
             if (animator != null) {
+                animator.removeAllListeners();
                 animator.cancel();
             }
         }
