@@ -135,8 +135,7 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
         canvas.drawCircle(centerLineX, startY, circleRadius, centerLinePaint);
         canvas.drawLine(centerLineX, startY, centerLineX, getMeasuredHeight(), centerLinePaint);
         long currentPlayingTimeInMillis = getCurrentPlayingTimeInMillis();
-        String textContent = formatTime(currentPlayingTimeInMillis);
-        canvas.drawText(textContent, getTimeTextX(centerLineX), startY - timeTextMargin, textTimePaint);
+        canvas.drawText(formatTime(currentPlayingTimeInMillis), getTimeTextX(centerLineX), startY - timeTextMargin, textTimePaint);
 
         if (playAudioCallBack != null) {
             if (centerLineX >= lastSampleXWithRectGap) {
