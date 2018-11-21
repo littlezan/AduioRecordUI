@@ -5,6 +5,7 @@ import android.content.Context;
 import android.content.res.TypedArray;
 import android.graphics.Color;
 import android.graphics.Paint;
+import android.graphics.Rect;
 import android.os.Build;
 import android.support.annotation.ColorInt;
 import android.support.annotation.Nullable;
@@ -18,8 +19,11 @@ import android.widget.OverScroller;
 import com.littlezan.recordui.R;
 import com.littlezan.recordui.playaudio.mode.PlaySampleLineMode;
 
+import java.text.SimpleDateFormat;
 import java.util.ArrayList;
+import java.util.Date;
 import java.util.List;
+import java.util.Locale;
 
 /**
  * ClassName: BasePlayAudioView
@@ -162,8 +166,8 @@ public abstract class BasePlayAudioView extends View {
 
     protected Paint linePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
     protected Paint centerLinePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-    protected Paint textPaint = new Paint(Paint.ANTI_ALIAS_FLAG);
-
+    protected Paint textTimePaint = new Paint(Paint.ANTI_ALIAS_FLAG);
+    protected Rect textTimeBounds = new Rect();
 
     protected PlayAudioCallBack playAudioCallBack;
 
@@ -226,11 +230,12 @@ public abstract class BasePlayAudioView extends View {
         centerLinePaint.setColor(Color.RED);
         centerLinePaint.setStrokeWidth(centerLineWidth);
 
-        textPaint.setStyle(Paint.Style.FILL);
-        textPaint.setTextAlign(Paint.Align.CENTER);
-        textPaint.setColor(cropTimeTextColor);
-        textPaint.setTextSize(cropTimeTextSize);
-
+        textTimePaint.setStyle(Paint.Style.FILL);
+        textTimePaint.setTextAlign(Paint.Align.CENTER);
+        textTimePaint.setColor(cropTimeTextColor);
+        textTimePaint.setTextSize(cropTimeTextSize);
+        String textTemp = formatTime(0);
+        textTimePaint.getTextBounds(textTemp, 0, textTemp.length(), textTimeBounds);
     }
 
 
@@ -363,11 +368,12 @@ public abstract class BasePlayAudioView extends View {
      * @param event 点击事件
      */
     protected abstract void sendTouchEvent(MotionEvent event);
+
     /**
      * 滑动之后修复位置
-     *
      */
     protected abstract void fixXAfterScrollXOnFling();
+
     /**
      * 滑动之后修复位置
      *
@@ -512,6 +518,21 @@ public abstract class BasePlayAudioView extends View {
         this.audioSourceFrequency = audioSourceFrequency;
     }
 
+
+    protected float getTimeTextX(float centerLineX) {
+        float textX = centerLineX;
+        int textWidth = textTimeBounds.width() / 2;
+        textX = Math.max(getScrollX() + textWidth, textX);
+        textX = Math.min(getScrollX() + getWidth() - textWidth, textX);
+        return textX;
+    }
+
+    protected String formatTime(long timeMillis) {
+        SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
+        Date date = new Date();
+        date.setTime(timeMillis);
+        return dateFormat.format(date);
+    }
 
     public void reset() {
         stopPlay();

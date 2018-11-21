@@ -15,10 +15,6 @@ import android.view.animation.LinearInterpolator;
 
 import com.littlezan.recordui.playaudio.BaseDrawPlayAudioView;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 /**
  * ClassName: VerticalLineMoveByGesturePlayAudioView
  * Description:
@@ -139,7 +135,8 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
         canvas.drawCircle(centerLineX, startY, circleRadius, centerLinePaint);
         canvas.drawLine(centerLineX, startY, centerLineX, getMeasuredHeight(), centerLinePaint);
         long currentPlayingTimeInMillis = getCurrentPlayingTimeInMillis();
-        canvas.drawText(formatTime(currentPlayingTimeInMillis), centerLineX, startY - timeTextMargin, textPaint);
+        String textContent = formatTime(currentPlayingTimeInMillis);
+        canvas.drawText(textContent, getTimeTextX(centerLineX), startY - timeTextMargin, textTimePaint);
 
         if (playAudioCallBack != null) {
             if (centerLineX >= lastSampleXWithRectGap) {
@@ -199,12 +196,6 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
 
     }
 
-    private String formatTime(long timeMillis) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
-        Date date = new Date();
-        date.setTime(timeMillis);
-        return dateFormat.format(date);
-    }
 
     public void setInitPlayingTime(final long timeInMillis) {
         stopPlay();

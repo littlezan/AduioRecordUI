@@ -17,10 +17,6 @@ import android.view.animation.LinearInterpolator;
 import com.littlezan.recordui.playaudio.BaseDrawPlayAudioView;
 import com.littlezan.recordui.playaudio.mode.PlaySampleLineMode;
 
-import java.text.SimpleDateFormat;
-import java.util.Date;
-import java.util.Locale;
-
 /**
  * ClassName: VerticalLineMoveByGesturePlayAudioView
  * Description:  在VerticalLineMoveByGesturePlayAudioView 的基础上支持裁剪
@@ -215,7 +211,7 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         canvas.drawCircle(cropLineX, startY, circleRadius, centerLinePaint);
         canvas.drawLine(cropLineX, startY, cropLineX, getHeight(), centerLinePaint);
         long cropTimeInMillis = getCropTimeInMillis();
-        canvas.drawText(formatTime(cropTimeInMillis), cropLineX, startY - timeTextMargin, textPaint);
+        canvas.drawText(formatTime(cropTimeInMillis), getTimeTextX(cropLineX), startY - timeTextMargin, textTimePaint);
         float right = lastSampleXWithRectGap > getWidth() ? getWidth() + getScrollX() : lastSampleXWithRectGap;
         canvas.drawRect(cropLineX, startY + circleRadius, right, getHeight(), maskPaint);
         if (playAudioCallBack != null) {
@@ -251,13 +247,6 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
 
     private boolean cropLineInVisible() {
         return cropLineX <= getWidth() + getScrollX() && cropLineX >= getScrollX();
-    }
-
-    private String formatTime(long timeMillis) {
-        SimpleDateFormat dateFormat = new SimpleDateFormat("mm:ss", Locale.getDefault());
-        Date date = new Date();
-        date.setTime(timeMillis);
-        return dateFormat.format(date);
     }
 
 
