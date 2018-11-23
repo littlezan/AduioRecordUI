@@ -464,7 +464,7 @@ public abstract class BaseAudioRecordView extends View {
             case MotionEvent.ACTION_UP:
                 isTouching = false;
                 //手指离开屏幕，开始处理惯性滑动Fling
-                velocityTracker.computeCurrentVelocity(500, maxVelocity);
+                velocityTracker.computeCurrentVelocity(1000, maxVelocity);
                 float velocityX = velocityTracker.getXVelocity();
                 if (Math.abs(velocityX) > minVelocity) {
                     fling(-velocityX);
