@@ -81,6 +81,8 @@
         <attr name="p_rectMarginTop" format="dimension" />
         <!--圆形半径-->
         <attr name="p_circleRadius" format="dimension" />
+        <!--中心垂直线颜色-->
+        <attr name="p_centerLineColor" format="color" />
         <!--中心垂直线的宽-->
         <attr name="p_centerLineWidth" format="dimension" />
         <!--没有扫描的矩形颜色-->

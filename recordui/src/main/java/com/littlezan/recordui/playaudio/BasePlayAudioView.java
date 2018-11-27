@@ -44,18 +44,16 @@ public abstract class BasePlayAudioView extends View {
     /**
      * 矩形距离圆点间距
      */
-    protected int rectMarginTop = 150;
+    protected int rectMarginTop = 0;
 
-    /**
-     * 滚动的距离
-     */
-    public int scrollDx = 2;
 
     /**
      * 声音数据采集的频率 每秒钟采集个数
      */
     protected int audioSourceFrequency = 10;
 
+    @ColorInt
+    protected int centerLineColor;
     /**
      * 中心垂直线的宽
      */
@@ -180,21 +178,21 @@ public abstract class BasePlayAudioView extends View {
         super(context);
         initAttrs(context, null);
         init(context);
-        initPaints(context);
+        initPaints();
     }
 
     public BasePlayAudioView(Context context, @Nullable AttributeSet attrs) {
         super(context, attrs);
         initAttrs(context, attrs);
         init(context);
-        initPaints(context);
+        initPaints();
     }
 
     public BasePlayAudioView(Context context, @Nullable AttributeSet attrs, int defStyleAttr) {
         super(context, attrs, defStyleAttr);
         initAttrs(context, attrs);
         init(context);
-        initPaints(context);
+        initPaints();
     }
 
     private void initAttrs(Context context, AttributeSet attrs) {
@@ -205,6 +203,7 @@ public abstract class BasePlayAudioView extends View {
         audioSourceFrequency = typedArray.getInt(R.styleable.PlayAudio_p_audioSourceFrequency, audioSourceFrequency);
         circleMarginTop = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_circleMarginTop, circleMarginTop);
         rectMarginTop = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_rectMarginTop, rectMarginTop);
+        centerLineColor = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_centerLineColor, Color.RED);
         centerLineWidth = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_centerLineWidth, centerLineWidth);
         circleRadius = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_circleRadius, circleRadius);
         swipedColor = typedArray.getColor(R.styleable.PlayAudio_p_swipedColor, Color.RED);
@@ -220,14 +219,14 @@ public abstract class BasePlayAudioView extends View {
         typedArray.recycle();
     }
 
-    private void initPaints(Context context) {
+    private void initPaints() {
         linePaint.setAntiAlias(true);
         linePaint.setColor(unSwipeColor);
         linePaint.setStrokeWidth(lineWidth);
         linePaint.setStrokeCap(Paint.Cap.ROUND);
 
         centerLinePaint.setAntiAlias(true);
-        centerLinePaint.setColor(Color.RED);
+        centerLinePaint.setColor(centerLineColor);
         centerLinePaint.setStrokeWidth(centerLineWidth);
 
         textTimePaint.setStyle(Paint.Style.FILL);
@@ -262,12 +261,15 @@ public abstract class BasePlayAudioView extends View {
     private void addSampleLine(final List<Float> audioSourceList) {
         sampleLineList.clear();
         lineLocationX = circleRadius;
+        float maxLength = getMeasuredHeight() - rectMarginTop - circleMarginTop;
+        float centerY = getMeasuredHeight() - maxLength / 2;
         for (Float aFloat : audioSourceList) {
             PlaySampleLineMode sampleLine = new PlaySampleLineMode();
             sampleLine.startX = lineLocationX + lineWidth / 2;
             sampleLine.stopX = sampleLine.startX;
-            sampleLine.startY = (getMeasuredHeight() - (getMeasuredHeight() - rectMarginTop) * aFloat) / 2 + circleMarginTop;
-            sampleLine.stopY = getMeasuredHeight() + circleMarginTop - sampleLine.startY;
+            float value = maxLength / 2f * aFloat;
+            sampleLine.startY = centerY - value;
+            sampleLine.stopY = centerY + value;
             lineLocationX = lineLocationX + lineWidth + rectGap;
             sampleLineList.add(sampleLine);
         }

@@ -637,7 +637,6 @@ public abstract class BaseAudioRecordView extends View {
     }
 
 
-
     /**
      * 获取采样点个数
      *
