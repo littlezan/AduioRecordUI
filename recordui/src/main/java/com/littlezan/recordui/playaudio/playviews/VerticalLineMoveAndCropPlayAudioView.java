@@ -209,11 +209,12 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
     private void drawCropLine(Canvas canvas) {
         float startY = circleMarginTop;
         canvas.drawCircle(cropLineX, startY, circleRadius, centerLinePaint);
+        canvas.drawCircle(cropLineX, getHeight()-circleRadius, circleRadius, centerLinePaint);
         canvas.drawLine(cropLineX, startY, cropLineX, getHeight(), centerLinePaint);
         long cropTimeInMillis = getCropTimeInMillis();
         canvas.drawText(formatTime(cropTimeInMillis), getTimeTextX(cropLineX), startY - timeTextMargin, textTimePaint);
         float right = lastSampleXWithRectGap > getWidth() ? getWidth() + getScrollX() : lastSampleXWithRectGap;
-        canvas.drawRect(cropLineX, startY + circleRadius, right, getHeight(), maskPaint);
+        canvas.drawRect(cropLineX, startY , right, getHeight(), maskPaint);
         if (playAudioCallBack != null) {
             playAudioCallBack.onCurrentCropLineTime(cropTimeInMillis);
         }
@@ -257,6 +258,7 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         if (cropLineX > getWidth() / 2) {
             scrollTo((int) cropLineX - getWidth() / 2, 0);
         }
+        lastScrollX = getScrollX();
         invalidate();
     }
 
@@ -267,6 +269,7 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
             @Override
             public void run() {
                 jumpToCropLinePosition();
+                lastScrollX = getScrollX();
                 invalidate();
             }
         });
@@ -278,6 +281,7 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
         if (!isPlaying) {
             isPlaying = true;
             setCenterLineXByTime(timeInMillis);
+            lastScrollX = getScrollX();
             if (centerLineX < getWidth() + getScrollX()) {
                 startCenterLineToEndAnimation();
             } else {
@@ -306,11 +310,13 @@ public class VerticalLineMoveAndCropPlayAudioView extends BaseDrawPlayAudioView 
             public void onAnimationCancel(Animator animation) {
                 super.onAnimationCancel(animation);
                 animator.removeAllListeners();
+                lastScrollX = getScrollX();
             }
 
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
+                lastScrollX = getScrollX();
                 if (isPlaying) {
                     startTranslateView();
                 }

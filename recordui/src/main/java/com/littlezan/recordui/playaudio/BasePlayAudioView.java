@@ -52,8 +52,6 @@ public abstract class BasePlayAudioView extends View {
      */
     protected int audioSourceFrequency = 10;
 
-    @ColorInt
-    protected int centerLineColor;
     /**
      * 中心垂直线的宽
      */
@@ -156,6 +154,11 @@ public abstract class BasePlayAudioView extends View {
      * 中心指针位置
      */
     protected float centerLineX = circleRadius;
+    /**
+     * 中心指针颜色
+     */
+    protected @ColorInt
+    int centerLineColor = Color.RED;
 
     /**
      * 结束点的位置 包含 间距
@@ -203,8 +206,8 @@ public abstract class BasePlayAudioView extends View {
         audioSourceFrequency = typedArray.getInt(R.styleable.PlayAudio_p_audioSourceFrequency, audioSourceFrequency);
         circleMarginTop = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_circleMarginTop, circleMarginTop);
         rectMarginTop = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_rectMarginTop, rectMarginTop);
-        centerLineColor = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_centerLineColor, Color.RED);
         centerLineWidth = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_centerLineWidth, centerLineWidth);
+        centerLineColor = typedArray.getColor(R.styleable.PlayAudio_p_centerLineColor, Color.RED);
         circleRadius = typedArray.getDimensionPixelSize(R.styleable.PlayAudio_p_circleRadius, circleRadius);
         swipedColor = typedArray.getColor(R.styleable.PlayAudio_p_swipedColor, Color.RED);
         unSwipeColor = typedArray.getColor(R.styleable.PlayAudio_p_unSwipeColor, Color.DKGRAY);
@@ -261,13 +264,14 @@ public abstract class BasePlayAudioView extends View {
     private void addSampleLine(final List<Float> audioSourceList) {
         sampleLineList.clear();
         lineLocationX = circleRadius;
-        float maxLength = getMeasuredHeight() - rectMarginTop - circleMarginTop;
-        float centerY = getMeasuredHeight() - maxLength / 2;
+        float maxLength = getMeasuredHeight() - rectMarginTop*2 - circleMarginTop;
+        float centerY = getMeasuredHeight() - maxLength / 2-rectMarginTop;
         for (Float aFloat : audioSourceList) {
             PlaySampleLineMode sampleLine = new PlaySampleLineMode();
             sampleLine.startX = lineLocationX + lineWidth / 2;
             sampleLine.stopX = sampleLine.startX;
             float value = maxLength / 2f * aFloat;
+            value = Math.max(2, value);
             sampleLine.startY = centerY - value;
             sampleLine.stopY = centerY + value;
             lineLocationX = lineLocationX + lineWidth + rectGap;

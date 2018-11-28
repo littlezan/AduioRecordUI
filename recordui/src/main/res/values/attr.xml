@@ -1,6 +1,5 @@
 <?xml version="1.0" encoding="utf-8"?>
 <resources>
-
     <!--录音-->
     <declare-styleable name="AudioRecordView">
         <!--录音时长 单位分钟-->
@@ -81,10 +80,10 @@
         <attr name="p_rectMarginTop" format="dimension" />
         <!--圆形半径-->
         <attr name="p_circleRadius" format="dimension" />
-        <!--中心垂直线颜色-->
-        <attr name="p_centerLineColor" format="color" />
         <!--中心垂直线的宽-->
         <attr name="p_centerLineWidth" format="dimension" />
+        <!--中心垂直线的颜色-->
+        <attr name="p_centerLineColor" format="color" />
         <!--没有扫描的矩形颜色-->
         <attr name="p_unSwipeColor" format="color" />
         <!--扫描过的矩形颜色-->

@@ -49,6 +49,7 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
     float touchActionX;
     int trackingCenterLinePointerId;
 
+
     @SuppressLint("ClickableViewAccessibility")
     @Override
     public boolean onTouchEvent(MotionEvent event) {
@@ -134,6 +135,7 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
         float startY = circleMarginTop;
         canvas.drawCircle(centerLineX, startY, circleRadius, centerLinePaint);
         canvas.drawLine(centerLineX, startY, centerLineX, getMeasuredHeight(), centerLinePaint);
+        canvas.drawCircle(centerLineX, getMeasuredHeight()-circleRadius, circleRadius, centerLinePaint);
         long currentPlayingTimeInMillis = getCurrentPlayingTimeInMillis();
         canvas.drawText(formatTime(currentPlayingTimeInMillis), getTimeTextX(centerLineX), startY - timeTextMargin, textTimePaint);
 
@@ -203,6 +205,7 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
             @Override
             public void run() {
                 scrollTo((int) centerLineX - getWidth(), 0);
+                lastScrollX = getScrollX();
                 postInvalidateOnAnimation();
             }
         });
@@ -213,6 +216,7 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
         if (!isPlaying) {
             isPlaying = true;
             setCenterLineXByTime(timeInMillis);
+            lastScrollX = getScrollX();
             if (centerLineX < getWidth() + getScrollX()) {
                 startCenterLineToEndAnimation();
             } else {
@@ -241,11 +245,13 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
             public void onAnimationCancel(Animator animation) {
                 super.onAnimationCancel(animation);
                 animator.removeAllListeners();
+                lastScrollX = getScrollX();
             }
 
             @Override
             public void onAnimationEnd(Animator animation) {
                 super.onAnimationEnd(animation);
+                lastScrollX = getScrollX();
                 if (isPlaying) {
                     startTranslateView();
                 }
