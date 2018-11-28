@@ -555,6 +555,7 @@ public abstract class BaseAudioRecordView extends View {
         if (isStartRecordTranslateCanvas) {
             translateVerticalLineX = getCenterVerticalLineXWhileTranslateRecord();
         }
+        invalidate();
         onTick(getOnTickTranslateXWhileTranslateRecord());
     }
 

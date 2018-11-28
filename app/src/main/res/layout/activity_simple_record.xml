@@ -78,7 +78,7 @@
         app:layout_constraintStart_toStartOf="parent"
         app:layout_constraintTop_toTopOf="parent"
         app:recordSamplingFrequency="5"
-        app:recordTimeInMinutes="1"
+        app:recordTimeInMinutes="60"
         app:rectColor="#000000"
         app:rectGap="3dp"
         app:rectInvertColor="#000000"
