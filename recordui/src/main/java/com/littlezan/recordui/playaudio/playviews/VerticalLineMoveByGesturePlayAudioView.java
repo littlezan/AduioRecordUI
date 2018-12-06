@@ -194,7 +194,6 @@ public class VerticalLineMoveByGesturePlayAudioView extends BaseDrawPlayAudioVie
         } else {
             lastScrollX = getScrollX();
         }
-
     }
 
 

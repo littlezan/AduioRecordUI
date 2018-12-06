@@ -55,5 +55,13 @@
         android:textAllCaps="false"
         tools:ignore="HardcodedText" />
 
+    <Button
+        android:id="@+id/btnVisualizerActivity"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="Visualizer"
+        android:textAllCaps="false"
+        tools:ignore="HardcodedText" />
+
 
 </android.support.v7.widget.LinearLayoutCompat>

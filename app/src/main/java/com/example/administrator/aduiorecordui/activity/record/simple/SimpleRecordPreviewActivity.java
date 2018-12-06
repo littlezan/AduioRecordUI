@@ -85,6 +85,7 @@ public class SimpleRecordPreviewActivity extends BasePlayerActivity {
         verticalLineMoveByGesturePlayAudioView.setPlayAudioCallBack(new PlayAudioCallBack() {
             @Override
             public void onPlaying(long timeInMillis) {
+                Log.e(TAG, "onPlaying: lll timeInMillis = "+ timeInMillis );
                 currentPlayingTimeInMillis = timeInMillis;
             }
 

@@ -11,6 +11,7 @@ import com.example.administrator.aduiorecordui.activity.record.verticallinefixed
 import com.example.administrator.aduiorecordui.activity.record.verticallinemove.first.MediaRecordActivity;
 import com.example.administrator.aduiorecordui.activity.record.verticallinemove.second.AudioRecordActivity;
 import com.example.administrator.aduiorecordui.activity.record.verticallinemove.third.RecordAudioWithDeleteActivity;
+import com.example.administrator.aduiorecordui.activity.visualizer.CircleVisualizerActivity;
 
 public class MainActivity extends AppCompatActivity {
 
@@ -63,6 +64,13 @@ public class MainActivity extends AppCompatActivity {
             @Override
             public void onClick(View v) {
                 SimpleRecordActivity.start(MainActivity.this);
+            }
+        });
+
+        findViewById(R.id.btnVisualizerActivity).setOnClickListener(new View.OnClickListener() {
+            @Override
+            public void onClick(View v) {
+                CircleVisualizerActivity.start(MainActivity.this);
             }
         });
     }

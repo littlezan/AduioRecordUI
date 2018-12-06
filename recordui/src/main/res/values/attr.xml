@@ -102,7 +102,11 @@
         <attr name="p_cropTimeTextColor" format="color" />
         <!--裁剪线顶部文字距离 圆心的距离-->
         <attr name="p_timeTextMargin" format="dimension" />
+    </declare-styleable>
 
+    <declare-styleable name="BaseVisualizerView">
+        <attr name="lineColor" format="color" />
+        <attr name="radius" format="dimension" />
     </declare-styleable>
 
 </resources>

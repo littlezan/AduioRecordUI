@@ -1,0 +1,60 @@
+<?xml version="1.0" encoding="utf-8"?>
+<android.support.constraint.ConstraintLayout xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:app="http://schemas.android.com/apk/res-auto"
+    xmlns:tools="http://schemas.android.com/tools"
+    android:layout_width="match_parent"
+    android:layout_height="match_parent">
+
+    <com.littlezan.recordui.visualizer.CircleVisualizerView
+        android:id="@+id/circleVisualizerView"
+        android:layout_width="0dp"
+        android:layout_height="0dp"
+        android:background="#646464"
+        app:layout_constraintBottom_toTopOf="@+id/btnPlay"
+        app:layout_constraintEnd_toEndOf="parent"
+        app:layout_constraintStart_toStartOf="parent"
+        app:layout_constraintTop_toTopOf="parent"
+        app:lineColor="#DDDDDD" />
+
+
+    <Button
+        android:id="@+id/btnPlay"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="play"
+        android:textAllCaps="false"
+        app:layout_constraintBottom_toBottomOf="parent"
+        app:layout_constraintTop_toBottomOf="@+id/circleVisualizerView"
+        tools:ignore="HardcodedText" />
+
+    <Button
+        android:id="@+id/btnPause"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="pause"
+        android:textAllCaps="false"
+        app:layout_constraintBaseline_toBaselineOf="@+id/btnPlay"
+        app:layout_constraintStart_toEndOf="@+id/btnPlay"
+        tools:ignore="HardcodedText" />
+
+    <Button
+        android:id="@+id/btnResume"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="resume"
+        android:textAllCaps="false"
+        app:layout_constraintBaseline_toBaselineOf="@+id/btnPlay"
+        app:layout_constraintStart_toEndOf="@+id/btnPause"
+        tools:ignore="HardcodedText" />
+
+    <Button
+        android:id="@+id/btnStop"
+        android:layout_width="wrap_content"
+        android:layout_height="wrap_content"
+        android:text="stop"
+        android:textAllCaps="false"
+        app:layout_constraintBaseline_toBaselineOf="@+id/btnPlay"
+        app:layout_constraintStart_toEndOf="@+id/btnResume"
+        tools:ignore="HardcodedText" />
+
+</android.support.constraint.ConstraintLayout>
