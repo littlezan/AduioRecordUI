@@ -9,6 +9,7 @@ import android.graphics.Color;
 import android.graphics.Paint;
 import android.os.Build;
 import android.support.annotation.ColorInt;
+import android.support.annotation.NonNull;
 import android.support.annotation.Nullable;
 import android.text.TextPaint;
 import android.util.AttributeSet;
@@ -637,6 +638,22 @@ public abstract class BaseAudioRecordView extends View {
         sampleLineList.add(sampleLineModel);
     }
 
+    protected void initDefaultSampleLine(@NonNull List<Float> sampleList) {
+        if (!sampleList.isEmpty()) {
+            for (Float percent : sampleList) {
+                RecordSampleLineModel sampleLineModel = new RecordSampleLineModel();
+                int rectBottom = getMeasuredHeight() / 2;
+                int lineTop = (int) (rectBottom - (rectBottom - ruleHorizontalLineHeight - rectMarginTop) * percent);
+                sampleLineModel.startX = lineLocationX + lineWidth / 2;
+                sampleLineModel.stopX = sampleLineModel.startX;
+                sampleLineModel.startY = lineTop;
+                sampleLineModel.stopY = rectBottom;
+                lineLocationX = lineLocationX + lineWidth + rectGap;
+                sampleLineList.add(sampleLineModel);
+            }
+        }
+        requestLayout();
+    }
 
     /**
      * 获取采样点个数
