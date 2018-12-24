@@ -59,10 +59,10 @@ public class CircleVisualizerView extends BaseVisualizerView {
     @Override
     protected void onDraw(Canvas canvas) {
         double angle = 0;
-        if (bytes != null) {
+        if (bytesWave != null) {
             for (int i = 0; i < POINT_COUNT; i++, angle += INTERVAL_ANGLE) {
-                int offsetLength = (int) (MAX_OFFSET_LENGTH * ((-Math.abs(bytes[i]) + MAX_WAVE_VALUE) / (float) MAX_WAVE_VALUE));
-                Log.e(TAG, "onDraw: lll offsetLength = " + offsetLength + ", bytes[x] = " + bytes[i] + ", SIZE_RANGE = " + MAX_WAVE_VALUE);
+                int offsetLength = (int) (MAX_OFFSET_LENGTH * ((-Math.abs(bytesWave[i]) + MAX_WAVE_VALUE) / (float) MAX_WAVE_VALUE));
+                Log.e(TAG, "onDraw: lll offsetLength = " + offsetLength + ", bytes[x] = " + bytesWave[i] + ", SIZE_RANGE = " + MAX_WAVE_VALUE);
                 linePoints[i * LINE_MULTIPLE_SIZE] = (float) (getWidth() / 2 + radius * Math.cos(Math.toRadians(angle)));
                 linePoints[i * LINE_MULTIPLE_SIZE + 1] = (float) (getHeight() / 2 + radius * Math.sin(Math.toRadians(angle)));
                 linePoints[i * LINE_MULTIPLE_SIZE + 2] = (float) (getWidth() / 2 + (radius + offsetLength) * Math.cos(Math.toRadians(angle)));
@@ -84,7 +84,7 @@ public class CircleVisualizerView extends BaseVisualizerView {
     }
 
     @Override
-    protected int getVisualizerCaptureSizeRange() {
+    protected int getVisualizerCaptureSize() {
         return POINT_COUNT;
     }
 }

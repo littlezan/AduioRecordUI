@@ -28,7 +28,7 @@ public abstract class BaseVisualizerView extends View {
     private static final String TAG = "BaseVisualizerView";
 
 
-    protected byte[] bytes;
+    protected byte[] bytesWave;
     protected Paint paint = new Paint(Paint.ANTI_ALIAS_FLAG);
     protected Visualizer visualizer;
     protected boolean visualizerEnable = false;
@@ -70,7 +70,7 @@ public abstract class BaseVisualizerView extends View {
     public void initVisualizer(int audioSessionId) {
         if (audioSessionId > 0) {
             visualizer = new Visualizer(audioSessionId);
-            visualizer.setCaptureSize(getVisualizerCaptureSizeRange());
+            visualizer.setCaptureSize(getVisualizerCaptureSize());
             Log.e(TAG, "initVisualizer: lll getCaptureSizeRange = " + Arrays.toString(Visualizer.getCaptureSizeRange()));
             Log.e(TAG, "initVisualizer: lll getMaxCaptureRate = " + Visualizer.getMaxCaptureRate());
             visualizer.setDataCaptureListener(new Visualizer.OnDataCaptureListener() {
@@ -81,20 +81,21 @@ public abstract class BaseVisualizerView extends View {
                     long duration = System.currentTimeMillis() - lastTime;
                     Log.e(TAG, "onWaveFormDataCapture: lll duration = " + duration);
                     lastTime = System.currentTimeMillis();
-                    BaseVisualizerView.this.bytes = bytes;
+                    BaseVisualizerView.this.bytesWave = bytes;
                     invalidate();
                 }
 
                 @Override
-                public void onFftDataCapture(Visualizer visualizer, byte[] bytes, int samplingRate) {
+                public void onFftDataCapture(Visualizer visualizer, byte[] fft, int samplingRate) {
+
                 }
             }, Visualizer.getMaxCaptureRate() / 2, true, false);
             visualizer.setEnabled(visualizerEnable);
         }
     }
 
-    protected int getVisualizerCaptureSizeRange() {
-        return Visualizer.getCaptureSizeRange()[1];
+    protected int getVisualizerCaptureSize() {
+        return 0;
     }
 
     public void release() {
